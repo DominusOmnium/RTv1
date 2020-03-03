@@ -1,7 +1,9 @@
 #define VK_USE_PLATFORM_XCB_KHR
 #include <vulkan/vulkan.h>
 #include <vulkan/vk_sdk_platform.h>
+
 #include <stdio.h>
+
 #define WIN_WIDTH	1500
 #define WIN_HEIGHT	1000
 
@@ -77,6 +79,10 @@ int	main()
 	uint32_t currentSwapImage;
 	vkGetSwapchainImagesKHR(dev, swap, &swapCount, images);
 	vkAcquireNextImageKHR(dev, swap, UINT64_MAX, VK_NULL_HANDLE, NULL, &currentSwapImage);*/
+
+
+
+
 
 	return (0);
 }
