@@ -1,11 +1,4 @@
-#define VK_USE_PLATFORM_XCB_KHR
-#include <vulkan/vulkan.h>
-#include <vulkan/vk_sdk_platform.h>
-
-#include <stdio.h>
-
-#define WIN_WIDTH	1500
-#define WIN_HEIGHT	1000
+#include "rtv1.h"
 
 int	main()
 {
