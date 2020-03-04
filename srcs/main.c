@@ -4,9 +4,13 @@ int	main()
 {
 	const char *extensionNames[2];
 	VkInstance inst;
+	SDL_Window *window;
+	VkSurfaceKHR surf;
+
+	SDL_Init(SDL_INIT_VIDEO);
 
 	extensionNames[0] = VK_KHR_SURFACE_EXTENSION_NAME;
-	extensionNames[1] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
+	//extensionNames[1] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
 	VkInstanceCreateInfo instanceCreateInfo = {
 	VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 	NULL,
@@ -14,7 +18,7 @@ int	main()
 	NULL,
 	0,
 	NULL,
-	2,
+	1,
 	extensionNames,
 	};
 	vkCreateInstance(&instanceCreateInfo, NULL, &inst);
@@ -28,7 +32,14 @@ int	main()
 	VkDevice			dev;
 	vkCreateDevice(phys[0], &devCreateInfo, NULL, &dev);
 
-
+	#ifdef VK_USE_PLATFORM_MACOS_MVK
+	window = SDL_CreateWindow("My App", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_VULKAN);
+	VkMacOSSurfaceCreateInfoMVK surfaceCreateInfo = {};
+    surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT;
+    surfaceCreateInfo.pView = window;
+    VkResult res = vkCreateMacOSSurfaceMVK(inst, &surfaceCreateInfo, NULL, &surf);
+	//SDL_Vulkan_CreateSurface(window, inst, &surf);
+	#else
 	xcb_connection_t*	m_pXCBConn;
     xcb_screen_t*		m_pXCBScreen;
     xcb_window_t		m_xcbWindow;
@@ -59,13 +70,12 @@ int	main()
 	xcb_map_window(m_pXCBConn, m_xcbWindow);
     xcb_flush(m_pXCBConn);
  
-	VkSurfaceKHR surf;
 	VkXcbSurfaceCreateInfoKHR surfaceCreateInfo = {};
     surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
     surfaceCreateInfo.connection = m_pXCBConn;
     surfaceCreateInfo.window = m_xcbWindow;
     VkResult res = vkCreateXcbSurfaceKHR(inst, &surfaceCreateInfo, NULL, &surf);
-
+	#endif
 	/*VkImage images[4];
 	uint32_t swapCount;
 	VkSwapchainKHR swap;
@@ -76,6 +86,6 @@ int	main()
 
 
 
-
+	getchar();
 	return (0);
 }

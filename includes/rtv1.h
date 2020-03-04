@@ -1,6 +1,12 @@
 #ifndef RTV1_H
 # define RTV1_H
+# ifdef __APPLE__
+# define VK_USE_PLATFORM_MACOS_MVK
+# else
 # define VK_USE_PLATFORM_XCB_KHR
+# endif
+# include <SDL2/SDL.h>
+# include <SDL2/SDL_vulkan.h>
 # include <vulkan/vulkan.h>
 # include <vulkan/vk_sdk_platform.h>
 # include <stdio.h>
