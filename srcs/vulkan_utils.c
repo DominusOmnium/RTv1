@@ -15,7 +15,7 @@ void	vkl_create_instance(t_vulkan *v)
 	instInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     instInfo.pApplicationInfo = &appInfo;
 	inst_ext[0] = VK_KHR_SURFACE_EXTENSION_NAME;
-	inst_ext[1] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
+	//inst_ext[1] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
 	instInfo.enabledExtensionCount = ARRAY_SIZE_IN_ELEMENTS(inst_ext);
     instInfo.ppEnabledExtensionNames = inst_ext;
 	res = vkCreateInstance(&instInfo, NULL, &(v->inst));

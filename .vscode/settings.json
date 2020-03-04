@@ -1,6 +1,7 @@
 {
 	"files.associations": {
 		"vulkan.h": "c",
-		"vulkan_macos.h": "c"
+		"vulkan_macos.h": "c",
+		"util.h": "c"
 	}
 }
