@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_vulkan.h>
 #include <vulkan/vulkan.h>
-#include <util.h>
+//#include <util.h>
 
 SDL_Window* window = 0;
 VkSurfaceKHR surface = VK_NULL_HANDLE;

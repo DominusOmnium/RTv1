@@ -2,6 +2,8 @@
 # define RTV1_H
 # ifdef __APPLE__
 # define VK_USE_PLATFORM_MACOS_MVK
+# elif _WIN32
+# define VK_USE_PLATFORM_WIN32_KHR
 # else
 # define VK_USE_PLATFORM_XCB_KHR
 # endif
@@ -15,6 +17,9 @@
 
 typedef struct					s_physical_devices
 {
+	u_int32_t					num_devices;
+	u_int32_t					num_fp;
+	u_int32_t					num_devices;
     VkPhysicalDevice			*devices;
     VkPhysicalDeviceProperties	*dev_prop;
     VkQueueFamilyProperties		**q_family_prop;
@@ -24,11 +29,20 @@ typedef struct					s_physical_devices
 }								t_physical_devices;
 typedef struct			s_vulkan
 {
-	VkInstance			inst;
-	VkDevice			device;
-	VkSurfaceKHR		surface;
-	t_physical_devices	phys_devices;
-	char				*appname;
+	VkExtensionProperties	*ext_prop;
+	VkInstance				inst;
+	VkDevice				device;
+	VkSurfaceKHR			surface;
+	t_physical_devices		phys_devices;
 }						t_vulkan;
+typedef struct			s_app
+{
+	t_vulkan			vulkan;
+	char				*appname;
+}						t_app;
 
+int		rtv_app_create(t_app *app);
+int		rtv_app_destroy(t_app *app);
+void	rtv_app_run(t_app *app);
+int		vku_instance_create(t_app *app);
 #endif
