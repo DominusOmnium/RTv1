@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/06 10:24:59 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/06 11:41:08 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,25 +27,22 @@
 # define WIN_WIDTH	1500
 # define WIN_HEIGHT	1000
 
-typedef struct					s_physical_devices
+typedef struct					s_physical_device
 {
-	u_int32_t					num_devices;
-	u_int32_t					num_fp;
-	u_int32_t					num_devices;
-    VkPhysicalDevice			*devices;
-    VkPhysicalDeviceProperties	*dev_prop;
-    VkQueueFamilyProperties		**q_family_prop;
-    VkBool32					**q_supports_present;
-    VkSurfaceFormatKHR			**surface_formats;
-    VkSurfaceCapabilitiesKHR	*surface_caps;
-}								t_physical_devices;
+    VkPhysicalDevice			device;
+    VkPhysicalDeviceProperties	dev_prop;
+    VkQueueFamilyProperties		*q_family_prop;
+    VkBool32					*q_supports_present;
+    VkSurfaceFormatKHR			*surface_formats;
+    VkSurfaceCapabilitiesKHR	surface_cap;
+}								t_physical_device;
 typedef struct			s_vulkan
 {
 	VkExtensionProperties	*ext_prop;
 	VkInstance				inst;
 	VkDevice				device;
 	VkSurfaceKHR			surface;
-	t_physical_devices		phys_devices;
+	t_physical_device		phys_device;
 }						t_vulkan;
 typedef struct			s_app
 {
