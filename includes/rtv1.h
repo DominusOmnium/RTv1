@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/06 13:54:14 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/06 13:58:16 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ typedef struct			s_vulkan
 	VkSurfaceKHR			surface;
 	u_int32_t				family_index;
 	t_physical_device		phys_device;
+	VkSwapchainKHR			swapchain;
 }						t_vulkan;
 typedef struct			s_app
 {
