@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/06 12:46:38 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/06 13:54:14 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ typedef struct			s_vulkan
 	VkInstance				inst;
 	VkDevice				device;
 	VkSurfaceKHR			surface;
-	u_int32_t				q_family;
+	u_int32_t				family_index;
 	t_physical_device		phys_device;
 }						t_vulkan;
 typedef struct			s_app
@@ -59,4 +59,6 @@ int		rtv_app_create(t_app *app);
 int		rtv_app_destroy(t_app *app);
 void	rtv_app_run(t_app *app);
 int		vku_instance_create(t_app *app);
+int		vku_get_physical_device(t_vulkan *v);
+int		vku_create_logical_device(t_vulkan *v);
 #endif

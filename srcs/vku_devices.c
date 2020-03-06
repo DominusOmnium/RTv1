@@ -6,81 +6,87 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:37:45 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/06 00:52:08 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/06 13:06:00 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
 
-static int	vku_get_pdev_prop(const VkSurfaceKHR *surf, t_physical_devices *pd)
+int			vku_get_physical_device(t_vulkan *v)
 {
-	u_int32_t	num;
-	int			i;
-	int			j;
+	VkPhysicalDevice			*d;
+	VkPhysicalDeviceProperties	*d_prop;
+	VkQueueFamilyProperties		*qf_prop;
+	VkBool32					*sup_pres;
+	u_int32_t					num_d;
+	u_int32_t					num;
+	u_int32_t					i;
+	u_int32_t					j;
 
+	vkEnumeratePhysicalDevices(v->inst, &num_d, NULL);
+	d = malloc(sizeof(VkPhysicalDevice) * num_d);
+	d_prop = malloc(sizeof(VkPhysicalDeviceProperties) * num_d);
+	vkEnumeratePhysicalDevices(v->inst, &num_d, d);
 	i = 0;
-	while (i < pd->num_devices)
+	while (i < num_d)
 	{
-		vkGetPhysicalDeviceProperties((pd->devices)[i], &((pd->dev_prop)[i]));
-		vkGetPhysicalDeviceQueueFamilyProperties((pd->devices)[i], &num, NULL);
-		(pd->q_family_prop)[i] = malloc(sizeof(VkQueueFamilyProperties) * num);
-		(pd->q_supports_present)[i] = malloc(sizeof(VkBool32) * num);
-		vkGetPhysicalDeviceQueueFamilyProperties((pd->devices)[i], &num, (pd->q_family_prop)[i]);
+		vkGetPhysicalDeviceProperties(d[i], &(d_prop[i]));
+		vkGetPhysicalDeviceQueueFamilyProperties(d[i], &num, NULL);
+		qf_prop = malloc(sizeof(VkQueueFamilyProperties) * num);
+		sup_pres = malloc(sizeof(VkBool32) * num);
+		vkGetPhysicalDeviceQueueFamilyProperties(d[i], &num, sup_pres);
 		j = -1;
 		while (++j < num)
-			vkGetPhysicalDeviceSurfaceSupportKHR((pd->devices)[i], j, surf, &((pd->q_supports_present)[i][j]));
-		vkGetPhysicalDeviceSurfaceFormatsKHR((pd->devices)[i], surf, &num, NULL);
-		(pd->surface_formats)[i] = malloc(sizeof(VkSurfaceFormatKHR) * num);
-		j = -1;
-		while (++j < num)
-			vkGetPhysicalDeviceSurfaceSupportKHR((pd->devices)[i], j, surf, &((pd->q_supports_present)[i][j]));
-		vkGetPhysicalDeviceSurfaceFormatsKHR((pd->devices)[i], surf, &num, (pd->surface_formats)[i]);
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR((pd->devices)[i], surf, &((pd->surface_caps)[i]));
+		{
+			vkGetPhysicalDeviceSurfaceSupportKHR(d[i], j, v->surface, &(sup_pres[j]));
+			if (qf_prop[j].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+				if (sup_pres[j])
+				{
+					v->phys_device.dev_prop = d_prop[i];
+					v->phys_device.device = d[i];
+					v->phys_device.q_family_prop = qf_prop;
+					v->phys_device.q_supports_present = sup_pres;
+					v->phys_device.num_families = num;
+					vkGetPhysicalDeviceSurfaceFormatsKHR(d[i], v->surface, &(num), NULL);
+					v->phys_device.surface_formats = malloc(sizeof(VkSurfaceFormatKHR) * num);
+					v->phys_device.num_formats = num;
+					v->family_index = j;
+					vkGetPhysicalDeviceSurfaceFormatsKHR(d[i], v->surface, &num, v->phys_device.surface_formats);
+					vkGetPhysicalDeviceSurfaceCapabilitiesKHR(d[i], v->surface, &(v->phys_device.surface_cap));
+					free((void**)&d);
+					free((void**)&d_prop);
+					return (1);
+				}
+			free((void**)&qf_prop);
+			free((void**)&sup_pres);
+		}
 		i++;
-	}
+	}					
+	free((void**)&d);
+	free((void**)&d_prop);
+	return (0);
 }
 
-int			vku_get_physical_devices(const VkInstance *inst, const VkSurfaceKHR *surf, t_physical_devices *pd)
+int			vku_create_logical_device(t_vulkan *v)
 {
-	u_int32_t	num;
-	int			i;
-	int			j;
+	float					queue_priorities;
+    VkDeviceQueueCreateInfo	q_create_info;
+	VkDeviceCreateInfo		dev_info;
+	const char				*dev_ext[1]; 
 
-	vkEnumeratePhysicalDevices(inst, &(pd->num_devices), NULL);
-	pd->devices = malloc(sizeof(VkPhysicalDevice) * pd->num_devices);
-	pd->dev_prop = malloc(sizeof(VkPhysicalDeviceProperties) * pd->num_devices);
-	pd->q_family_prop = malloc(sizeof(VkQueueFamilyProperties*) * pd->num_devices);
-	pd->q_supports_present = malloc(sizeof(VkBool32*) * pd->num_devices);
-	pd->surface_caps = malloc(sizeof(VkSurfaceFormatKHR*) * pd->num_devices);
-	pd->surface_formats = malloc(sizeof(VkSurfaceCapabilitiesKHR) * pd->num_devices);
-	vkEnumeratePhysicalDevices(inst, &(pd->num_devices), pd->devices);
-	vku_get_pdev_prop(surf, pd);
-}
-
-int			vku_create_logical_device(t_app *app)
-{
-	float					qPriorities;
-    VkDeviceQueueCreateInfo	qInfo;
-
-	qPriorities = 1.0f;
-	qInfo = (VkDeviceQueueCreateInfo){};
-    qInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    //////////////////////////////////////////////////qInfo.queueFamilyIndex = ;
-    qInfo.queueCount = 1;
-    qInfo.pQueuePriorities = &qPriorities;
- 
-    const char* pDevExt[] = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
- 
-    VkDeviceCreateInfo devInfo = {};
-    devInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    devInfo.enabledExtensionCount = ARRAY_SIZE_IN_ELEMENTS(pDevExt);
-    devInfo.ppEnabledExtensionNames = pDevExt;
-    devInfo.queueCreateInfoCount = 1;
-    devInfo.pQueueCreateInfos = &qInfo;
- 
-    VkResult res = vkCreateDevice(GetPhysDevice(), &devInfo, NULL, &(app->vulkan.device));
-
-    printf("Device created\n");
+	queue_priorities = 1.0f;
+	q_create_info = (VkDeviceQueueCreateInfo){};
+    q_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    q_create_info.queueFamilyIndex = v->family_index;
+    q_create_info.queueCount = 1;
+    q_create_info.pQueuePriorities = &queue_priorities;
+    dev_ext[0] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+    dev_info = (VkDeviceCreateInfo){};
+    dev_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    dev_info.enabledExtensionCount = 1;
+    dev_info.ppEnabledExtensionNames = dev_ext;
+    dev_info.queueCreateInfoCount = 1;
+    dev_info.pQueueCreateInfos = &q_create_info;
+    vkCreateDevice(v->phys_device.device, &dev_info, NULL, &(v->device));
+	return (1);
 }
