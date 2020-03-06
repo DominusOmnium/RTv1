@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/06 11:41:08 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/06 12:43:49 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@
 
 typedef struct					s_physical_device
 {
+	u_int32_t					num_families;
+	u_int32_t					num_formats;
     VkPhysicalDevice			device;
     VkPhysicalDeviceProperties	dev_prop;
     VkQueueFamilyProperties		*q_family_prop;
@@ -42,6 +44,7 @@ typedef struct			s_vulkan
 	VkInstance				inst;
 	VkDevice				device;
 	VkSurfaceKHR			surface;
+	u_int32_t				q_family;
 	t_physical_device		phys_device;
 }						t_vulkan;
 typedef struct			s_app
