@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/06 12:43:49 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/06 12:46:38 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@
 # include <stdio.h>
 # define WIN_WIDTH	1500
 # define WIN_HEIGHT	1000
+# define PRESENT_MODE_MAILBOX_IMAGE_COUNT 3
+# define PRESENT_MODE_DEFAULT_IMAGE_COUNT 2
 
 typedef struct					s_physical_device
 {
