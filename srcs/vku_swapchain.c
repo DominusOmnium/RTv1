@@ -6,7 +6,7 @@
 /*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 01:11:01 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/06 14:00:14 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/10 10:54:25 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,8 @@ int vku_swapchain_create(t_app *app)
 	VkPresentModeKHR			*presentModes;
 	uint32_t					presentModeCount;
 	VkPresentModeKHR			presentMode;
-	uint32_t					swapchainImageCount;
 	VkSurfaceCapabilitiesKHR	surfaceCapabilities;
 	VkExtent2D					swapchainExtent;
-	VkImage						*swapchainImages;
 	VkResult					result;
 	int							i;
 	
@@ -53,13 +51,14 @@ int vku_swapchain_create(t_app *app)
 		}
 		i++;
 	}
-	swapchainImageCount = presentMode == VK_PRESENT_MODE_MAILBOX_KHR ?
+	app->vulkan.swapchainImageCount = presentMode == VK_PRESENT_MODE_MAILBOX_KHR ?
 	PRESENT_MODE_MAILBOX_IMAGE_COUNT : PRESENT_MODE_DEFAULT_IMAGE_COUNT;
 	free(&presentModes);
 	
-	swapchainImages = (VkImage*)malloc(sizeof(VkImage) * swapchainImageCount);
+	app->vulkan.swapchainImages =
+	(VkImage*)malloc(sizeof(VkImage) * app->vulkan.swapchainImageCount);
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(app->vulkan.phys_device.device,
-	app->vulkan.surface, &swapchainImageCount);
+	app->vulkan.surface, &app->vulkan.swapchainImageCount);
 	swapchainExtent = surfaceCapabilities.currentExtent;
 	if (swapchainExtent.width == UINT32_MAX)
     {
@@ -74,7 +73,7 @@ int vku_swapchain_create(t_app *app)
 	VkSwapchainCreateInfoKHR swapChainCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .surface = app->vulkan.surface,
-        .minImageCount = swapchainImageCount,
+        .minImageCount = app->vulkan.swapchainImageCount,
         .imageFormat = surf_form->format,
         .imageColorSpace = surf_form->colorSpace,
         .imageExtent = swapchainExtent,
@@ -91,8 +90,10 @@ int vku_swapchain_create(t_app *app)
 	result = vkCreateSwapchainKHR(app->vulkan.device, &swapChainCreateInfo, 0, &app->vulkan.swapchain);
     if (result != VK_SUCCESS)
         return (0);
-	vkGetSwapchainImagesKHR(app->vulkan.device, app->vulkan.swapchain, &swapchainImageCount, NULL);
-    vkGetSwapchainImagesKHR(app->vulkan.device, app->vulkan.swapchain, &swapchainImageCount, swapchainImages);
+	vkGetSwapchainImagesKHR(app->vulkan.device, app->vulkan.swapchain,
+								&app->vulkan.swapchainImageCount, NULL);
+    vkGetSwapchainImagesKHR(app->vulkan.device, app->vulkan.swapchain,
+		&app->vulkan.swapchainImageCount, app->vulkan.swapchainImages);
 
     return (1);
 }

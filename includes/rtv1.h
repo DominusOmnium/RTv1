@@ -6,7 +6,7 @@
 /*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/06 14:55:25 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/10 10:57:03 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,9 @@ typedef struct			s_vulkan
 	t_physical_device		phys_device;
 	VkSwapchainKHR			swapchain;
 	SDL_Window				*window;
+	uint32_t				swapchainImageCount;
+	VkImage					*swapchainImages;
+	VkCommandBuffer			*commandBuffers;
 }						t_vulkan;
 typedef struct			s_app
 {
