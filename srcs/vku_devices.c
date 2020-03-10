@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku_devices.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:37:45 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/06 13:06:00 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/10 10:40:45 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,5 +88,6 @@ int			vku_create_logical_device(t_vulkan *v)
     dev_info.queueCreateInfoCount = 1;
     dev_info.pQueueCreateInfos = &q_create_info;
     vkCreateDevice(v->phys_device.device, &dev_info, NULL, &(v->device));
+	vkGetDeviceQueue(v->device, v->faminy_index, 0, &(v->queue));
 	return (1);
 }
