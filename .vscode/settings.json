@@ -2,6 +2,7 @@
 	"files.associations": {
 		"vulkan.h": "c",
 		"vulkan_macos.h": "c",
-		"util.h": "c"
+		"util.h": "c",
+		"rtv1.h": "c"
 	}
 }

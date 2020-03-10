@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:23:27 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/06 13:56:11 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/10 15:01:34 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,10 @@ int			vku_instance_create(t_app *app)
     appInfo.pApplicationName = app->appname;
     appInfo.engineVersion = 1;
     appInfo.apiVersion = VK_API_VERSION_1_0;
+	instInfo = (VkInstanceCreateInfo){};
 	instInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     instInfo.pApplicationInfo = &appInfo;
-	if (vkl_get_supported_extentions(&(app->vulkan.ext_prop), &count_ext) == 1)
+	if (vku_get_supported_extentions(&(app->vulkan.ext_prop), &count_ext) == 0)
 		return (0);
 	if ((inst_ext = malloc(sizeof(char*) * count_ext)) == NULL)
 		return (0);

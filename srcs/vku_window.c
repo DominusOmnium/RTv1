@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku_window.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 13:59:58 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/06 15:03:25 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/10 11:35:50 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 void vku_window_destroy(t_app *app)
 {
     vkDestroySurfaceKHR(app->vulkan.inst, app->vulkan.surface, 0);
-    SDL_DestroyWindow(app->vulkan.window);
+    //SDL_DestroyWindow(app->vulkan.window);
 }
 
 int	vku_window_create(t_app *app)

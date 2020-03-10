@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku_devices.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:37:45 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/10 10:40:45 by marvin           ###   ########.fr       */
+/*   Updated: 2020/03/10 15:02:02 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ int			vku_get_physical_device(t_vulkan *v)
 	u_int32_t					num;
 	u_int32_t					i;
 	u_int32_t					j;
+
 
 	vkEnumeratePhysicalDevices(v->inst, &num_d, NULL);
 	d = malloc(sizeof(VkPhysicalDevice) * num_d);
@@ -53,17 +54,17 @@ int			vku_get_physical_device(t_vulkan *v)
 					v->family_index = j;
 					vkGetPhysicalDeviceSurfaceFormatsKHR(d[i], v->surface, &num, v->phys_device.surface_formats);
 					vkGetPhysicalDeviceSurfaceCapabilitiesKHR(d[i], v->surface, &(v->phys_device.surface_cap));
-					free((void**)&d);
-					free((void**)&d_prop);
+					//free((void*)d);
+					//free((void*)d_prop);
 					return (1);
 				}
-			free((void**)&qf_prop);
-			free((void**)&sup_pres);
+			//free((void*)qf_prop);
+			//free((void*)sup_pres);
 		}
 		i++;
-	}					
-	free((void**)&d);
-	free((void**)&d_prop);
+	}
+	free((void*)d);
+	free((void*)d_prop);
 	return (0);
 }
 
@@ -88,6 +89,6 @@ int			vku_create_logical_device(t_vulkan *v)
     dev_info.queueCreateInfoCount = 1;
     dev_info.pQueueCreateInfos = &q_create_info;
     vkCreateDevice(v->phys_device.device, &dev_info, NULL, &(v->device));
-	vkGetDeviceQueue(v->device, v->faminy_index, 0, &(v->queue));
+	vkGetDeviceQueue(v->device, v->family_index, 0, &(v->queue));
 	return (1);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/10 10:57:03 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/10 15:03:11 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@
 # else
 # define VK_USE_PLATFORM_XCB_KHR
 # endif
-# include <SDL2/SDL.h>
-# include <SDL2/SDL_vulkan.h>
+# include "SDL2/SDL.h"
+# include "SDL2/SDL_vulkan.h"
 # include <vulkan/vulkan.h>
 # include <vulkan/vk_sdk_platform.h>
 # include <stdio.h>
@@ -53,6 +53,7 @@ typedef struct			s_vulkan
 	uint32_t				swapchainImageCount;
 	VkImage					*swapchainImages;
 	VkCommandBuffer			*commandBuffers;
+	VkQueue					*queue;
 }						t_vulkan;
 typedef struct			s_app
 {
@@ -66,4 +67,9 @@ void	rtv_app_run(t_app *app);
 int		vku_instance_create(t_app *app);
 int		vku_get_physical_device(t_vulkan *v);
 int		vku_create_logical_device(t_vulkan *v);
+int		vku_window_create(t_app *app);
+int		vku_init_render(t_app *app);
+void	vku_record_cmb(t_vulkan *v);
+void	vku_draw_frame(t_vulkan *v);
+int		vku_swapchain_create(t_app *app);
 #endif
