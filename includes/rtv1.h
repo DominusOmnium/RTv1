@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/10 15:03:11 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/10 16:02:56 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,5 +71,5 @@ int		vku_window_create(t_app *app);
 int		vku_init_render(t_app *app);
 void	vku_record_cmb(t_vulkan *v);
 void	vku_draw_frame(t_vulkan *v);
-int		vku_swapchain_create(t_app *app);
+int		vku_swapchain_create(t_vulkan *v);
 #endif
