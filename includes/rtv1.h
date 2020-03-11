@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/10 16:02:56 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/11 17:25:54 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,14 @@
 # define WIN_HEIGHT	1000
 # define PRESENT_MODE_MAILBOX_IMAGE_COUNT 3
 # define PRESENT_MODE_DEFAULT_IMAGE_COUNT 2
+
+typedef struct					s_buffer
+{
+	VkDeviceMemory				dev_mem;
+	VkBuffer					buffer;
+	void						*mem_ptr;
+	VkDeviceSize				buf_size;
+}								t_buffer;
 
 typedef struct					s_physical_device
 {
@@ -54,6 +62,7 @@ typedef struct			s_vulkan
 	VkImage					*swapchainImages;
 	VkCommandBuffer			*commandBuffers;
 	VkQueue					*queue;
+	t_buffer				buf;
 }						t_vulkan;
 typedef struct			s_app
 {
@@ -72,4 +81,5 @@ int		vku_init_render(t_app *app);
 void	vku_record_cmb(t_vulkan *v);
 void	vku_draw_frame(t_vulkan *v);
 int		vku_swapchain_create(t_vulkan *v);
+int		vku_create_buffer(t_vulkan *v);
 #endif

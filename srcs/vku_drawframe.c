@@ -18,8 +18,22 @@ void	vku_record_cmb(t_vulkan *v)
 	while (i < v->swapchainImageCount)
 	{
 		vkBeginCommandBuffer((v->commandBuffers)[i], &beginInfo);
-        vkCmdClearColorImage((v->commandBuffers)[i], (v->swapchainImages)[i], VK_IMAGE_LAYOUT_GENERAL, &clearColor, 1, &imageRange);
-        vkEndCommandBuffer((v->commandBuffers)[i]);
+		VkBufferImageCopy region = {};
+		region.bufferOffset = 0;
+		region.bufferRowLength = 0;
+		region.bufferImageHeight = 0;
+		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.imageSubresource.mipLevel = 0;
+		region.imageSubresource.baseArrayLayer = 0;
+		region.imageSubresource.layerCount = 1;
+		region.imageOffset = (VkOffset3D){0, 0, 0};
+		region.imageExtent = (VkExtent3D){
+			WIN_WIDTH,
+			WIN_HEIGHT,
+			1
+		};
+		vkCmdCopyBufferToImage((v->commandBuffers)[i], v->buf.buffer, v->swapchainImages[i], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+		vkEndCommandBuffer((v->commandBuffers)[i]);
 		i++;
 	}
 }
@@ -28,17 +42,16 @@ void	vku_draw_frame(t_vulkan *v)
 {
 	uint32_t ImageIndex = 0;
  
-    VkResult res = vkAcquireNextImageKHR(v->device, v->swapchain, UINT64_MAX, NULL, NULL, &ImageIndex);
+    vkAcquireNextImageKHR(v->device, v->swapchain, UINT64_MAX, NULL, NULL, &ImageIndex);
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.commandBufferCount   = 1;
 	submitInfo.pCommandBuffers      = &((v->commandBuffers)[ImageIndex]);
-	res = vkQueueSubmit(v->queue, 1, &submitInfo, NULL);
+	vkQueueSubmit(v->queue, 1, &submitInfo, NULL);
 	VkPresentInfoKHR presentInfo = {};
     presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.swapchainCount     = 1;
     presentInfo.pSwapchains        = &v->swapchain;
     presentInfo.pImageIndices      = &ImageIndex;
- 
-    res = vkQueuePresentKHR(v->queue, &presentInfo);
+    vkQueuePresentKHR(v->queue, &presentInfo);
 }
