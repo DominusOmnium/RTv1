@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/11 17:25:54 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/14 14:36:39 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include <vulkan/vulkan.h>
 # include <vulkan/vk_sdk_platform.h>
 # include <stdio.h>
+# include <unistd.h>
 # define WIN_WIDTH	1500
 # define WIN_HEIGHT	1000
 # define PRESENT_MODE_MAILBOX_IMAGE_COUNT 3
