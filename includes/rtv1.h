@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/14 14:36:39 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/14 17:10:25 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,22 +61,23 @@ typedef struct					s_physical_device
     VkSurfaceFormatKHR			*surface_formats;
     VkSurfaceCapabilitiesKHR	surface_cap;
 }								t_physical_device;
-typedef struct					s_vulkan
+typedef struct				s_vulkan
 {
-	VkExtensionProperties		*ext_prop;
-	VkInstance					inst;
-	VkDevice					device;
-	VkSurfaceKHR				surface;
-	u_int32_t					family_index;
-	t_physical_device			phys_device;
-	VkSwapchainKHR				swapchain;
-	SDL_Window					*window;
-	uint32_t					swapchainImageCount;
-	VkImage						*swapchainImages;
-	VkCommandBuffer				*commandBuffers;
-	VkQueue						*queue;
-	t_buffer					buf;
-}								t_vulkan;
+	VkExtensionProperties	*ext_prop;
+	VkInstance				inst;
+	VkDevice				device;
+	VkSurfaceKHR			surface;
+	u_int32_t				family_index;
+	t_physical_device		phys_device;
+	VkSwapchainKHR			swapchain;
+	SDL_Window				*window;
+	uint32_t				sc_image_count;
+	VkImage					*sc_images;
+	VkCommandBuffer			*command_buffers;
+	VkQueue					queue;
+	t_buffer				buf;
+}							t_vulkan;
+typedef struct			s_app
 typedef struct					s_sphere
 {
 	t_coord						center;
@@ -101,15 +102,15 @@ typedef struct					s_app
 }								t_app;
 
 int		rtv_app_create(t_app *app);
-int		rtv_app_destroy(t_app *app);
 void	rtv_app_run(t_app *app);
 int		vku_instance_create(t_app *app);
 int		vku_get_physical_device(t_vulkan *v);
 int		vku_create_logical_device(t_vulkan *v);
 int		vku_window_create(t_app *app);
 int		vku_init_render(t_app *app);
-void	vku_record_cmb(t_vulkan *v);
-void	vku_draw_frame(t_vulkan *v);
+int		vku_record_cmb(t_vulkan *v);
+int		vku_draw_frame(t_vulkan *v);
 int		vku_swapchain_create(t_vulkan *v);
 int		vku_create_buffer(t_vulkan *v);
+void	handle_error(char *msg);
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku_swapchain.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 01:11:01 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/10 16:02:34 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/14 18:03:55 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@ void vku_swapchain_destroy(t_vulkan *v) //ещё нигде не вызывае�
 int vku_swapchain_create(t_vulkan *v)
 {
 	VkSurfaceFormatKHR			*surf_form;
-	VkPresentModeKHR			*presentModes;
-	uint32_t					presentModeCount;
+	VkPresentModeKHR			*pres_modes;
+	uint32_t					pres_mode_count;
 	VkPresentModeKHR			presentMode;
 	VkExtent2D					swapchainExtent;
 	VkResult					result;
@@ -31,33 +31,27 @@ int vku_swapchain_create(t_vulkan *v)
 	surf_form->format =	surf_form->format ==
 	VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8A8_UNORM : surf_form->format;
 	
-	presentModeCount = 0;
 	vkGetPhysicalDeviceSurfacePresentModesKHR(v->phys_device.device,
-	v->surface, &presentModeCount, NULL);
-	presentModes = (VkPresentModeKHR*)malloc(sizeof(VkPresentModeKHR) *
-														presentModeCount);
-	vkGetPhysicalDeviceSurfacePresentModesKHR(v->phys_device.device,
-	v->surface, &presentModeCount, presentModes);
+	v->surface, &pres_mode_count, NULL);
+	pres_modes = (VkPresentModeKHR*)malloc(sizeof(VkPresentModeKHR) * pres_mode_count);
+	vkGetPhysicalDeviceSurfacePresentModesKHR(v->phys_device.device, v->surface, &pres_mode_count, pres_modes);
 	
 	presentMode = VK_PRESENT_MODE_FIFO_KHR;
 	i = 0;
-	while (i < presentModeCount)
+	while (i < pres_mode_count)
 	{
-		if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
+		if (pres_modes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
 		{
 			presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
 			break;
 		}
 		i++;
 	}
-	v->swapchainImageCount = presentMode == VK_PRESENT_MODE_MAILBOX_KHR ?
+	v->sc_image_count = presentMode == VK_PRESENT_MODE_MAILBOX_KHR ?
 	PRESENT_MODE_MAILBOX_IMAGE_COUNT : PRESENT_MODE_DEFAULT_IMAGE_COUNT;
-	free(presentModes);
+	free(pres_modes);
 	
-	v->swapchainImages =
-	(VkImage*)malloc(sizeof(VkImage) * v->swapchainImageCount);
-	/*vkGetPhysicalDeviceSurfaceCapabilitiesKHR(app->vulkan.phys_device.device,
-	app->vulkan.surface, &(app->vulkan.phys_device.surface_cap));*/
+	v->sc_images = (VkImage*)malloc(sizeof(VkImage) * v->sc_image_count);
 	swapchainExtent = v->phys_device.surface_cap.currentExtent;
 	if (swapchainExtent.width == UINT32_MAX)
     {
@@ -74,11 +68,11 @@ int vku_swapchain_create(t_vulkan *v)
 	VkSwapchainCreateInfoKHR swapChainCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .surface = v->surface,
-        .minImageCount = v->swapchainImageCount,
+        .minImageCount = v->sc_image_count,
         .imageFormat = surf_form->format,
         .imageColorSpace = surf_form->colorSpace,
         .imageExtent = swapchainExtent,
-        .imageArrayLayers = 1, // 2 for stereo
+        .imageArrayLayers = 1,
         .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
 							VK_IMAGE_USAGE_TRANSFER_DST_BIT,
         .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
@@ -95,10 +89,8 @@ int vku_swapchain_create(t_vulkan *v)
 		printf("Create Swapchain Error: %d\n", result);
         return (0);
 	}
-	vkGetSwapchainImagesKHR(v->device, v->swapchain,
-								&v->swapchainImageCount, NULL);
-    vkGetSwapchainImagesKHR(v->device, v->swapchain,
-		&v->swapchainImageCount, v->swapchainImages);
+	vkGetSwapchainImagesKHR(v->device, v->swapchain, &v->sc_image_count, NULL);
+    vkGetSwapchainImagesKHR(v->device, v->swapchain, &v->sc_image_count, v->sc_images);
 
     return (1);
 }

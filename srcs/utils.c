@@ -1,23 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/06 10:25:25 by celva             #+#    #+#             */
-/*   Updated: 2020/03/14 16:48:00 by dkathlee         ###   ########.fr       */
+/*   Created: 2020/03/14 16:39:47 by dkathlee          #+#    #+#             */
+/*   Updated: 2020/03/14 16:41:20 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
 
-int	main(int ac, char **av)
+void	handle_error(char *msg)
 {
-	t_app	app;
+	int i;
 
-	app.appname = "RTv1";
-	rtv_app_create(&app);
-	rtv_app_run(&app);
-	return (0);
+	i = 0;
+	while (msg[i])
+		i++;
+	write(1, msg, i);
+	exit(0);
 }

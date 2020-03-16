@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:37:45 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/10 15:02:02 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/14 17:20:05 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ int			vku_get_physical_device(t_vulkan *v)
 		vkGetPhysicalDeviceQueueFamilyProperties(d[i], &num, NULL);
 		qf_prop = malloc(sizeof(VkQueueFamilyProperties) * num);
 		sup_pres = malloc(sizeof(VkBool32) * num);
-		vkGetPhysicalDeviceQueueFamilyProperties(d[i], &num, sup_pres);
+		vkGetPhysicalDeviceQueueFamilyProperties(d[i], &num, qf_prop);
 		j = -1;
 		while (++j < num)
 		{
@@ -54,12 +54,12 @@ int			vku_get_physical_device(t_vulkan *v)
 					v->family_index = j;
 					vkGetPhysicalDeviceSurfaceFormatsKHR(d[i], v->surface, &num, v->phys_device.surface_formats);
 					vkGetPhysicalDeviceSurfaceCapabilitiesKHR(d[i], v->surface, &(v->phys_device.surface_cap));
-					//free((void*)d);
-					//free((void*)d_prop);
+					free((void*)d);
+					free((void*)d_prop);
 					return (1);
 				}
-			//free((void*)qf_prop);
-			//free((void*)sup_pres);
+			free((void*)qf_prop);
+			free((void*)sup_pres);
 		}
 		i++;
 	}
@@ -76,19 +76,22 @@ int			vku_create_logical_device(t_vulkan *v)
 	const char				*dev_ext[1]; 
 
 	queue_priorities = 1.0f;
-	q_create_info = (VkDeviceQueueCreateInfo){};
-    q_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    q_create_info.queueFamilyIndex = v->family_index;
-    q_create_info.queueCount = 1;
-    q_create_info.pQueuePriorities = &queue_priorities;
+	q_create_info = (VkDeviceQueueCreateInfo){
+		.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+		.queueFamilyIndex = v->family_index,
+		.queueCount = 1,
+		.pQueuePriorities = &queue_priorities
+	};
     dev_ext[0] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
-    dev_info = (VkDeviceCreateInfo){};
-    dev_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    dev_info.enabledExtensionCount = 1;
-    dev_info.ppEnabledExtensionNames = dev_ext;
-    dev_info.queueCreateInfoCount = 1;
-    dev_info.pQueueCreateInfos = &q_create_info;
-    vkCreateDevice(v->phys_device.device, &dev_info, NULL, &(v->device));
+    dev_info = (VkDeviceCreateInfo){
+		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+		.enabledExtensionCount = 1,
+		.ppEnabledExtensionNames = dev_ext,
+		.queueCreateInfoCount = 1,
+		.pQueueCreateInfos = &q_create_info
+	};
+    if (vkCreateDevice(v->phys_device.device, &dev_info, NULL, &(v->device)) != VK_SUCCESS)
+		return (0);
 	vkGetDeviceQueue(v->device, v->family_index, 0, &(v->queue));
 	return (1);
 }

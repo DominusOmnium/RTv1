@@ -4,7 +4,7 @@ SRCDIR = srcs/
 INCDIR = includes/
 OBJDIR = obj/
 
-SRCS = main.c app_core.c vku_devices.c vku_drawframe.c vku_instance.c vku_render.c vku_swapchain.c vku_window.c vku_buffers.c
+SRCS = main.c app_core.c vku_devices.c vku_drawframe.c vku_instance.c vku_render.c vku_swapchain.c vku_window.c vku_buffers.c utils.c
 
 OBJS = $(addprefix $(OBJDIR), $(SRCS:.c=.o))
 
