@@ -30,6 +30,18 @@
 # define PRESENT_MODE_MAILBOX_IMAGE_COUNT 3
 # define PRESENT_MODE_DEFAULT_IMAGE_COUNT 2
 
+typedef struct					s_d
+{
+	double						x;
+	double						y;
+	double						z;
+}								t_d;
+typedef struct					s_coord
+{
+	int							x;
+	int							y;
+	int							z;
+}								t_coord;
 typedef struct					s_buffer
 {
 	VkDeviceMemory				dev_mem;
@@ -49,27 +61,44 @@ typedef struct					s_physical_device
     VkSurfaceFormatKHR			*surface_formats;
     VkSurfaceCapabilitiesKHR	surface_cap;
 }								t_physical_device;
-typedef struct			s_vulkan
+typedef struct					s_vulkan
 {
-	VkExtensionProperties	*ext_prop;
-	VkInstance				inst;
-	VkDevice				device;
-	VkSurfaceKHR			surface;
-	u_int32_t				family_index;
-	t_physical_device		phys_device;
-	VkSwapchainKHR			swapchain;
-	SDL_Window				*window;
-	uint32_t				swapchainImageCount;
-	VkImage					*swapchainImages;
-	VkCommandBuffer			*commandBuffers;
-	VkQueue					*queue;
-	t_buffer				buf;
-}						t_vulkan;
-typedef struct			s_app
+	VkExtensionProperties		*ext_prop;
+	VkInstance					inst;
+	VkDevice					device;
+	VkSurfaceKHR				surface;
+	u_int32_t					family_index;
+	t_physical_device			phys_device;
+	VkSwapchainKHR				swapchain;
+	SDL_Window					*window;
+	uint32_t					swapchainImageCount;
+	VkImage						*swapchainImages;
+	VkCommandBuffer				*commandBuffers;
+	VkQueue						*queue;
+	t_buffer					buf;
+}								t_vulkan;
+typedef struct					s_sphere
 {
-	t_vulkan			vulkan;
-	char				*appname;
-}						t_app;
+	t_coord						center;
+	int							radius;
+	t_coord						color;
+}								t_sphere;
+typedef struct					s_retr
+{
+	t_d							ds;
+    int							o[3];
+	int							vw;
+	int							vh;
+	int							d;
+	int							t_min;
+	int							t_max;
+}								t_retr;
+typedef struct					s_app
+{
+	t_vulkan					vulkan;
+	char						*appname;
+
+}								t_app;
 
 int		rtv_app_create(t_app *app);
 int		rtv_app_destroy(t_app *app);
