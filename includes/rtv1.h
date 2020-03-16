@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/14 17:10:25 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/16 11:18:22 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,23 +61,22 @@ typedef struct					s_physical_device
     VkSurfaceFormatKHR			*surface_formats;
     VkSurfaceCapabilitiesKHR	surface_cap;
 }								t_physical_device;
-typedef struct				s_vulkan
+typedef struct					s_vulkan
 {
-	VkExtensionProperties	*ext_prop;
-	VkInstance				inst;
-	VkDevice				device;
-	VkSurfaceKHR			surface;
-	u_int32_t				family_index;
-	t_physical_device		phys_device;
-	VkSwapchainKHR			swapchain;
-	SDL_Window				*window;
-	uint32_t				sc_image_count;
-	VkImage					*sc_images;
-	VkCommandBuffer			*command_buffers;
-	VkQueue					queue;
-	t_buffer				buf;
-}							t_vulkan;
-typedef struct			s_app
+	VkExtensionProperties		*ext_prop;
+	VkInstance					inst;
+	VkDevice					device;
+	VkSurfaceKHR				surface;
+	u_int32_t					family_index;
+	t_physical_device			phys_device;
+	VkSwapchainKHR				swapchain;
+	SDL_Window					*window;
+	uint32_t					sc_image_count;
+	VkImage						*sc_images;
+	VkCommandBuffer				*command_buffers;
+	VkQueue						queue;
+	t_buffer					buf;
+}								t_vulkan;
 typedef struct					s_sphere
 {
 	t_coord						center;
@@ -86,13 +85,15 @@ typedef struct					s_sphere
 }								t_sphere;
 typedef struct					s_retr
 {
-	t_d							ds;
-    int							o[3];
+	t_coord						ds;
+    t_coord						o;
 	int							vw;
 	int							vh;
 	int							d;
 	int							t_min;
 	int							t_max;
+	t_sphere					*figures;
+	int							n_fig;
 }								t_retr;
 typedef struct					s_app
 {
