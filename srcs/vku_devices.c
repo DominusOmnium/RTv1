@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku_devices.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:37:45 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/14 17:20:05 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/19 13:01:51 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,18 +24,22 @@ int			vku_get_physical_device(t_vulkan *v)
 	u_int32_t					j;
 
 
-	vkEnumeratePhysicalDevices(v->inst, &num_d, NULL);
+	VkResult r = vkEnumeratePhysicalDevices(v->inst, &num_d, NULL);
 	d = malloc(sizeof(VkPhysicalDevice) * num_d);
 	d_prop = malloc(sizeof(VkPhysicalDeviceProperties) * num_d);
 	vkEnumeratePhysicalDevices(v->inst, &num_d, d);
 	i = 0;
+	printf("1_1: %d\n", r);
 	while (i < num_d)
 	{
 		vkGetPhysicalDeviceProperties(d[i], &(d_prop[i]));
+		printf("1_2\n");
 		vkGetPhysicalDeviceQueueFamilyProperties(d[i], &num, NULL);
+		printf("1_3\n");
 		qf_prop = malloc(sizeof(VkQueueFamilyProperties) * num);
 		sup_pres = malloc(sizeof(VkBool32) * num);
 		vkGetPhysicalDeviceQueueFamilyProperties(d[i], &num, qf_prop);
+		printf("1_4\n");
 		j = -1;
 		while (++j < num)
 		{
@@ -63,6 +67,7 @@ int			vku_get_physical_device(t_vulkan *v)
 		}
 		i++;
 	}
+	printf("1_2\n");
 	free((void*)d);
 	free((void*)d_prop);
 	return (0);

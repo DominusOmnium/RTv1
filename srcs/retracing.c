@@ -6,7 +6,7 @@
 /*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 14:23:15 by marvin            #+#    #+#             */
-/*   Updated: 2020/03/16 17:49:37 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/19 12:53:15 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,8 +103,17 @@ t_coord	traceRay(t_retr *r, int t_min, int t_max)
 	return (sphere.color);
 }
 
-void    retracing(t_retr *r)
+int		color_int(t_coord c)
 {
+	int res;
+
+	res = 0 << 24 | c.x | c.y << 8 | c.z << 16;
+	return (res);
+}
+
+void    retracing(t_retr *r, t_app *app)
+{
+	int c;
     int i;
     int j;
 	t_coord color;
@@ -120,7 +129,7 @@ void    retracing(t_retr *r)
     r->figures[2] = (t_sphere){(t_coord){-2, 0, 4}, 1, (t_coord){0, 255, 0}};
     r->o = (t_coord){0, 0, 0};
 
-	
+	c = 0;
     i = -(WIN_WIDTH / 2);
     while (i <= (WIN_WIDTH / 2))
     {
@@ -129,8 +138,9 @@ void    retracing(t_retr *r)
         {
             r->ds = CanvasToViewport(i, j, r);
 			color = traceRay(r, 1, 2147483647);
-			
+			((int*)(app->vulkan.buf.mem_ptr))[c] = color_int(color);
             j++;
+			c++;
         }
         i++;
     }

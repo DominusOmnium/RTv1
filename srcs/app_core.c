@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   app_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/03/14 17:10:13 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/19 12:58:36 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,18 +18,25 @@ int		rtv_app_create(t_app *app)
 		handle_error("Instance creation error\n");
 	if (vku_window_create(app) == 0)
 		handle_error("Window creation error\n");
+	printf("1\n");
 	if (vku_get_physical_device(&(app->vulkan)) == 0)
 		handle_error("Get physical device error\n");
+	printf("2\n");
 	if (vku_create_logical_device(&(app->vulkan)) == 0)
 		handle_error("Logical device creation error\n");
+	printf("3\n");
 	if (vku_swapchain_create(&(app->vulkan)) == 0)
 		handle_error("Swapchain creation error\n");
+	printf("1\n");
 	if (vku_init_render(app) == 0)
 		handle_error("Render initialisation error\n");
+	printf("1\n");
 	if (vku_create_buffer(&(app->vulkan)) == 0)
 		handle_error("Buffer creation error\n");
+	printf("1\n");
 	if (vku_record_cmb(&(app->vulkan)) == 0)
 		handle_error("Cmb record error\n");
+	printf("app create done\n");
 }
 
 void	rtv_app_destroy(t_vulkan *v)
@@ -46,6 +53,7 @@ void	rtv_app_run(t_app *app)
 {
 	int	run;
 	int j;
+	t_retr r;
 
 	run = 1;
 	j = 0;
@@ -60,6 +68,7 @@ void	rtv_app_run(t_app *app)
             }
         }
 		int i = 0;
+		//retracing(&r, app);
 		if (j == 0 || j == 1000)
 			while (i < WIN_WIDTH * WIN_HEIGHT)
 			{

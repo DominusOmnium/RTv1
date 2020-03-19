@@ -3,6 +3,7 @@
 		"vulkan.h": "c",
 		"vulkan_macos.h": "c",
 		"util.h": "c",
-		"rtv1.h": "c"
+		"rtv1.h": "c",
+		"math.h": "c"
 	}
 }

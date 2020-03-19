@@ -6,7 +6,7 @@
 /*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/16 11:18:22 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/19 12:54:21 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,4 +114,5 @@ int		vku_draw_frame(t_vulkan *v);
 int		vku_swapchain_create(t_vulkan *v);
 int		vku_create_buffer(t_vulkan *v);
 void	handle_error(char *msg);
+void    retracing(t_retr *r, t_app *app);
 #endif
