@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/19 12:54:21 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/19 18:20:38 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,9 @@ typedef struct					s_d
 }								t_d;
 typedef struct					s_coord
 {
-	int							x;
-	int							y;
-	int							z;
+	double						x;
+	double						y;
+	double						z;
 }								t_coord;
 typedef struct					s_buffer
 {
@@ -80,18 +80,18 @@ typedef struct					s_vulkan
 typedef struct					s_sphere
 {
 	t_coord						center;
-	int							radius;
+	double						radius;
 	t_coord						color;
 }								t_sphere;
 typedef struct					s_retr
 {
 	t_coord						ds;
     t_coord						o;
-	int							vw;
-	int							vh;
-	int							d;
-	int							t_min;
-	int							t_max;
+	double						vw;
+	double						vh;
+	double						d;
+	double						t_min;
+	double						t_max;
 	t_sphere					*figures;
 	int							n_fig;
 }								t_retr;
@@ -114,5 +114,5 @@ int		vku_draw_frame(t_vulkan *v);
 int		vku_swapchain_create(t_vulkan *v);
 int		vku_create_buffer(t_vulkan *v);
 void	handle_error(char *msg);
-void    retracing(t_retr *r, t_app *app);
+void    raytracing(t_retr *r, t_app *app);
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   app_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/03/19 12:58:36 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/19 13:18:38 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,8 +68,10 @@ void	rtv_app_run(t_app *app)
             }
         }
 		int i = 0;
-		//retracing(&r, app);
-		if (j == 0 || j == 1000)
+		write(1, "ray1\n", 5);
+		retracing(&r, app);
+		write(1, "ray2\n", 5);
+		/*if (j == 0 || j == 1000)
 			while (i < WIN_WIDTH * WIN_HEIGHT)
 			{
 				if (j == 0)
@@ -77,7 +79,7 @@ void	rtv_app_run(t_app *app)
 				else if (j == 1000)
 					((int*)(app->vulkan.buf.mem_ptr))[i] = 255 << 8;
 				i++;
-			}
+			}*/
         if (vku_draw_frame(&(app->vulkan)) == 0)
 			handle_error("Draw frame error");
 		j++;
