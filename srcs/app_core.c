@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/03/19 13:18:38 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/20 13:17:18 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,9 +68,7 @@ void	rtv_app_run(t_app *app)
             }
         }
 		int i = 0;
-		write(1, "ray1\n", 5);
-		retracing(&r, app);
-		write(1, "ray2\n", 5);
+		raytracing(&r, app);
 		/*if (j == 0 || j == 1000)
 			while (i < WIN_WIDTH * WIN_HEIGHT)
 			{

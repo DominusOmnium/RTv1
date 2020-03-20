@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 14:23:15 by marvin            #+#    #+#             */
-/*   Updated: 2020/03/19 18:20:29 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/20 13:02:26 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ t_coord    CanvasToViewport(int i, int j, t_retr *r)
     return (res);
 }
 
-t_coord	oper_on_vectors(t_coord one, t_coord two)
+t_coord	minus_v_and_v(t_coord one, t_coord two)
 {
 	t_coord res;
 
@@ -30,6 +30,51 @@ t_coord	oper_on_vectors(t_coord one, t_coord two)
 	res.y = one.y - two.y;
 	res.z = one.z - two.z;
 	return (res);
+}
+
+t_coord	plus_v_and_v(t_coord one, t_coord two)
+{
+	t_coord res;
+
+	res.x = one.x + two.x;
+	res.y = one.y + two.y;
+	res.z = one.z + two.z;
+	return (res);
+}
+
+t_coord	plus_v_and_num(t_coord one, double two)
+{
+	t_coord res;
+
+	res.x = one.x + two;
+	res.y = one.y + two;
+	res.z = one.z + two;
+	return (res);
+}
+
+t_coord	mul_v_and_v(t_coord one, t_coord two)
+{
+	t_coord res;
+
+	res.x = one.x * two.x;
+	res.y = one.y * two.y;
+	res.z = one.z * two.z;
+	return (res);
+}
+
+t_coord	mul_v_and_num(t_coord one, double two)
+{
+	t_coord res;
+
+	res.x = one.x * two;
+	res.y = one.y * two;
+	res.z = one.z * two;
+	return (res);
+}
+
+double	mod_v(t_coord one)
+{
+	return (sqrt(pow(one.x, 2) + pow(one.y, 2) + pow(one.z, 2)));
 }
 
 double		scalarVectors(t_coord one, t_coord two)
@@ -52,7 +97,7 @@ void	intersectRaySphere(t_retr *r, t_sphere sphere, double *t1, double *t2)
 
 	c = sphere.center;
 	rad = sphere.radius;
-	oc = oper_on_vectors(r->o, c);
+	oc = minus_v_and_v(r->o, c);
 	k1 = scalarVectors(r->ds, r->ds);
 	k2 = scalarVectors(oc, r->ds) * 2;
 	k3 = scalarVectors(oc, oc) - rad * rad;
@@ -67,6 +112,34 @@ void	intersectRaySphere(t_retr *r, t_sphere sphere, double *t1, double *t2)
 		*t1 = (-k2 + sqrt(discriminant)) / (2 * k1);
 		*t2 = (-k2 - sqrt(discriminant)) / (2 * k1);
 	}
+}
+
+double	computeLighting(t_coord p, t_coord n, t_retr *r)
+{
+	double	res;
+	int		i;
+	t_coord	l;
+	double	n_scal_l;
+
+	res = 0.0;
+	i = 0;
+	while (i < r->n_lig)
+	{
+		if ((r->lights)[i].type == 'a')
+			res += (r->lights)[i].intensity;
+		else 
+		{
+			if ((r->lights)[i].type == 'p')
+				l = minus_v_and_v((r->lights)[i].position, p);
+			else
+				l = (r->lights)[i].direction;
+			n_scal_l = scalarVectors(n, l);
+			if (n_scal_l > 0)
+				res += (r->lights)[i].intensity * n_scal_l / (mod_v(n) * mod_v(l));
+		}
+		i++;
+	}
+	return (res);
 }
 
 t_coord	traceRay(t_retr *r, double t_min, double t_max)
@@ -101,7 +174,14 @@ t_coord	traceRay(t_retr *r, double t_min, double t_max)
 	}
 	if (n == 0)
 		return ((t_coord){255, 255, 255});
+	
+	
+	t_coord p = plus_v_and_v(mul_v_and_num(r->ds, closest_t), r->o);
+	t_coord norm = minus_v_and_v(p, sphere.center);
+	norm = mul_v_and_num(norm, (1 / mod_v(norm)));
+	
 	return (sphere.color);
+	return (mul_v_and_num(sphere.color, computeLighting(p, norm, r)));
 }
 
 int		color_int(t_coord c)
@@ -119,14 +199,20 @@ void    raytracing(t_retr *r, t_app *app)
 	t_coord color;
 
     //не забыть задавать начальные значения в другом месте
-	r->n_fig = 3;
+	r->n_fig = 4;
+	r->n_lig = 0;
 	r->figures = (t_sphere*)malloc(sizeof(t_sphere) * r->n_fig);
+	r->lights = (t_light*)malloc(sizeof(t_light) * r->n_lig);
     r->vw = 1;
     r->vh = 1;
     r->d = 1;
     (r->figures)[0] = (t_sphere){(t_coord){0, -1.0, 3.0}, 1.0, (t_coord){255, 0, 0}};
     (r->figures)[1] = (t_sphere){(t_coord){2.0, 0, 4.0}, 1.0, (t_coord){0, 0, 255}};
     (r->figures)[2] = (t_sphere){(t_coord){-2.0, 0, 4.0}, 1.0, (t_coord){0, 255, 0}};
+	(r->figures)[3] = (t_sphere){(t_coord){0, -5001.0, 0}, 5000, (t_coord){255, 255, 0}};
+	/*(r->lights)[0] = (t_light){'a', 0.2, (t_coord){0, 0, 0}, (t_coord){0, 0, 0}};
+	(r->lights)[1] = (t_light){'p', 0.6, (t_coord){2, 1, 0}, (t_coord){0, 0, 0}};
+	(r->lights)[2] = (t_light){'d', 0.2, (t_coord){0, 0, 0}, (t_coord){1, 4, 4}};*/
     r->o = (t_coord){0, 0, 0};
 
     i = 0;
