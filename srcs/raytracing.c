@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 14:23:15 by marvin            #+#    #+#             */
-/*   Updated: 2020/03/20 13:02:26 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/20 17:46:46 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,13 +114,15 @@ void	intersectRaySphere(t_retr *r, t_sphere sphere, double *t1, double *t2)
 	}
 }
 
-double	computeLighting(t_coord p, t_coord n, t_retr *r)
+double	computeLighting(t_coord p, t_coord n, t_retr *r, int s)
 {
 	double	res;
 	int		i;
 	t_coord	l;
+	t_coord v;
 	double	n_scal_l;
 
+	v = mul_v_and_num(r->ds, -1.0);
 	res = 0.0;
 	i = 0;
 	while (i < r->n_lig)
@@ -136,9 +138,18 @@ double	computeLighting(t_coord p, t_coord n, t_retr *r)
 			n_scal_l = scalarVectors(n, l);
 			if (n_scal_l > 0)
 				res += (r->lights)[i].intensity * n_scal_l / (mod_v(n) * mod_v(l));
+			if (s != -1)
+			{
+				t_coord r_v = minus_v_and_v(mul_v_and_num(n, (scalarVectors(n, l) * 2.0)), l);
+				double rv_scal_v = scalarVectors(r_v, v);
+				if (rv_scal_v > 0)
+					res += (r->lights)[i].intensity * pow(rv_scal_v / (mod_v(r_v) * mod_v(v)), s);
+			}
 		}
 		i++;
 	}
+	if (res >= 1)
+		res = 1.0;
 	return (res);
 }
 
@@ -164,7 +175,7 @@ t_coord	traceRay(t_retr *r, double t_min, double t_max)
 			sphere = (r->figures)[i];
 			n++;
 		}
-		else if ((t_min < t2 && t_max > t2) && t2 < closest_t)
+		if ((t_min < t2 && t_max > t2) && t2 < closest_t)
 		{
 			closest_t = t2;
 			sphere = (r->figures)[i];
@@ -180,8 +191,7 @@ t_coord	traceRay(t_retr *r, double t_min, double t_max)
 	t_coord norm = minus_v_and_v(p, sphere.center);
 	norm = mul_v_and_num(norm, (1 / mod_v(norm)));
 	
-	return (sphere.color);
-	return (mul_v_and_num(sphere.color, computeLighting(p, norm, r)));
+	return (mul_v_and_num(sphere.color, computeLighting(p, norm, r, sphere.specular)));
 }
 
 int		color_int(t_coord c)
@@ -200,19 +210,19 @@ void    raytracing(t_retr *r, t_app *app)
 
     //не забыть задавать начальные значения в другом месте
 	r->n_fig = 4;
-	r->n_lig = 0;
+	r->n_lig = 3;
 	r->figures = (t_sphere*)malloc(sizeof(t_sphere) * r->n_fig);
 	r->lights = (t_light*)malloc(sizeof(t_light) * r->n_lig);
-    r->vw = 1;
+    r->vw = 1.5;
     r->vh = 1;
     r->d = 1;
-    (r->figures)[0] = (t_sphere){(t_coord){0, -1.0, 3.0}, 1.0, (t_coord){255, 0, 0}};
-    (r->figures)[1] = (t_sphere){(t_coord){2.0, 0, 4.0}, 1.0, (t_coord){0, 0, 255}};
-    (r->figures)[2] = (t_sphere){(t_coord){-2.0, 0, 4.0}, 1.0, (t_coord){0, 255, 0}};
-	(r->figures)[3] = (t_sphere){(t_coord){0, -5001.0, 0}, 5000, (t_coord){255, 255, 0}};
-	/*(r->lights)[0] = (t_light){'a', 0.2, (t_coord){0, 0, 0}, (t_coord){0, 0, 0}};
+    (r->figures)[0] = (t_sphere){(t_coord){0, -1.0, 3.0}, 1.0, (t_coord){255, 0, 0}, 500};
+    (r->figures)[1] = (t_sphere){(t_coord){2.0, 0, 4.0}, 1.0, (t_coord){0, 0, 255}, 500};
+    (r->figures)[2] = (t_sphere){(t_coord){-2.0, 0, 4.0}, 1.0, (t_coord){0, 255, 0}, 10};
+	(r->figures)[3] = (t_sphere){(t_coord){0, -5001.0, 0}, 5000, (t_coord){255, 255, 0}, 1000};
+	(r->lights)[0] = (t_light){'a', 0.2, (t_coord){0, 0, 0}, (t_coord){0, 0, 0}};
 	(r->lights)[1] = (t_light){'p', 0.6, (t_coord){2, 1, 0}, (t_coord){0, 0, 0}};
-	(r->lights)[2] = (t_light){'d', 0.2, (t_coord){0, 0, 0}, (t_coord){1, 4, 4}};*/
+	(r->lights)[2] = (t_light){'d', 0.2, (t_coord){0, 0, 0}, (t_coord){1, 4, 4}};
     r->o = (t_coord){0, 0, 0};
 
     i = 0;

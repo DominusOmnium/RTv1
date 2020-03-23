@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/20 12:59:41 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/20 16:52:33 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 # include <vulkan/vk_sdk_platform.h>
 # include <stdio.h>
 # include <unistd.h>
-# define WIN_WIDTH	1000
+# define WIN_WIDTH	1500
 # define WIN_HEIGHT	1000
 # define PRESENT_MODE_MAILBOX_IMAGE_COUNT 3
 # define PRESENT_MODE_DEFAULT_IMAGE_COUNT 2
@@ -82,6 +82,7 @@ typedef struct					s_sphere
 	t_coord						center;
 	double						radius;
 	t_coord						color;
+	int							specular;
 }								t_sphere;
 typedef struct					s_light
 {

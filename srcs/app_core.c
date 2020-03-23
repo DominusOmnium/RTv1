@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/03/20 13:17:18 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/20 17:41:55 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,9 @@ void	rtv_app_run(t_app *app)
             }
         }
 		int i = 0;
-		raytracing(&r, app);
+		if (j == 0)
+			raytracing(&r, app);
+		j++;
 		/*if (j == 0 || j == 1000)
 			while (i < WIN_WIDTH * WIN_HEIGHT)
 			{
@@ -80,9 +82,9 @@ void	rtv_app_run(t_app *app)
 			}*/
         if (vku_draw_frame(&(app->vulkan)) == 0)
 			handle_error("Draw frame error");
-		j++;
+		/*j++;
 		if (j == 2000)
-			j = 0;
+			j = 0;*/
     }
 	rtv_app_destroy(&(app->vulkan));
     SDL_Quit();

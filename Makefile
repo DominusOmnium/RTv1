@@ -40,7 +40,7 @@ $(OBJDIR)%.o:$(SRCDIR)%.c
 	$(CC) $(CFLAGS) $(FTINC) $(VECLIBINC) -I $(INCDIR) -o $@ -c $<
 
 $(NAME): $(OBJS)
-	$(CC) $(OBJS) $(SDL2LINK) $(VULKANLINK) $(VECLIBLINK) -lm -o $(NAME)
+	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)
 
 clean:
 	rm -rf $(OBJDIR)
