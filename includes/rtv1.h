@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/23 09:59:39 by marvin           ###   ########.fr       */
+/*   Updated: 2020/03/23 16:15:14 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # endif
 # include "SDL.h"
 # include "SDL_vulkan.h"
+# include "vec_lib.h"
 # include <vulkan/vulkan.h>
 # include <vulkan/vk_sdk_platform.h>
 # include <stdio.h>
@@ -36,7 +37,8 @@
 typedef int32_t u_int32_t;
 # endif
 
-typedef struct					s_d
+typedef t_vec3_double t_vec3;
+/*typedef struct					s_d
 {
 	double						x;
 	double						y;
@@ -47,7 +49,7 @@ typedef struct					s_coord
 	double						x;
 	double						y;
 	double						z;
-}								t_coord;
+}								t_vec3;*/
 typedef struct					s_buffer
 {
 	VkDeviceMemory				dev_mem;
@@ -85,22 +87,22 @@ typedef struct					s_vulkan
 }								t_vulkan;
 typedef struct					s_sphere
 {
-	t_coord						center;
+	t_vec3				center;
 	double						radius;
-	t_coord						color;
+	t_vec3				color;
 	int							specular;
 }								t_sphere;
 typedef struct					s_light
 {
 	char						type;
 	double						intensity;
-	t_coord						position;
-	t_coord						direction;
+	t_vec3				position;
+	t_vec3				direction;
 }								t_light;
 typedef struct					s_retr
 {
-	t_coord						ds;
-    t_coord						o;
+	t_vec3				ds;
+    t_vec3				o;
 	double						vw;
 	double						vh;
 	double						d;

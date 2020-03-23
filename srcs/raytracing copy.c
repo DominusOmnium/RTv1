@@ -1,20 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   raytracing.c                                       :+:      :+:    :+:   */
+/*   raytracing copy.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 14:23:15 by marvin            #+#    #+#             */
-/*   Updated: 2020/03/23 16:32:37 by marvin           ###   ########.fr       */
+/*   Updated: 2020/03/23 16:03:58 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
 
-t_vec3	CanvasToViewport(int i, int j, t_retr *r)
+t_vec3    CanvasToViewport(int i, int j, t_retr *r)
 {
-    t_vec3	res;
+    t_vec3		res;
 
     res.x = j * r->vw / WIN_WIDTH;
     res.y = i * r->vh / WIN_HEIGHT;
@@ -22,7 +22,70 @@ t_vec3	CanvasToViewport(int i, int j, t_retr *r)
     return (res);
 }
 
-void	intersectRaySphere(t_vec3 ds, t_vec3 o, t_sphere sphere, double *t1, double *t2)
+t_vec3	minus_v_and_v(t_vec3 one, t_vec3 two)
+{
+	t_vec3 res;
+
+	res.x = one.x - two.x;
+	res.y = one.y - two.y;
+	res.z = one.z - two.z;
+	return (res);
+}
+
+t_vec3	plus_v_and_v(t_vec3 one, t_vec3 two)
+{
+	t_vec3 res;
+
+	res.x = one.x + two.x;
+	res.y = one.y + two.y;
+	res.z = one.z + two.z;
+	return (res);
+}
+
+t_vec3	plus_v_and_num(t_vec3 one, double two)
+{
+	t_vec3 res;
+
+	res.x = one.x + two;
+	res.y = one.y + two;
+	res.z = one.z + two;
+	return (res);
+}
+
+t_vec3	mul_v_and_v(t_vec3 one, t_vec3 two)
+{
+	t_vec3 res;
+
+	res.x = one.x * two.x;
+	res.y = one.y * two.y;
+	res.z = one.z * two.z;
+	return (res);
+}
+
+t_vec3	mul_v_and_num(t_vec3 one, double two)
+{
+	t_vec3 res;
+
+	res.x = one.x * two;
+	res.y = one.y * two;
+	res.z = one.z * two;
+	return (res);
+}
+
+double	mod_v(t_vec3 one)
+{
+	return (sqrt(pow(one.x, 2) + pow(one.y, 2) + pow(one.z, 2)));
+}
+
+double		scalarVectors(t_vec3 one, t_vec3 two)
+{
+	double res;
+	
+	res = one.x * two.x + one.y * two.y + one.z * two.z;
+	return (res);
+}
+
+void	intersectRaySphere(t_retr *r, t_sphere sphere, double *t1, double *t2)
 {
 	t_vec3	c;
 	double	rad;
@@ -34,10 +97,10 @@ void	intersectRaySphere(t_vec3 ds, t_vec3 o, t_sphere sphere, double *t1, double
 
 	c = sphere.center;
 	rad = sphere.radius;
-	oc = vec3d_sub_vec3d(o, c);
-	k1 = vec3d_scalar(ds, ds);
-	k2 = vec3d_scalar(oc, ds) * 2;
-	k3 = vec3d_scalar(oc, oc) - rad * rad;
+	oc = minus_v_and_v(r->o, c);
+	k1 = scalarVectors(r->ds, r->ds);
+	k2 = scalarVectors(oc, r->ds) * 2;
+	k3 = scalarVectors(oc, oc) - rad * rad;
 	discriminant = k2 * k2 - 4 * k1 * k3;
 	if (discriminant < 0)
 	{
@@ -51,7 +114,7 @@ void	intersectRaySphere(t_vec3 ds, t_vec3 o, t_sphere sphere, double *t1, double
 	}
 }
 
-t_sphere	closestIntersection(t_retr *r, t_vec3 ds, t_vec3 o, double t_min, double t_max, int *n, double *closest_t)
+t_sphere	closestIntersection(t_retr *r, double t_min, double t_max, int *n, double *closest_t)
 {
 	t_sphere	sphere;
 	int			i;
@@ -64,7 +127,7 @@ t_sphere	closestIntersection(t_retr *r, t_vec3 ds, t_vec3 o, double t_min, doubl
 	i = 0;
 	while (i < r->n_fig)
 	{
-		intersectRaySphere(ds, o, (r->figures)[i], &t1, &t2);
+		intersectRaySphere(r, (r->figures)[i], &t1, &t2);
 		if ((t_min < t1 && t_max > t1) && t1 < *closest_t)
 		{
 			*closest_t = t1;
@@ -86,7 +149,7 @@ double	computeLighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
 {
 	double		res;
 	int			i;
-	t_vec3		l;
+	//t_coord		l;
 	t_vec3		v;
 	double		n_scal_l;
 	double		shadow_t;
@@ -94,7 +157,7 @@ double	computeLighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
 	int			n_sphere;
 	double		t_max;
 
-	v = vec3d_mul_d(r->ds, -1.0);
+	v = mul_v_and_num(r->ds, -1.0);
 	res = 0.0;
 	i = 0;
 	while (i < r->n_lig)
@@ -105,17 +168,19 @@ double	computeLighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
 		{
 			if ((r->lights)[i].type == 'p')
 			{
-				l = vec3d_sub_vec3d((r->lights)[i].position, p);
+				//l = minus_v_and_v((r->lights)[i].position, p);
+				r->ds = minus_v_and_v((r->lights)[i].position, r->o);
 				t_max = 1;
 			}
 			else
 			{
-				l = (r->lights)[i].direction;
+				//l = (r->lights)[i].direction;
+				r->ds = (r->lights)[i].direction;
 				t_max = DBL_MAX;
 			}
 			
 			//Проверка тени
-			shadow_sphere = closestIntersection(r, l, p, 0.001, t_max, &n_sphere, &shadow_t);
+			shadow_sphere = closestIntersection(r, 0.001, t_max, &n_sphere, &shadow_t);
 			if (n_sphere != 0)
 			{
 				i++;
@@ -123,17 +188,20 @@ double	computeLighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
 			}
 			
 			//Диффузность
-			n_scal_l = vec3d_scalar(n, l);
+			//n_scal_l = scalarVectors(n, l);
+			n_scal_l = scalarVectors(n, r->ds);
 			if (n_scal_l > 0)
-				res += (r->lights)[i].intensity * n_scal_l / (vec3d_mod(n) * vec3d_mod(l));
+				res += (r->lights)[i].intensity * n_scal_l / (mod_v(n) * mod_v(r->ds));
+				//res += (r->lights)[i].intensity * n_scal_l / (mod_v(n) * mod_v(l));
 
 			//Зеркальность
 			if (s != -1)
 			{
-				t_vec3 r_v = vec3d_sub_vec3d(vec3d_mul_d(n, (vec3d_scalar(n, l) * 2.0)), l);
-				double rv_scal_v = vec3d_scalar(r_v, v);
+				//t_coord r_v = minus_v_and_v(mul_v_and_num(n, (scalarVectors(n, l) * 2.0)), l);
+				t_vec3 r_v = minus_v_and_v(mul_v_and_num(n, (scalarVectors(n, r->ds) * 2.0)), r->ds);
+				double rv_scal_v = scalarVectors(r_v, v);
 				if (rv_scal_v > 0)
-					res += (r->lights)[i].intensity * pow(rv_scal_v / (vec3d_mod(r_v) * vec3d_mod(v)), s);
+					res += (r->lights)[i].intensity * pow(rv_scal_v / (mod_v(r_v) * mod_v(v)), s);
 			}
 		}
 		i++;
@@ -143,23 +211,26 @@ double	computeLighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
 	return (res);
 }
 
-t_vec3	traceRay(t_retr *r, t_vec3 ds, t_vec3 o, double t_min, double t_max)
+t_vec3	traceRay(t_retr *r, double t_min, double t_max)
 {
     double		closest_t;
 	int			n;
 	int			i;
 	t_sphere	sphere;
 
-	sphere = closestIntersection(r, ds, o, t_min, t_max, &n, &closest_t);
+	sphere = closestIntersection(r, t_min, t_max, &n, &closest_t);
 	if (n == 0)
 		return ((t_vec3){255, 255, 255});
 	
 	
-	t_vec3 p = vec3d_add_vec3d(vec3d_mul_d(ds, closest_t), o);
-	t_vec3 norm = vec3d_sub_vec3d(p, sphere.center);
-	norm = vec3d_mul_d(norm, (1 / vec3d_mod(norm)));
+	//t_coord p = plus_v_and_v(mul_v_and_num(r->ds, closest_t), r->o);
+	r->o = plus_v_and_v(mul_v_and_num(r->ds, closest_t), r->o);
+	//t_coord norm = minus_v_and_v(p, sphere.center);
+	t_vec3 norm = minus_v_and_v(r->o, sphere.center);
+	norm = mul_v_and_num(norm, (1 / mod_v(norm)));
 	
-	return (vec3d_mul_d(sphere.color, computeLighting(p, norm, r, sphere.specular)));
+	//return (mul_v_and_num(sphere.color, computeLighting(p, norm, r, sphere.specular)));
+	return (mul_v_and_num(sphere.color, computeLighting(r->o, norm, r, sphere.specular)));
 }
 
 int		color_int(t_vec3 c)
@@ -200,7 +271,7 @@ void    raytracing(t_retr *r, t_app *app)
         while (j < WIN_WIDTH)
         {
             r->ds = CanvasToViewport(WIN_HEIGHT/2 - i, j - WIN_WIDTH/2, r);
-			color = traceRay(r, r->ds, r->o, 1.0, DBL_MAX);
+			color = traceRay(r, 1.0, DBL_MAX);
 			int col = color_int(color);
 			((int*)(app->vulkan.buf.mem_ptr))[i * WIN_WIDTH + j] = col;
             j++;
