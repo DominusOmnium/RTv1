@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/20 16:52:33 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/23 09:59:39 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,25 @@
 # define VK_USE_PLATFORM_MACOS_MVK
 # elif _WIN32
 # define VK_USE_PLATFORM_WIN32_KHR
+# define SDL_MAIN_HANDLED
 # else
 # define VK_USE_PLATFORM_XCB_KHR
 # endif
-# include "SDL2/SDL.h"
-# include "SDL2/SDL_vulkan.h"
+# include "SDL.h"
+# include "SDL_vulkan.h"
 # include <vulkan/vulkan.h>
 # include <vulkan/vk_sdk_platform.h>
 # include <stdio.h>
 # include <unistd.h>
+# include <math.h>
 # define WIN_WIDTH	1500
 # define WIN_HEIGHT	1000
 # define PRESENT_MODE_MAILBOX_IMAGE_COUNT 3
 # define PRESENT_MODE_DEFAULT_IMAGE_COUNT 2
+# ifdef _WIN32
+# include <float.h>
+typedef int32_t u_int32_t;
+# endif
 
 typedef struct					s_d
 {

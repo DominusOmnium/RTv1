@@ -1,4 +1,5 @@
 {
+	"C_Cpp.default.includePath": ["libs/SDL2/includes", "C:\\VulkanSDK\\1.2.131.2\\Include"],
 	"files.associations": {
 		"vulkan.h": "c",
 		"vulkan_macos.h": "c",
