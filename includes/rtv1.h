@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/23 16:15:14 by marvin           ###   ########.fr       */
+/*   Updated: 2020/03/24 12:32:36 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,13 @@ typedef struct					s_coord
 	double						y;
 	double						z;
 }								t_vec3;*/
+typedef struct					s_interRS
+{
+	double						t1;
+	double						t2;
+	t_vec3						center;
+	double						radius;
+}								t_interRS;
 typedef struct					s_buffer
 {
 	VkDeviceMemory				dev_mem;
@@ -99,6 +106,18 @@ typedef struct					s_light
 	t_vec3				position;
 	t_vec3				direction;
 }								t_light;
+typedef struct					s_closest
+{
+	double						t_min;
+	double						t_max;
+	int							n;
+	double						closest_t;
+}								t_closest;
+typedef struct					s_transform
+{
+	t_vec3						rotation;
+	t_vec3						position;
+}								t_transform;
 typedef struct					s_retr
 {
 	t_vec3				ds;
@@ -112,6 +131,8 @@ typedef struct					s_retr
 	t_light						*lights;
 	int							n_fig;
 	int							n_lig;
+	t_closest					t_c;
+	t_transform					camera;
 }								t_retr;
 typedef struct					s_app
 {

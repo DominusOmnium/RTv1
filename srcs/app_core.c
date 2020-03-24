@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   app_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/03/20 17:41:55 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/24 12:39:48 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,33 @@ void	rtv_app_destroy(t_vulkan *v)
 	vkDestroyInstance(v->inst, NULL);
 }
 
+void	init_struct(t_retr *r)
+{
+	r->n_fig = 4;
+	r->n_lig = 3;
+	r->figures = (t_sphere*)malloc(sizeof(t_sphere) * r->n_fig);
+	r->lights = (t_light*)malloc(sizeof(t_light) * r->n_lig);
+    r->vw = 1.5;
+    r->vh = 1;
+    r->d = 1;
+    (r->figures)[0] = (t_sphere){(t_vec3){0, -1.0, 3.0}, 1.0, (t_vec3){255, 0, 0}, 500};
+    (r->figures)[1] = (t_sphere){(t_vec3){2.0, 0, 4.0}, 1.0, (t_vec3){0, 0, 255}, 500};
+    (r->figures)[2] = (t_sphere){(t_vec3){-2.0, 0, 4.0}, 1.0, (t_vec3){0, 255, 0}, 10};
+	(r->figures)[3] = (t_sphere){(t_vec3){0, -5001.0, 0}, 5000, (t_vec3){255, 255, 0}, 1000};
+	(r->lights)[0] = (t_light){'a', 0.2, (t_vec3){0, 0, 0}, (t_vec3){0, 0, 0}};
+	(r->lights)[1] = (t_light){'p', 0.6, (t_vec3){2, 1, 0}, (t_vec3){0, 0, 0}};
+	(r->lights)[2] = (t_light){'d', 0.2, (t_vec3){0, 0, 0}, (t_vec3){1, 4, 4}};
+	r->camera = (t_transform){(t_vec3){0, 0, 0}, (t_vec3){0, 0, 0}};
+    r->o = (t_vec3){0, 0, 0};
+}
+
 void	rtv_app_run(t_app *app)
 {
 	int	run;
 	int j;
 	t_retr r;
 
+	init_struct(&r);
 	run = 1;
 	j = 0;
 	while (run)

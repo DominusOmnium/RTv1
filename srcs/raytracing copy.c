@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 14:23:15 by marvin            #+#    #+#             */
-/*   Updated: 2020/03/23 16:03:58 by marvin           ###   ########.fr       */
+/*   Updated: 2020/03/23 18:03:36 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ double	computeLighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
 {
 	double		res;
 	int			i;
-	//t_coord		l;
+	//t_vec3		l;
 	t_vec3		v;
 	double		n_scal_l;
 	double		shadow_t;
@@ -197,7 +197,7 @@ double	computeLighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
 			//Зеркальность
 			if (s != -1)
 			{
-				//t_coord r_v = minus_v_and_v(mul_v_and_num(n, (scalarVectors(n, l) * 2.0)), l);
+				//t_vec3 r_v = minus_v_and_v(mul_v_and_num(n, (scalarVectors(n, l) * 2.0)), l);
 				t_vec3 r_v = minus_v_and_v(mul_v_and_num(n, (scalarVectors(n, r->ds) * 2.0)), r->ds);
 				double rv_scal_v = scalarVectors(r_v, v);
 				if (rv_scal_v > 0)
@@ -223,9 +223,9 @@ t_vec3	traceRay(t_retr *r, double t_min, double t_max)
 		return ((t_vec3){255, 255, 255});
 	
 	
-	//t_coord p = plus_v_and_v(mul_v_and_num(r->ds, closest_t), r->o);
+	//t_vec3 p = plus_v_and_v(mul_v_and_num(r->ds, closest_t), r->o);
 	r->o = plus_v_and_v(mul_v_and_num(r->ds, closest_t), r->o);
-	//t_coord norm = minus_v_and_v(p, sphere.center);
+	//t_vec3 norm = minus_v_and_v(p, sphere.center);
 	t_vec3 norm = minus_v_and_v(r->o, sphere.center);
 	norm = mul_v_and_num(norm, (1 / mod_v(norm)));
 	
