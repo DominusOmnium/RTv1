@@ -1,10 +1,13 @@
 {
-	"C_Cpp.default.includePath": ["SDL2_win1/include/SDL2", "C:/VulkanSDK/1.2.131.2/Include", "Includes", "libs/vec_lib/includes"],
+	"C_Cpp.default.includePath": ["SDL2_win1/include/SDL2", "C:/VulkanSDK/1.2.131.2/Include", "Includes", "libs/vec_lib/includes", "libs/printf/includes"],
 	"files.associations": {
 		"vulkan.h": "c",
 		"vulkan_macos.h": "c",
 		"util.h": "c",
 		"rtv1.h": "c",
-		"math.h": "c"
+		"math.h": "c",
+		"cstdlib": "c",
+		"ft_printf.h": "c",
+		"libft.h": "c"
 	}
 }

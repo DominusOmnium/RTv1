@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku_swapchain.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 01:11:01 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/14 18:03:55 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/24 18:26:30 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int vku_swapchain_create(t_vulkan *v)
 	
 	vkGetPhysicalDeviceSurfacePresentModesKHR(v->phys_device.device,
 	v->surface, &pres_mode_count, NULL);
-	pres_modes = (VkPresentModeKHR*)malloc(sizeof(VkPresentModeKHR) * pres_mode_count);
+	pres_modes = (VkPresentModeKHR*)ft_memalloc(sizeof(VkPresentModeKHR) * pres_mode_count);
 	vkGetPhysicalDeviceSurfacePresentModesKHR(v->phys_device.device, v->surface, &pres_mode_count, pres_modes);
 	
 	presentMode = VK_PRESENT_MODE_FIFO_KHR;
@@ -51,7 +51,7 @@ int vku_swapchain_create(t_vulkan *v)
 	PRESENT_MODE_MAILBOX_IMAGE_COUNT : PRESENT_MODE_DEFAULT_IMAGE_COUNT;
 	free(pres_modes);
 	
-	v->sc_images = (VkImage*)malloc(sizeof(VkImage) * v->sc_image_count);
+	v->sc_images = (VkImage*)ft_memalloc(sizeof(VkImage) * v->sc_image_count);
 	swapchainExtent = v->phys_device.surface_cap.currentExtent;
 	if (swapchainExtent.width == UINT32_MAX)
     {

@@ -37,6 +37,11 @@ VECINC =  $(addprefix $(LIBSDIR), vec_lib/includes)
 VECLIBLINK = -L $(VECLIB) -l vec_lib.a
 VECLIBINC = -I $(VECINC)
 
+FTLIBDIR =  $(addprefix $(LIBSDIR), printf)
+FTINCDIR =  $(addprefix $(LIBSDIR), printf/includes)
+FTLINK = -L $(FTLIBDIR) -l libftprintf.a
+FTINC = -I $(FTINCDIR)
+
 all: $(NAME)
 
 obj:
@@ -45,11 +50,15 @@ obj:
 $(OBJDIR)%.o:$(SRCDIR)%.c
 	$(CC) $(CFLAGS) $(FTINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC_WIN) $(SDL2INC_win) -o $@ -c $<
 
-$(NAME): obj $(OBJS)
+$(NAME): libs obj $(OBJS)
 	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)
 
-windows: obj $(OBJS)
-	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a $(SDL2LINK_win) $(VULKANLINK_WIN) -lm -o $(NAME)
+windows: libs obj $(OBJS)
+	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a libs/printf/libftprintf.a $(SDL2LINK_win) $(VULKANLINK_WIN) -lm -o $(NAME)
+
+libs:
+	@make -C libs/printf
+	@make -C libs/vec_lib
 
 clean:
 	rm -rf $(OBJDIR)
@@ -58,3 +67,5 @@ fclean: clean
 	rm -rf $(NAME)
 
 re: fclean all
+
+.PHONY: clean fclean all re windows libs

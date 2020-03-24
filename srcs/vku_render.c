@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku_render.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/10 10:36:02 by celva             #+#    #+#             */
-/*   Updated: 2020/03/14 17:04:25 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/24 18:26:30 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int vku_init_render(t_app *app)
         .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
         .commandBufferCount = app->vulkan.sc_image_count,
     };
-	app->vulkan.command_buffers = (VkCommandBuffer*)malloc(sizeof(VkCommandBuffer) * app->vulkan.sc_image_count);
+	app->vulkan.command_buffers = (VkCommandBuffer*)ft_memalloc(sizeof(VkCommandBuffer) * app->vulkan.sc_image_count);
 	if (app->vulkan.command_buffers == NULL ||
 		vkAllocateCommandBuffers(app->vulkan.device, &cp_buffer_alloc_info, app->vulkan.command_buffers))
 		return (0);

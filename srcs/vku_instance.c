@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku_instance.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:23:27 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/14 17:58:16 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/03/24 18:26:30 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ static int	vku_get_supported_extentions(VkExtensionProperties **p, uint32_t *c)
 {
     if (vkEnumerateInstanceExtensionProperties(NULL, c, NULL) != VK_SUCCESS)
 		return (0);
-	if ((*p = malloc(sizeof(VkExtensionProperties) * *c)) == NULL)
+	if ((*p = ft_memalloc(sizeof(VkExtensionProperties) * *c)) == NULL)
 		return (0);
     if (vkEnumerateInstanceExtensionProperties(NULL, c, *p) != VK_SUCCESS)
 		return (0);
@@ -43,7 +43,7 @@ int			vku_instance_create(t_app *app)
 	};
 	if (vku_get_supported_extentions(&(app->vulkan.ext_prop), &count_ext) == 0)
 		return (0);
-	if ((inst_ext = malloc(sizeof(char*) * count_ext)) == NULL)
+	if ((inst_ext = ft_memalloc(sizeof(char*) * count_ext)) == NULL)
 		return (0);
 	i = -1;
 	while (++i < count_ext)

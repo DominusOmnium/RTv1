@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 14:23:15 by marvin            #+#    #+#             */
-/*   Updated: 2020/03/23 18:03:36 by marvin           ###   ########.fr       */
+/*   Updated: 2020/03/24 18:26:30 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ double		scalarVectors(t_vec3 one, t_vec3 two)
 	return (res);
 }
 
-void	intersectRaySphere(t_retr *r, t_sphere sphere, double *t1, double *t2)
+void	intersectRaySphere(t_retr *r, t_object sphere, double *t1, double *t2)
 {
 	t_vec3	c;
 	double	rad;
@@ -114,16 +114,16 @@ void	intersectRaySphere(t_retr *r, t_sphere sphere, double *t1, double *t2)
 	}
 }
 
-t_sphere	closestIntersection(t_retr *r, double t_min, double t_max, int *n, double *closest_t)
+t_object	closestIntersection(t_retr *r, double t_min, double t_max, int *n, double *closest_t)
 {
-	t_sphere	sphere;
+	t_object	sphere;
 	int			i;
 	double		t1;
 	double		t2;
 	
 	*closest_t = DBL_MAX;
 	*n = 0;
-	sphere = (t_sphere){(t_vec3){0, 0, 0}, 0, (t_vec3){0, 0, 0}};
+	sphere = (t_object){(t_vec3){0, 0, 0}, 0, (t_vec3){0, 0, 0}};
 	i = 0;
 	while (i < r->n_fig)
 	{
@@ -153,7 +153,7 @@ double	computeLighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
 	t_vec3		v;
 	double		n_scal_l;
 	double		shadow_t;
-	t_sphere	shadow_sphere;
+	t_object	shadow_sphere;
 	int			n_sphere;
 	double		t_max;
 
@@ -216,7 +216,7 @@ t_vec3	traceRay(t_retr *r, double t_min, double t_max)
     double		closest_t;
 	int			n;
 	int			i;
-	t_sphere	sphere;
+	t_object	sphere;
 
 	sphere = closestIntersection(r, t_min, t_max, &n, &closest_t);
 	if (n == 0)
@@ -250,15 +250,15 @@ void    raytracing(t_retr *r, t_app *app)
     //не забыть задавать начальные значения в другом месте
 	r->n_fig = 4;
 	r->n_lig = 3;
-	r->figures = (t_sphere*)malloc(sizeof(t_sphere) * r->n_fig);
-	r->lights = (t_light*)malloc(sizeof(t_light) * r->n_lig);
+	r->figures = (t_object*)ft_memalloc(sizeof(t_object) * r->n_fig);
+	r->lights = (t_light*)ft_memalloc(sizeof(t_light) * r->n_lig);
     r->vw = 1.5;
     r->vh = 1;
     r->d = 1;
-    (r->figures)[0] = (t_sphere){(t_vec3){0, -1.0, 3.0}, 1.0, (t_vec3){255, 0, 0}, 500};
-    (r->figures)[1] = (t_sphere){(t_vec3){2.0, 0, 4.0}, 1.0, (t_vec3){0, 0, 255}, 500};
-    (r->figures)[2] = (t_sphere){(t_vec3){-2.0, 0, 4.0}, 1.0, (t_vec3){0, 255, 0}, 10};
-	(r->figures)[3] = (t_sphere){(t_vec3){0, -5001.0, 0}, 5000, (t_vec3){255, 255, 0}, 1000};
+    (r->figures)[0] = (t_object){(t_vec3){0, -1.0, 3.0}, 1.0, (t_vec3){255, 0, 0}, 500};
+    (r->figures)[1] = (t_object){(t_vec3){2.0, 0, 4.0}, 1.0, (t_vec3){0, 0, 255}, 500};
+    (r->figures)[2] = (t_object){(t_vec3){-2.0, 0, 4.0}, 1.0, (t_vec3){0, 255, 0}, 10};
+	(r->figures)[3] = (t_object){(t_vec3){0, -5001.0, 0}, 5000, (t_vec3){255, 255, 0}, 1000};
 	(r->lights)[0] = (t_light){'a', 0.2, (t_vec3){0, 0, 0}, (t_vec3){0, 0, 0}};
 	(r->lights)[1] = (t_light){'p', 0.6, (t_vec3){2, 1, 0}, (t_vec3){0, 0, 0}};
 	(r->lights)[2] = (t_light){'d', 0.2, (t_vec3){0, 0, 0}, (t_vec3){1, 4, 4}};

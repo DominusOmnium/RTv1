@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/24 12:32:36 by marvin           ###   ########.fr       */
+/*   Updated: 2020/03/24 18:14:35 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include "SDL.h"
 # include "SDL_vulkan.h"
 # include "vec_lib.h"
+# include "ft_printf.h"
 # include <vulkan/vulkan.h>
 # include <vulkan/vk_sdk_platform.h>
 # include <stdio.h>
@@ -38,25 +39,9 @@ typedef int32_t u_int32_t;
 # endif
 
 typedef t_vec3_double t_vec3;
-/*typedef struct					s_d
-{
-	double						x;
-	double						y;
-	double						z;
-}								t_d;
-typedef struct					s_coord
-{
-	double						x;
-	double						y;
-	double						z;
-}								t_vec3;*/
-typedef struct					s_interRS
-{
-	double						t1;
-	double						t2;
-	t_vec3						center;
-	double						radius;
-}								t_interRS;
+/*
+	Vulkan structures
+*/
 typedef struct					s_buffer
 {
 	VkDeviceMemory				dev_mem;
@@ -92,42 +77,79 @@ typedef struct					s_vulkan
 	VkQueue						queue;
 	t_buffer					buf;
 }								t_vulkan;
-typedef struct					s_sphere
-{
-	t_vec3				center;
-	double						radius;
-	t_vec3				color;
-	int							specular;
-}								t_sphere;
-typedef struct					s_light
-{
-	char						type;
-	double						intensity;
-	t_vec3				position;
-	t_vec3				direction;
-}								t_light;
-typedef struct					s_closest
-{
-	double						t_min;
-	double						t_max;
-	int							n;
-	double						closest_t;
-}								t_closest;
+/*
+	Objects utils
+*/
 typedef struct					s_transform
 {
 	t_vec3						rotation;
 	t_vec3						position;
 }								t_transform;
+typedef enum
+{
+	obj_null, obj_sphere, obj_plane, obj_cone, obj_cylinder
+}	t_obj_type;
+/*
+	Objects
+*/
+typedef struct					s_object
+{
+	t_obj_type			type;
+	t_transform			transform;
+	t_vec3				color;
+	int					specular;
+	void				*obj;
+}								t_object;
+typedef struct					s_sphere
+{
+	double				radius;
+}								t_sphere;
+typedef struct					s_plane
+{
+	t_vec3				normal;
+	double				width;
+	double				length;
+}								t_plane;
+/*
+	Light
+*/
+typedef enum
+{
+	light_ambient, light_point, light_directional
+}	t_light_type;
+typedef struct					s_light
+{
+	t_light_type				type;
+	double						intensity;
+	t_vec3						position;
+	t_vec3						direction;
+}								t_light;
+/*
+	Utils
+*/
+typedef struct					s_interRS
+{
+	double						t1;
+	double						t2;
+	t_vec3						center;
+	double						radius;
+}								t_interRS;
+typedef struct					s_closest
+{
+	double						t_min;
+	double						t_max;
+	double						closest_t;
+}								t_closest;
 typedef struct					s_retr
 {
-	t_vec3				ds;
-    t_vec3				o;
+	t_vec3						ds;
+    t_vec3						o;
 	double						vw;
 	double						vh;
 	double						d;
 	double						t_min;
 	double						t_max;
-	t_sphere					*figures;
+	t_object					*figures;
 	t_light						*lights;
 	int							n_fig;
 	int							n_lig;

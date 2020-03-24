@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku_devices.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:37:45 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/19 13:01:51 by celva            ###   ########.fr       */
+/*   Updated: 2020/03/24 18:26:30 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,21 +25,17 @@ int			vku_get_physical_device(t_vulkan *v)
 
 
 	VkResult r = vkEnumeratePhysicalDevices(v->inst, &num_d, NULL);
-	d = malloc(sizeof(VkPhysicalDevice) * num_d);
-	d_prop = malloc(sizeof(VkPhysicalDeviceProperties) * num_d);
+	d = ft_memalloc(sizeof(VkPhysicalDevice) * num_d);
+	d_prop = ft_memalloc(sizeof(VkPhysicalDeviceProperties) * num_d);
 	vkEnumeratePhysicalDevices(v->inst, &num_d, d);
 	i = 0;
-	printf("1_1: %d\n", r);
 	while (i < num_d)
 	{
 		vkGetPhysicalDeviceProperties(d[i], &(d_prop[i]));
-		printf("1_2\n");
 		vkGetPhysicalDeviceQueueFamilyProperties(d[i], &num, NULL);
-		printf("1_3\n");
-		qf_prop = malloc(sizeof(VkQueueFamilyProperties) * num);
-		sup_pres = malloc(sizeof(VkBool32) * num);
+		qf_prop = ft_memalloc(sizeof(VkQueueFamilyProperties) * num);
+		sup_pres = ft_memalloc(sizeof(VkBool32) * num);
 		vkGetPhysicalDeviceQueueFamilyProperties(d[i], &num, qf_prop);
-		printf("1_4\n");
 		j = -1;
 		while (++j < num)
 		{
@@ -53,7 +49,7 @@ int			vku_get_physical_device(t_vulkan *v)
 					v->phys_device.q_supports_present = sup_pres;
 					v->phys_device.num_families = num;
 					vkGetPhysicalDeviceSurfaceFormatsKHR(d[i], v->surface, &(num), NULL);
-					v->phys_device.surface_formats = malloc(sizeof(VkSurfaceFormatKHR) * num);
+					v->phys_device.surface_formats = ft_memalloc(sizeof(VkSurfaceFormatKHR) * num);
 					v->phys_device.num_formats = num;
 					v->family_index = j;
 					vkGetPhysicalDeviceSurfaceFormatsKHR(d[i], v->surface, &num, v->phys_device.surface_formats);
@@ -67,7 +63,6 @@ int			vku_get_physical_device(t_vulkan *v)
 		}
 		i++;
 	}
-	printf("1_2\n");
 	free((void*)d);
 	free((void*)d_prop);
 	return (0);
