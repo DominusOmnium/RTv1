@@ -6,13 +6,13 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 14:23:15 by marvin            #+#    #+#             */
-/*   Updated: 2020/03/26 12:58:57 by marvin           ###   ########.fr       */
+/*   Updated: 2020/03/25 12:04:51 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
 
-t_vec3	canvas_to_viewport(int i, int j, t_retr *r)
+t_vec3	canvasToViewport(int i, int j, t_retr *r)
 {
     t_vec3	res;
 
@@ -22,7 +22,7 @@ t_vec3	canvas_to_viewport(int i, int j, t_retr *r)
     return (res);
 }
 
-void	intersect_ray_sphere(t_vec3 ds, t_vec3 o, t_object sphere, double *t1, double *t2)
+void	intersectRaySphere(t_vec3 ds, t_vec3 o, t_object sphere, double *t1, double *t2)
 {
 	t_vec3	c;
 	double	r;
@@ -52,61 +52,19 @@ void	intersect_ray_sphere(t_vec3 ds, t_vec3 o, t_object sphere, double *t1, doub
 	}
 }
 
-void	intersect_ray_cylinder(t_vec3 ds, t_vec3 o, t_object cyl, double *t1, double *t2)
-{
-	t_vec3	c;
-	double	r;
-	t_vec3	oc;
-	t_vec3	v;
-	double	k1;
-	double	k2;
-	double	k3;
-	double 	discriminant;
-
-	c = cyl.transform.position;
-	r = ((t_cylinder*)(cyl.obj))->radius;
-	v = ((t_cylinder*)(cyl.obj))->direction;
-	oc = vec3d_sub_vec3d(o, c);
-	k1 = vec3d_scalar(vec3d_cross(ds, v), vec3d_cross(ds, v));
-	k2 = 2 * vec3d_scalar(vec3d_cross(ds, v), vec3d_cross(oc, v));
-	k3 = vec3d_scalar(vec3d_cross(oc, v), vec3d_cross(oc, v)) - r * r;
-	discriminant = k2 * k2 - 4 * k1 * k3;
-	if (discriminant < 0)
-	{
-		*t1 = DBL_MAX;
-		*t2 = DBL_MAX;
-	}
-	else
-	{
-		*t1 = (-k2 + sqrt(discriminant)) / (2 * k1);
-		*t2 = (-k2 - sqrt(discriminant)) / (2 * k1);
-	}
-}
-
 double	intersect_ray_plane(t_vec3 o, t_vec3 dir, t_object plane)
 {
 	double		a;
 	double		b;
-	t_plane		p;
-	t_vec3		col;
 
-	p = *((t_plane*)plane.obj);
-	a = vec3d_scalar(dir, p.normal);
+	a = vec3d_scalar(dir, ((t_plane*)plane.obj)->normal);
 	if (fabs(a) < 0.0003f)
-		return (DBL_MAX);
-	b = -vec3d_scalar(vec3d_sub_vec3d(o, plane.transform.position), p.normal) / a;
-	col = vec3d_add_vec3d(o, vec3d_mul_d(dir, b));
-	if (b < 0.0003f)
-		return (DBL_MAX);
-	if (vec3d_scalar(p.normal, vec3d_cross(vec3d_sub_vec3d(p.vertices[1], p.vertices[0]), vec3d_sub_vec3d(col, p.vertices[0]))) > 0 &&
-		vec3d_scalar(p.normal, vec3d_cross(vec3d_sub_vec3d(p.vertices[2], p.vertices[1]), vec3d_sub_vec3d(col, p.vertices[1]))) > 0 &&
-		vec3d_scalar(p.normal, vec3d_cross(vec3d_sub_vec3d(p.vertices[3], p.vertices[2]), vec3d_sub_vec3d(col, p.vertices[2]))) > 0 &&
-		vec3d_scalar(p.normal, vec3d_cross(vec3d_sub_vec3d(p.vertices[0], p.vertices[3]), vec3d_sub_vec3d(col, p.vertices[3]))) > 0)
-		return (b);
-	return (DBL_MAX);
+		return (0);
+	b = -vec3d_scalar(vec3d_sub_vec3d(o, plane.transform.position), ((t_plane*)plane.obj)->normal) / a;
+	return (b < 0.0003f) ? 0 : b;
 }
 
-t_object	closest_intersection(t_retr *r, t_vec3 ds, t_vec3 o)
+t_object	closestIntersection(t_retr *r, t_vec3 ds, t_vec3 o)
 {
 	t_object	obj;
 	int			i;
@@ -120,11 +78,9 @@ t_object	closest_intersection(t_retr *r, t_vec3 ds, t_vec3 o)
 	{
 		t2 = DBL_MAX;
 		if ((r->figures)[i].type == obj_sphere)
-			intersect_ray_sphere(ds, o, (r->figures)[i], &t1, &t2);
+			intersectRaySphere(ds, o, (r->figures)[i], &t1, &t2);
 		else if ((r->figures)[i].type == obj_plane)
 			t1 = intersect_ray_plane(o, ds, (r->figures)[i]);
-		else if ((r->figures)[i].type == obj_cylinder)
-			intersect_ray_cylinder(ds, o, (r->figures)[i], &t1, &t2);
 		if ((r->t_c.t_min < t1 && r->t_c.t_max > t1) && t1 < r->t_c.closest_t)
 		{
 			r->t_c.closest_t = t1;
@@ -140,7 +96,7 @@ t_object	closest_intersection(t_retr *r, t_vec3 ds, t_vec3 o)
 	return (obj);
 }
 
-double	compute_lighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
+double	computeLighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
 {
 	double		res;
 	int			i;
@@ -174,7 +130,7 @@ double	compute_lighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
 			//Проверка тени
 			r->t_c.t_min = 0.001;
 			r->t_c.t_max = t_max;
-			shadow_obj = closest_intersection(r, l, p);
+			shadow_obj = closestIntersection(r, l, p);
 			if (shadow_obj.type != obj_null)
 			{
 				i++;
@@ -202,7 +158,7 @@ double	compute_lighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
 	return (res);
 }
 
-t_vec3	trace_ray(t_retr *r)
+t_vec3	traceRay(t_retr *r, t_vec3 ds, t_vec3 o)
 {
 	int			i;
 	t_vec3		norm;
@@ -210,10 +166,12 @@ t_vec3	trace_ray(t_retr *r)
 	t_object	obj;
 	double		cL;
 
-	obj = closest_intersection(r, r->ds, r->o);
+	obj = closestIntersection(r, ds, o);
 	if (obj.type == obj_null)
 		return ((t_vec3){255, 255, 255});
-	p = vec3d_add_vec3d(r->o, vec3d_mul_d(r->ds, r->t_c.closest_t));
+	//printf("%Lf, %Lf, %Lf\n", r->o.x, r->o.y, r->o.z);
+	//getchar();
+	p = vec3d_add_vec3d(vec3d_mul_d(ds, r->t_c.closest_t), o);
 	if (obj.type == obj_sphere)
 	{
 		norm = vec3d_sub_vec3d(p, obj.transform.position);
@@ -221,11 +179,7 @@ t_vec3	trace_ray(t_retr *r)
 	}
 	else if (obj.type == obj_plane)
 		norm = ((t_plane*)obj.obj)->normal;
-	else if (obj.type == obj_cylinder)
-	{
-		norm = vec3d_mul_d(vec3d_sub_vec3d(vec3d_mul_d(((t_cylinder*)obj.obj)->direction, vec3d_scalar(vec3d_sub_vec3d(obj.transform.position, p), ((t_cylinder*)obj.obj)->direction)), vec3d_sub_vec3d(obj.transform.position, p)), 1 / vec3d_mod(((t_cylinder*)obj.obj)->direction));
-	}
-	cL = compute_lighting(p, norm, r, obj.specular);
+	cL = computeLighting(p, norm, r, obj.specular);	
 	return (vec3d_mul_d(obj.color, cL));
 }
 
@@ -251,11 +205,11 @@ void    raytracing(t_retr *r, t_app *app)
         while (j < WIN_WIDTH)
         {
             //r->ds = vec3d_mul_vec3d(r->camera.rotation, canvasToViewport(WIN_HEIGHT/2 - i, j - WIN_WIDTH/2, r));
-			r->ds = canvas_to_viewport(WIN_HEIGHT/2 - i, j - WIN_WIDTH/2, r);
+			r->ds = canvasToViewport(WIN_HEIGHT/2 - i, j - WIN_WIDTH/2, r);
 			r->t_c.t_min = 1.0;
 			r->t_c.t_max = DBL_MAX;
 			//r->o = r->camera.position;
-			color = trace_ray(r);
+			color = traceRay(r, r->ds, r->o);
 			col = color_int(color);
 			((int*)(app->vulkan.buf.mem_ptr))[i * WIN_WIDTH + j] = col;
             j++;

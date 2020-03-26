@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/03/24 18:26:30 by marvin           ###   ########.fr       */
+/*   Updated: 2020/03/26 13:32:10 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,30 +44,51 @@ void	rtv_app_destroy(t_vulkan *v)
 
 void	init_struct(t_retr *r)
 {
-	r->n_fig = 4;
+	r->n_fig = 8;
 	r->n_lig = 3;
 	r->figures = (t_object*)ft_memalloc(sizeof(t_object) * r->n_fig);
 	r->lights = (t_light*)ft_memalloc(sizeof(t_light) * r->n_lig);
     r->vw = 1.5;
     r->vh = 1;
     r->d = 1;
-	t_sphere *s = ft_memalloc(sizeof(t_sphere));
-	s->radius = 1.0;
-    (r->figures)[0] = (t_object){obj_sphere, (t_transform){.position = (t_vec3){0, -1.0, 3.0}}, (t_vec3){255, 0, 0}, 500, s};
-	s = ft_memalloc(sizeof(t_sphere));
-	s->radius = 1.0;
-    (r->figures)[1] = (t_object){obj_sphere, (t_transform){.position = (t_vec3){2.0, 0, 4.0}}, (t_vec3){0, 0, 255}, 500, s};
-	s = ft_memalloc(sizeof(t_sphere));
-	s->radius = 1.0;
-    (r->figures)[2] = (t_object){obj_sphere, (t_transform){.position = (t_vec3){-2.0, 0, 4.0}}, (t_vec3){0, 255, 0}, 10, s};
-	s = ft_memalloc(sizeof(t_sphere));
-	s->radius = 5000.0;
-	(r->figures)[3] = (t_object){obj_sphere, (t_transform){.position = (t_vec3){0, -5001.0, 0}}, (t_vec3){255, 255, 0}, 1000, s};
+	void *o = ft_memalloc(sizeof(t_sphere));
+	((t_sphere*)o)->radius = 1.0;
+	(r->figures)[0] = (t_object){obj_sphere, (t_transform){.position = (t_vec3){0, -1.0, 3.0}}, (t_vec3){255, 0, 0}, 500, o};
+	o = ft_memalloc(sizeof(t_sphere));
+	((t_sphere*)o)->radius = 1.0;
+	(r->figures)[1] = (t_object){obj_sphere, (t_transform){.position = (t_vec3){2.0, 0, 4.0}}, (t_vec3){0, 0, 255}, 500, o};
+	o = ft_memalloc(sizeof(t_sphere));
+	((t_sphere*)o)->radius = 1.0;
+	(r->figures)[2] = (t_object){obj_sphere, (t_transform){.position = (t_vec3){-2.0, 0, 4.0}}, (t_vec3){0, 255, 0}, 10, o};
+	o = ft_memalloc(sizeof(t_plane));
+	((t_plane*)o)->normal = (t_vec3){0, 1.0, 0.0};
+	((t_plane*)o)->vertices[0] = (t_vec3){-2, -1, 4};
+	((t_plane*)o)->vertices[1] = (t_vec3){2, -1, 4};
+	((t_plane*)o)->vertices[2] = (t_vec3){2, -1, 2};
+	((t_plane*)o)->vertices[3] = (t_vec3){-2, -1, 2};
+	(r->figures)[3] = (t_object){obj_plane, (t_transform){.position = (t_vec3){0.0, -1.0, 0.0}}, (t_vec3){35, 135, 75}, 100, o};
+	o = ft_memalloc(sizeof(t_cylinder));
+	((t_cylinder*)o)->direction = (t_vec3){0, 1, 0.0};
+	((t_cylinder*)o)->radius = 0.5;
+	(r->figures)[4] = (t_object){obj_cylinder, (t_transform){.position = (t_vec3){0, 0, 3}}, (t_vec3){255, 255, 0}, 100, o};
+	o = ft_memalloc(sizeof(t_plane));
+	((t_plane*)o)->normal = (t_vec3){-1.0, 0.0, 0.0};
+	((t_plane*)o)->vertices[0] = (t_vec3){-2, -1, 4};
+	((t_plane*)o)->vertices[1] = (t_vec3){2, -1, 4};
+	((t_plane*)o)->vertices[2] = (t_vec3){2, -1, 2};
+	((t_plane*)o)->vertices[3] = (t_vec3){-2, -1, 2};
+	(r->figures)[5] = (t_object){obj_plane, (t_transform){.position = (t_vec3){2.5, 0, 0}}, (t_vec3){35, 135, 75}, 100, o};
+	o = ft_memalloc(sizeof(t_plane));
+	((t_plane*)o)->normal = (t_vec3){0, 0, -1.0};
+	(r->figures)[6] = (t_object){obj_plane, (t_transform){.position = (t_vec3){0.0, 0.0, 4.0}}, (t_vec3){35, 135, 75}, 100, o};
+	o = ft_memalloc(sizeof(t_plane));
+	((t_plane*)o)->normal = (t_vec3){0, -1.0, 0.0};
+	(r->figures)[7] = (t_object){obj_plane, (t_transform){.position = (t_vec3){0.0, 1.2, 0}}, (t_vec3){35, 135, 75}, 100, o};
 	(r->lights)[0] = (t_light){light_ambient, 0.2, (t_vec3){0, 0, 0}, (t_vec3){0, 0, 0}};
 	(r->lights)[1] = (t_light){light_point, 0.6, (t_vec3){2, 1, 0}, (t_vec3){0, 0, 0}};
 	(r->lights)[2] = (t_light){light_directional, 0.2, (t_vec3){0, 0, 0}, (t_vec3){1, 4, 4}};
-	r->camera = (t_transform){(t_vec3){0, 0, 0}, (t_vec3){0, 0, 0}};
-    r->o = (t_vec3){0, 0, 0};
+	r->camera = (t_transform){(t_vec3){1, 0, 0}, (t_vec3){0, 0, 0}};
+    r->o = (t_vec3){0, 0, -1};
 }
 
 void	rtv_app_run(t_app *app)
@@ -88,25 +109,39 @@ void	rtv_app_run(t_app *app)
             {
                 run = 0;
             }
+			else if (evt.type == SDL_KEYDOWN)
+			{
+				if (evt.key.keysym.sym == SDLK_UP)
+				{
+					r.o = vec3d_add_vec3d(r.o, (t_vec3){0, 0, 1});
+					j = 0;
+				}
+				if (evt.key.keysym.sym == SDLK_DOWN)
+				{
+					r.o = vec3d_add_vec3d(r.o, (t_vec3){0, 0, -1});
+					j = 0;
+				}
+				if (evt.key.keysym.sym == SDLK_LEFT)
+				{
+					r.o = vec3d_add_vec3d(r.o, (t_vec3){-1, 0, 0});
+					j = 0;
+				}
+				if (evt.key.keysym.sym == SDLK_RIGHT)
+				{
+					r.o = vec3d_add_vec3d(r.o, (t_vec3){1, 0, 0});
+					j = 0;
+				}
+			}
         }
 		int i = 0;
 		if (j == 0)
+		{
+			printf("Draw cam pos: (%Lf, %Lf, %Lf)\n", r.o.x, r.o.y, r.o.z);
 			raytracing(&r, app);
+			if (vku_draw_frame(&(app->vulkan)) == 0)
+				handle_error("Draw frame error");
+		}
 		j++;
-		/*if (j == 0 || j == 1000)
-			while (i < WIN_WIDTH * WIN_HEIGHT)
-			{
-				if (j == 0)
-					((int*)(app->vulkan.buf.mem_ptr))[i] = 255;
-				else if (j == 1000)
-					((int*)(app->vulkan.buf.mem_ptr))[i] = 255 << 8;
-				i++;
-			}*/
-        if (vku_draw_frame(&(app->vulkan)) == 0)
-			handle_error("Draw frame error");
-		/*j++;
-		if (j == 2000)
-			j = 0;*/
     }
 	rtv_app_destroy(&(app->vulkan));
     SDL_Quit();

@@ -8,6 +8,13 @@
 		"math.h": "c",
 		"cstdlib": "c",
 		"ft_printf.h": "c",
-		"libft.h": "c"
+		"libft.h": "c",
+		"get_next_line.h": "c",
+		"unistd.h": "c",
+		"stdint.h": "c",
+		"stddef.h": "c",
+		"stdarg.h": "c",
+		"stdlib.h": "c",
+		"string.h": "c"
 	}
 }

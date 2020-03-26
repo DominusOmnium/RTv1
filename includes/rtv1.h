@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/24 18:14:35 by marvin           ###   ########.fr       */
+/*   Updated: 2020/03/25 21:23:18 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,9 +107,13 @@ typedef struct					s_sphere
 typedef struct					s_plane
 {
 	t_vec3				normal;
-	double				width;
-	double				length;
+	t_vec3				vertices[4];
 }								t_plane;
+typedef struct					s_cylinder
+{
+	double				radius;
+	t_vec3				direction;
+}								t_cylinder;
 /*
 	Light
 */
