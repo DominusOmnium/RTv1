@@ -15,6 +15,7 @@
 		"stddef.h": "c",
 		"stdarg.h": "c",
 		"stdlib.h": "c",
-		"string.h": "c"
+		"string.h": "c",
+		"cmath": "c"
 	}
 }

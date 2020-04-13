@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/25 21:23:18 by marvin           ###   ########.fr       */
+/*   Updated: 2020/03/26 20:35:27 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,13 @@ typedef struct					s_cylinder
 	double				radius;
 	t_vec3				direction;
 }								t_cylinder;
+typedef struct					s_cone
+{
+	double				radius;
+	double				height;
+	t_vec3				ver;
+	t_vec3				direction;
+}								t_cone;
 /*
 	Light
 */

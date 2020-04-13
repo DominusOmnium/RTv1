@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 14:23:15 by marvin            #+#    #+#             */
-/*   Updated: 2020/03/26 12:58:57 by marvin           ###   ########.fr       */
+/*   Updated: 2020/04/02 20:27:20 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,40 @@ void	intersect_ray_sphere(t_vec3 ds, t_vec3 o, t_object sphere, double *t1, doub
 		*t1 = (-k2 + sqrt(discriminant)) / (2 * k1);
 		*t2 = (-k2 - sqrt(discriminant)) / (2 * k1);
 	}
+}
+
+void	intersect_ray_cone(t_vec3 ds, t_vec3 o, t_object obj, double *t1, double *t2)
+{
+	t_vec3	c;
+	t_vec3	ov;
+	t_cone	cone;
+	double	cos;
+	double	k1;
+	double	k2;
+	double	k3;
+	double 	discriminant;
+
+	cone = *((t_cone*)obj.obj);
+	cos = cone.height / sqrt(cone.height * cone.height + cone.radius * cone.radius);
+	ov = vec3d_sub_vec3d(cone.ver, o);
+	k1 = cos * cos * vec3d_scalar(ds, ds) - vec3d_scalar(ds, cone.direction) * vec3d_scalar(ds, cone.direction);
+	k2 = 2 * (vec3d_scalar(ov, cone.direction) * vec3d_scalar(ds, cone.direction) - cos * cos * vec3d_scalar(ds, ov));
+	k3 = vec3d_scalar(ov, ov) * cos * cos - vec3d_scalar(ov, cone.direction) * vec3d_scalar(ov, cone.direction);
+	discriminant = k2 * k2 - 4 * k1 * k3;
+	if (discriminant < 0)
+	{
+		*t1 = DBL_MAX;
+		*t2 = DBL_MAX;
+	}
+	else
+	{
+		*t1 = (-k2 + sqrt(discriminant)) / (2 * k1);
+		*t2 = (-k2 - sqrt(discriminant)) / (2 * k1);
+	}
+	if ((vec3d_scalar(o, cone.direction) + *t1 * vec3d_scalar(ds, cone.direction) - vec3d_scalar(cone.ver, cone.direction)) > 0)
+		*t1 = DBL_MAX;
+	if ((vec3d_scalar(o, cone.direction) + *t2 * vec3d_scalar(ds, cone.direction) - vec3d_scalar(cone.ver, cone.direction)) > 0)
+		*t2 = DBL_MAX;
 }
 
 void	intersect_ray_cylinder(t_vec3 ds, t_vec3 o, t_object cyl, double *t1, double *t2)
@@ -125,6 +159,8 @@ t_object	closest_intersection(t_retr *r, t_vec3 ds, t_vec3 o)
 			t1 = intersect_ray_plane(o, ds, (r->figures)[i]);
 		else if ((r->figures)[i].type == obj_cylinder)
 			intersect_ray_cylinder(ds, o, (r->figures)[i], &t1, &t2);
+		else if ((r->figures)[i].type == obj_cone)
+			intersect_ray_cone(ds, o, (r->figures)[i], &t1, &t2);
 		if ((r->t_c.t_min < t1 && r->t_c.t_max > t1) && t1 < r->t_c.closest_t)
 		{
 			r->t_c.closest_t = t1;
@@ -172,7 +208,7 @@ double	compute_lighting(t_vec3 p, t_vec3 n, t_retr *r, int s)
 			}
 			
 			//Проверка тени
-			r->t_c.t_min = 0.001;
+			r->t_c.t_min = 0.0000001;
 			r->t_c.t_max = t_max;
 			shadow_obj = closest_intersection(r, l, p);
 			if (shadow_obj.type != obj_null)
@@ -220,10 +256,24 @@ t_vec3	trace_ray(t_retr *r)
 		norm = vec3d_mul_d(norm, 1.0/vec3d_mod(norm));	
 	}
 	else if (obj.type == obj_plane)
-		norm = ((t_plane*)obj.obj)->normal;
+	{
+		if (vec3d_scalar(r->ds, ((t_plane*)obj.obj)->normal) < 0)
+			norm = ((t_plane*)obj.obj)->normal;
+		else
+			norm = vec3d_mul_d(((t_plane*)obj.obj)->normal, -1);
+	}
 	else if (obj.type == obj_cylinder)
 	{
 		norm = vec3d_mul_d(vec3d_sub_vec3d(vec3d_mul_d(((t_cylinder*)obj.obj)->direction, vec3d_scalar(vec3d_sub_vec3d(obj.transform.position, p), ((t_cylinder*)obj.obj)->direction)), vec3d_sub_vec3d(obj.transform.position, p)), 1 / vec3d_mod(((t_cylinder*)obj.obj)->direction));
+	}
+	else if (obj.type == obj_cone)
+	{
+		t_vec3	pc = vec3d_sub_vec3d(p, obj.transform.position);
+		t_vec3	pv = vec3d_sub_vec3d(p, ((t_cone*)obj.obj)->ver);b njm
+		double	cos = ((t_cone*)obj.obj)->height / sqrt(((t_cone*)obj.obj)->height * ((t_cone*)obj.obj)->height + ((t_cone*)obj.obj)->radius * ((t_cone*)obj.obj)->radius);
+		norm = vec3d_add_vec3d(obj.transform.position, vec3d_mul_d(((t_cone*)obj.obj)->direction, ((t_cone*)obj.obj)->height - vec3d_mod(pv) / cos));
+		norm = vec3d_sub_vec3d(p, norm);
+		norm = vec3d_mul_d(norm, 1 / vec3d_mod(norm));
 	}
 	cL = compute_lighting(p, norm, r, obj.specular);
 	return (vec3d_mul_d(obj.color, cL));
@@ -234,6 +284,20 @@ int		color_int(t_vec3 c)
 	int res;
 
 	res = 0 << 24 | (int)(c.x) << 16 | (int)(c.y) << 8 | (int)(c.z);
+	return (res);
+}
+
+t_vec3	rotation_axis(double angle, t_vec3 axis, t_vec3 p)
+{
+	t_vec3 res;
+	double c;
+	double s;
+
+	c = cos(angle);
+	s = sin(angle);
+	res.x = p.x * (c + axis.x * axis.x * (1 - c)) + p.y * (axis.y * axis.x * (1 - c) + axis.z * s) + p.z * (axis.z * axis.x * (1 - c) - axis.y * s);
+	res.y = p.x * (axis.x * axis.y * (1 - c) - axis.z * s) + p.y * (c + axis.y * axis.y * (1 - c)) + p.z * (axis.z * axis.y * (1 - c) + axis.x * s);
+	res.z = p.x * (axis.x * axis.z * (1 - c) + axis.y * s) + p.y * (axis.y * axis.z* (1 - c) - axis.x * s) + p.z * (c + axis.z * axis.z * (1 - c));
 	return (res);
 }
 
@@ -252,6 +316,7 @@ void    raytracing(t_retr *r, t_app *app)
         {
             //r->ds = vec3d_mul_vec3d(r->camera.rotation, canvasToViewport(WIN_HEIGHT/2 - i, j - WIN_WIDTH/2, r));
 			r->ds = canvas_to_viewport(WIN_HEIGHT/2 - i, j - WIN_WIDTH/2, r);
+			r->ds = rotation_axis(r->camera.rotation.z, (t_vec3){0, 1, 0}, r->ds);
 			r->t_c.t_min = 1.0;
 			r->t_c.t_max = DBL_MAX;
 			//r->o = r->camera.position;
