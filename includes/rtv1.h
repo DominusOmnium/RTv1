@@ -23,7 +23,9 @@
 # include "SDL.h"
 # include "SDL_vulkan.h"
 # include "vec_lib.h"
-# include "ft_printf.h"
+# include "ft_printf.h"0
+
+
 # include <vulkan/vulkan.h>
 # include <vulkan/vk_sdk_platform.h>
 # include <stdio.h>
@@ -92,21 +94,29 @@ typedef enum
 /*
 	Objects
 */
+typedef	struct					s_figure
+{
+	double 				radius;
+	t_vec3				direction;
+	double				height;
+	t_vec3				ver;
+
+}								t_figure;
 typedef struct					s_object
 {
 	t_obj_type			type;
 	t_transform			transform;
 	t_vec3				color;
 	int					specular;
-	void				*obj;
+	t_figure			figures;
 }								t_object;
-typedef struct					s_sphere
+/*typedef struct					s_sphere
 {
 	double				radius;
 }								t_sphere;
 typedef struct					s_plane
 {
-	t_vec3				normal;
+	t_vec3				direction;
 	t_vec3				vertices[4];
 }								t_plane;
 typedef struct					s_cylinder
@@ -120,7 +130,7 @@ typedef struct					s_cone
 	double				height;
 	t_vec3				ver;
 	t_vec3				direction;
-}								t_cone;
+}								t_cone;*/
 /*
 	Light
 */
