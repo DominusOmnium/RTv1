@@ -244,7 +244,47 @@ void	parse_cylinder(char *str, t_retr *r, int i)
 	}
 }
 
-void	parse_string(int type, char *str, t_retr *r, int i)
+void	parse_light(char *str, t_retr *r, int j, int type)
+{
+	if (type == 5)
+		r->lights[j].type = light_ambient;
+	if (type == 6)
+		r->lights[j].type = light_point;
+	if (type == 7)
+		r->lights[j].type = light_directional;
+	if (ft_strstr(str, "intensity") != NULL)
+	{
+		while (!(*str >= '0' && *str <= '9'))
+			(*str)++;
+		r->lights[j].intensity = string_to_double(str);
+	}
+	else if (ft_strstr(str, "position") != NULL)
+	{
+		while (!(*str >= '0' && *str <= '9'))
+			(*str)++;
+		r->lights[j].position.x = ft_atoi(str);
+		while (!(*str >= '0' && *str <= '9'))
+			(*str)++;
+		r->lights[j].position.y = ft_atoi(str);
+		while (!(*str >= '0' && *str <= '9'))
+			(*str)++;
+		r->lights[j].position.z = ft_atoi(str);
+	}
+	else if (ft_strstr(str, "direction") != NULL)
+	{
+		while (!(*str >= '0' && *str <= '9'))
+			(*str)++;
+		r->lights[j].direction.x = ft_atoi(str);
+		while (!(*str >= '0' && *str <= '9'))
+			(*str)++;
+		r->lights[j].direction.y = ft_atoi(str);
+		while (!(*str >= '0' && *str <= '9'))
+			(*str)++;
+		r->lights[j].direction.z = ft_atoi(str);
+	}
+}
+
+void	parse_string(int type, char *str, t_retr *r, int i, int j)
 {
 	if (type == 0)
 		return ;
@@ -258,29 +298,51 @@ void	parse_string(int type, char *str, t_retr *r, int i)
 		parse_cylinder(str, r, i);
 	
 	else if (type == 5)
-		parse_cylinder(str, r, i);
+		parse_ambient(str, r, j);
 	else if (type == 6)
-		parse_cylinder(str, r, i);
+		parse_cylinder(str, r, j);
 	else if (type == 7)
-		parse_cylinder(str, r, i);
+		parse_cylinder(str, r, j);
 }
 
-int		parse_type(char *str)
+int		parse_type(char *str, int *i, int *j)
 {
 	if (ft_strstr(str, "sphere") != NULL)
+	{
+		(*i)++;
 		return (1);
+	}
 	if (ft_strstr(str, "plane") != NULL)
+	{
+		(*i)++;
 		return (2);
+	}
 	if (ft_strstr(str, "cone") != NULL)
+	{
+		(*i)++;
 		return (3);
+	}
 	if (ft_strstr(str, "cylinder") != NULL)
+	{
+		(*i)++;
 		return (4);
+	}
+	
 	if (ft_strstr(str, "light_ambient") != NULL)
+	{
+		(*j)++;
 		return (5);
+	}
 	if (ft_strstr(str, "light_point") != NULL)
+	{
+		(*j)++;
 		return (6);
+	}
 	if (ft_strstr(str, "light_directional") != NULL)
+	{
+		(*j)++;
 		return (7);
+	}
 }
 
 int		read_scene(char *fname, t_retr *r)
@@ -290,8 +352,10 @@ int		read_scene(char *fname, t_retr *r)
 	int		gnl;
 	int		type;
 	int		i;
+	int		j;
 
 	i = -1;
+	j = -1;
 	type = 0;
 	if ((fd = open(fname, O_RDONLY)) == -1)
 		return (0);
@@ -300,10 +364,7 @@ int		read_scene(char *fname, t_retr *r)
 		if (gnl == -1)
 			return (NULL);
 		if (ft_strstr(str, "type") != NULL)
-		{
-			type = parse_type(str);
-			i++;
-		}
+			type = parse_type(str, &i, &j);
 		else if (ft_strstr(str, "figures") != NULL)
 		{
 			while (!(*str >= '0' && *str <= '9'))
@@ -319,6 +380,6 @@ int		read_scene(char *fname, t_retr *r)
 			r->lights = (t_light*)ft_memalloc(sizeof(t_light) * r->n_lig);
 		}
 		else
-			parse_string(type, str, r, i);
+			parse_string(type, str, r, i, j);
 	}
 }
