@@ -15,7 +15,8 @@ SRCS =	main.c \
 		vku_window.c \
 		vku_buffers.c \
 		utils.c \
-		raytracing.c
+		raytracing.c \
+		scene_reader.c
 
 OBJS = $(addprefix $(OBJDIR), $(SRCS:.c=.o))
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:25 by celva             #+#    #+#             */
-/*   Updated: 2020/03/14 16:48:00 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/04/20 19:21:10 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,10 @@ int	main(int ac, char **av)
 {
 	t_app	app;
 
+	if (ac == 1)
+		return (0);
 	app.appname = "RTv1";
 	rtv_app_create(&app);
-	rtv_app_run(&app);
+	rtv_app_run(&app, av[1]);
 	return (0);
 }

@@ -1,0 +1,63 @@
+figures: 6
+
+type: sphere
+position = {0, 0, 3.0}
+color = {255, 0, 0}
+specular = 500
+radius = 1.0
+
+type: sphere
+position = {2.0, 0, 4.0}
+color = {0, 0, 255}
+specular = 500
+radius = 1.0
+
+type: sphere
+position = {-2.0, 0, 4.0}
+color = {0, 255, 0}
+specular = 10
+radius = 1.0
+
+type: plane
+position = {0.0, -1.0, 0.0}
+color = {0, 135, 0}
+specular = 100
+radius = 1.0
+direction = {0, 1.0, 0.0}
+vertices[0] = {-2, -1, 4}
+vertices[1] = {2, -1, 4}
+vertices[2] = {2, -1, 2}
+vertices[3] = {-2, -1, 2}
+
+type: cylinder
+position = {0.0, 0, 3.0}
+color = {255, 255, 0}
+specular = 100
+radius = 0.5
+direction = {0, 1.0, 0.0}
+
+type: cone
+position = {0.0, -1.0, 3.0}
+color = {35, 135, 75}
+specular = 100
+radius = 1.0
+direction = {0, 1.0, 0.0}
+height = 1
+ver = {0, 0, 3}
+
+lights: 3
+
+type: ambient
+intensity = 0.2
+position = {0, 0, 0}
+direction = {0, 0, 0}
+
+type: point
+intensity = 0.6
+position = {0, 2, 1}
+direction = {0, 0, 0}
+
+type: directional
+intensity = 0.2
+position = {0, 0, 0}
+direction = {1, 4, 4}

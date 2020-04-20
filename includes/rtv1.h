@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/03/26 20:35:27 by marvin           ###   ########.fr       */
+/*   Updated: 2020/04/20 19:21:30 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 # include "SDL.h"
 # include "SDL_vulkan.h"
 # include "vec_lib.h"
-# include "ft_printf.h"0
+# include "ft_printf.h"
 
 
 # include <vulkan/vulkan.h>
@@ -100,6 +100,7 @@ typedef	struct					s_figure
 	t_vec3				direction;
 	double				height;
 	t_vec3				ver;
+	t_vec3				vertices[4];
 
 }								t_figure;
 typedef struct					s_object
@@ -185,7 +186,7 @@ typedef struct					s_app
 }								t_app;
 
 int		rtv_app_create(t_app *app);
-void	rtv_app_run(t_app *app);
+void	rtv_app_run(t_app *app, char *fname);
 int		vku_instance_create(t_app *app);
 int		vku_get_physical_device(t_vulkan *v);
 int		vku_create_logical_device(t_vulkan *v);
@@ -197,4 +198,5 @@ int		vku_swapchain_create(t_vulkan *v);
 int		vku_create_buffer(t_vulkan *v);
 void	handle_error(char *msg);
 void    raytracing(t_retr *r, t_app *app);
+int		read_scene(char *fname, t_retr *r);
 #endif

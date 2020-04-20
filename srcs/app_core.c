@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/03/27 18:34:46 by marvin           ###   ########.fr       */
+/*   Updated: 2020/04/20 20:49:53 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,16 +42,70 @@ void	rtv_app_destroy(t_vulkan *v)
 	vkDestroyInstance(v->inst, NULL);
 }
 
-void	init_struct(t_retr *r)
+void	init_struct(t_retr *r, char *fname)
 {
-	r->n_fig = 6;
+	read_scene(fname, r);
+	/*r->n_fig = 6;
 	r->n_lig = 3;
 	r->figures = (t_object*)ft_memalloc(sizeof(t_object) * r->n_fig);
-	r->lights = (t_light*)ft_memalloc(sizeof(t_light) * r->n_lig);
+	r->lights = (t_light*)ft_memalloc(sizeof(t_light) * r->n_lig);*/
     r->vw = 1.5;
     r->vh = 1;
     r->d = 1;
-	void *o = ft_memalloc(sizeof(t_sphere));
+	/*(r->figures)[0] = (t_object){
+		.type = obj_sphere,
+		.transform = {.position = (t_vec3){0, 0, 3.0}},
+		.color = (t_vec3){255, 0, 0},
+		.specular = 500,
+		.figures = (t_figure){.radius = 1.0}
+	};
+	(r->figures)[1] = (t_object){
+		.type = obj_sphere,
+		.transform = {.position = (t_vec3){2.0, 0, 4.0}},
+		.color = (t_vec3){0, 0, 255},
+		.specular = 500,
+		.figures = (t_figure){.radius = 1.0}
+	};
+	(r->figures)[2] = (t_object){
+		.type = obj_sphere,
+		.transform = {.position = (t_vec3){-2.0, 0, 4.0}},
+		.color = (t_vec3){0, 255, 0},
+		.specular = 10,
+		.figures = (t_figure){.radius = 1.0}
+	};
+	(r->figures)[3] = (t_object){
+		.type = obj_plane,
+		.transform = {.position = (t_vec3){0.0, -1.0, 0.0}},
+		.color = (t_vec3){0, 135, 0},
+		.specular = 100,
+		.figures = (t_figure){
+			.direction = (t_vec3){0, 1.0, 0.0},
+			.vertices[0] = (t_vec3){-2, -1, 4},
+			.vertices[1] = (t_vec3){2, -1, 4},
+			.vertices[2] = (t_vec3){2, -1, 2},
+			.vertices[3] = (t_vec3){-2, -1, 2}}
+	};
+	(r->figures)[4] = (t_object){
+		.type = obj_cylinder,
+		.transform = {.position = (t_vec3){0.0, 0, 3.0}},
+		.color = (t_vec3){255, 255, 0},
+		.specular = 100,
+		.figures = (t_figure){
+			.direction = (t_vec3){0, 1.0, 0.0},
+			.radius = 0.5}
+	};
+	(r->figures)[5] = (t_object){
+		.type = obj_cone,
+		.transform = {.position = (t_vec3){0.0, -1.0, 3.0}},
+		.color = (t_vec3){35, 135, 75},
+		.specular = 100,
+		.figures = (t_figure){
+			.direction = (t_vec3){0, 1.0, 0.0},
+			.radius = 1.0,
+			.height = 1,
+			.ver = (t_vec3){0, 0, 3}}
+	};*/
+	/*void *o = ft_memalloc(sizeof(t_sphere));
 	((t_sphere*)o)->radius = 1.0;
 	(r->figures)[0] = (t_object){obj_sphere, (t_transform){.position = (t_vec3){0, 0, 3.0}}, (t_vec3){255, 0, 0}, 500, o};
 	o = ft_memalloc(sizeof(t_sphere));
@@ -81,22 +135,23 @@ void	init_struct(t_retr *r)
 	((t_plane*)o)->normal = (t_vec3){0, 0, -1.0};
 	//(r->figures)[6] = (t_object){obj_plane, (t_transform){.position = (t_vec3){0.0, 0.0, 4.0}}, (t_vec3){35, 135, 75}, 100, o};
 	o = ft_memalloc(sizeof(t_plane));
-	((t_plane*)o)->normal = (t_vec3){0, -1.0, 0.0};
+	((t_plane*)o)->normal = (t_vec3){0, -1.0, 0.0};*/
 	//(r->figures)[7] = (t_object){obj_plane, (t_transform){.position = (t_vec3){0.0, 1.2, 0}}, (t_vec3){35, 135, 75}, 100, o};
-	(r->lights)[0] = (t_light){light_ambient, 0.2, (t_vec3){0, 0, 0}, (t_vec3){0, 0, 0}};
+	
+	/*(r->lights)[0] = (t_light){light_ambient, 0.2, (t_vec3){0, 0, 0}, (t_vec3){0, 0, 0}};
 	(r->lights)[1] = (t_light){light_point, 0.6, (t_vec3){0, 2, 1}, (t_vec3){0, 0, 0}};
-	(r->lights)[2] = (t_light){light_directional, 0.2, (t_vec3){0, 0, 0}, (t_vec3){1, 4, 4}};
+	(r->lights)[2] = (t_light){light_directional, 0.2, (t_vec3){0, 0, 0}, (t_vec3){1, 4, 4}};*/
 	r->camera = (t_transform){(t_vec3){1, 0, 0}, (t_vec3){0, 0, 0}};
     r->o = (t_vec3){0, 0, 0};
 }
 
-void	rtv_app_run(t_app *app)
+void	rtv_app_run(t_app *app, char *fname)
 {
 	int	run;
 	int j;
 	t_retr r;
 
-	init_struct(&r);
+	init_struct(&r, fname);
 	run = 1;
 	j = 0;
 	while (run)
