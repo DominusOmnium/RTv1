@@ -43,7 +43,7 @@ specular = 100
 radius = 1.0
 direction = {0, 1.0, 0.0}
 height = 1
-ver = {0, 0, 3}
+vertex = {0, 0, 3}
 
 lights: 3
 

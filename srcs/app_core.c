@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/04/20 20:49:53 by marvin           ###   ########.fr       */
+/*   Updated: 2020/04/22 22:01:08 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	rtv_app_destroy(t_vulkan *v)
 void	init_struct(t_retr *r, char *fname)
 {
 	read_scene(fname, r);
-	/*r->n_fig = 6;
+	/*-r->n_fig = 6;
 	r->n_lig = 3;
 	r->figures = (t_object*)ft_memalloc(sizeof(t_object) * r->n_fig);
 	r->lights = (t_light*)ft_memalloc(sizeof(t_light) * r->n_lig);*/
