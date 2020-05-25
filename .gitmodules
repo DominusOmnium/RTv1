@@ -1,3 +1,6 @@
 [submodule "libs/printf"]
 	path = libs/printf
 	url = https://github.com/DominusOmnium/printf.git
+[submodule "libs/vec_lib"]
+	path = libs/vec_lib
+	url = https://github.com/DominusOmnium/vec_lib.git
