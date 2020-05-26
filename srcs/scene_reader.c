@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   scene_reader.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/15 10:50:02 by marvin            #+#    #+#             */
-/*   Updated: 2020/04/22 22:00:18 by marvin           ###   ########.fr       */
+/*   Updated: 2020/05/26 14:05:28 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,6 +206,17 @@ void	parse_light(char *str, t_retr *r, int j, int type)
 	}
 }
 
+void	parse_camera(t_retr *r, char *str)
+{
+	if (ft_strstr(str, "rotation") != NULL)
+		r->camera.rotation = string_to_vector(str);
+	else if (ft_strstr(str, "position") != NULL)
+	{
+		r->camera.position = string_to_vector(str);
+		//r->o = r->camera.position;
+	}
+}
+
 void	parse_string(int type, char *str, t_retr *r, int i, int j)
 {
 	if (type == 0)
@@ -221,6 +232,9 @@ void	parse_string(int type, char *str, t_retr *r, int i, int j)
 	
 	else if (type >= 5 && type <= 7)
 		parse_light(str, r, j, type);
+
+	else if (type == 8)
+		parse_camera(r, str);
 }
 
 int		parse_type(char *str, int *i, int *j)
@@ -298,6 +312,8 @@ int		read_scene(char *fname, t_retr *r)
 			r->n_lig = ft_atoi(str);
 			r->lights = (t_light*)ft_memalloc(sizeof(t_light) * r->n_lig);
 		}
+		else if (ft_strstr(str, "camera") != NULL)
+			type = 8;
 		else
 			parse_string(type, str, r, i, j);
 	}

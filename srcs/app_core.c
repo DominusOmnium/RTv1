@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   app_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/04/22 22:01:08 by marvin           ###   ########.fr       */
+/*   Updated: 2020/05/26 14:08:55 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,8 +141,8 @@ void	init_struct(t_retr *r, char *fname)
 	/*(r->lights)[0] = (t_light){light_ambient, 0.2, (t_vec3){0, 0, 0}, (t_vec3){0, 0, 0}};
 	(r->lights)[1] = (t_light){light_point, 0.6, (t_vec3){0, 2, 1}, (t_vec3){0, 0, 0}};
 	(r->lights)[2] = (t_light){light_directional, 0.2, (t_vec3){0, 0, 0}, (t_vec3){1, 4, 4}};*/
-	r->camera = (t_transform){(t_vec3){1, 0, 0}, (t_vec3){0, 0, 0}};
-    r->o = (t_vec3){0, 0, 0};
+	//r->camera = (t_transform){(t_vec3){1, 0, 0}, (t_vec3){0, 0, 0}};
+    //r->o = (t_vec3){0, 0, 0};
 }
 
 void	rtv_app_run(t_app *app, char *fname)
@@ -167,22 +167,22 @@ void	rtv_app_run(t_app *app, char *fname)
 			{
 				if (evt.key.keysym.sym == SDLK_UP)
 				{
-					r.o = vec3d_add_vec3d(r.o, (t_vec3){0, 1, 0});
+					r.camera.position = vec3d_add_vec3d(r.camera.position, (t_vec3){0, 1, 0});
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_DOWN)
 				{
-					r.o = vec3d_add_vec3d(r.o, (t_vec3){0, -1, 0});
+					r.camera.position = vec3d_add_vec3d(r.camera.position, (t_vec3){0, -1, 0});
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_LEFT)
 				{
-					r.o = vec3d_add_vec3d(r.o, (t_vec3){-1, 0, 0});
+					r.camera.position = vec3d_add_vec3d(r.camera.position, (t_vec3){-1, 0, 0});
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_RIGHT)
 				{
-					r.o = vec3d_add_vec3d(r.o, (t_vec3){1, 0, 0});
+					r.camera.position = vec3d_add_vec3d(r.camera.position, (t_vec3){1, 0, 0});
 					j = 0;
 				}
 			}
@@ -190,7 +190,7 @@ void	rtv_app_run(t_app *app, char *fname)
 		int i = 0;
 		if (j == 0)
 		{
-			printf("Draw cam pos: (%Lf, %Lf, %Lf)\n", r.o.x, r.o.y, r.o.z);
+			//printf("Draw cam pos: (%f, %f, %f)\n", r.o.x, r.o.y, r.o.z);
 			raytracing(&r, app);
 			if (vku_draw_frame(&(app->vulkan)) == 0)
 				handle_error("Draw frame error");

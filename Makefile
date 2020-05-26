@@ -52,7 +52,7 @@ $(OBJDIR)%.o:$(SRCDIR)%.c
 	$(CC) $(CFLAGS) $(FTINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC_WIN) $(SDL2INC_win) -o $@ -c $<
 
 $(NAME): libs obj $(OBJS)
-	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)
+	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a libs/printf/libftprintf.a $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)
 
 windows: libs obj $(OBJS)
 	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a libs/printf/libftprintf.a $(SDL2LINK_win) $(VULKANLINK_WIN) -lm -o $(NAME)

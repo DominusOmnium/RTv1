@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   raytracing.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 14:23:15 by marvin            #+#    #+#             */
-/*   Updated: 2020/04/20 18:41:45 by marvin           ###   ########.fr       */
+/*   Updated: 2020/05/26 14:05:06 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,10 +258,10 @@ t_vec3	trace_ray(t_retr *r)
 	t_object	obj;
 	double		cL;
 
-	obj = closest_intersection(r, r->ds, r->o);
+	obj = closest_intersection(r, r->ds, r->camera.position);
 	if (obj.type == obj_null)
 		return ((t_vec3){255, 255, 255});
-	p = vec3d_add_vec3d(r->o, vec3d_mul_d(r->ds, r->t_c.closest_t));
+	p = vec3d_add_vec3d(r->camera.position, vec3d_mul_d(r->ds, r->t_c.closest_t));
 	if (obj.type == obj_sphere)
 	{
 		norm = vec3d_sub_vec3d(p, obj.transform.position);

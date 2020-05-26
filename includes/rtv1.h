@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/04/20 19:21:30 by marvin           ###   ########.fr       */
+/*   Updated: 2020/05/26 14:09:15 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <math.h>
+# include <float.h>
 # define WIN_WIDTH	1500
 # define WIN_HEIGHT	1000
 # define PRESENT_MODE_MAILBOX_IMAGE_COUNT 3
@@ -165,7 +166,6 @@ typedef struct					s_closest
 typedef struct					s_retr
 {
 	t_vec3						ds;
-    t_vec3						o;
 	double						vw;
 	double						vh;
 	double						d;
