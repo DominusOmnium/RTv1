@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku_devices.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:37:45 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/24 18:26:30 by marvin           ###   ########.fr       */
+/*   Updated: 2020/07/14 22:32:50 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int			vku_get_physical_device(t_vulkan *v)
 		while (++j < num)
 		{
 			vkGetPhysicalDeviceSurfaceSupportKHR(d[i], j, v->surface, &(sup_pres[j]));
-			if (qf_prop[j].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			if (qf_prop[j].queueFlags & VK_QUEUE_GRAPHICS_BIT && d_prop[i].deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
 				if (sup_pres[j])
 				{
 					v->phys_device.dev_prop = d_prop[i];

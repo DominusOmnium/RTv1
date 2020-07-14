@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 14:23:15 by marvin            #+#    #+#             */
-/*   Updated: 2020/05/26 14:05:06 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/14 22:19:53 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,6 +164,7 @@ t_object	closest_intersection(t_retr *r, t_vec3 ds, t_vec3 o)
 	i = 0;
 	while (i < r->n_fig)
 	{
+		//ft_printf("%lf, %lf, %lf\n", (r->figures)[i].transform.position.x, (r->figures)[i].transform.position.y, (r->figures)[i].transform.position.z);
 		t2 = DBL_MAX;
 		if ((r->figures)[i].type == obj_sphere)
 			intersect_ray_sphere(ds, o, (r->figures)[i], &t1, &t2);
@@ -185,6 +186,7 @@ t_object	closest_intersection(t_retr *r, t_vec3 ds, t_vec3 o)
 		}
 		i++;
 	}
+	//getchar();
 	return (obj);
 }
 
@@ -269,29 +271,23 @@ t_vec3	trace_ray(t_retr *r)
 	}
 	else if (obj.type == obj_plane)
 	{
-		if (vec3d_scalar(r->ds, /*((t_plane*)obj.obj)->normal*/  obj.figures.direction) < 0)
+		if (vec3d_scalar(r->ds, obj.figures.direction) < 0)
 			norm = obj.figures.direction;
-			//norm = ((t_plane*)obj.obj)->normal;
 		else
 			norm = vec3d_mul_d(obj.figures.direction, -1);
-			//norm = vec3d_mul_d(((t_plane*)obj.obj)->normal, -1);
 	}
 	else if (obj.type == obj_cylinder)
 	{
 		norm = vec3d_mul_d(vec3d_sub_vec3d(vec3d_mul_d(obj.figures.direction,
 			vec3d_scalar(vec3d_sub_vec3d(obj.transform.position, p), obj.figures.direction)),
 			vec3d_sub_vec3d(obj.transform.position, p)), 1 / vec3d_mod(obj.figures.direction));
-		//norm = vec3d_mul_d(vec3d_sub_vec3d(vec3d_mul_d(((t_cylinder*)obj.obj)->direction, vec3d_scalar(vec3d_sub_vec3d(obj.transform.position, p), ((t_cylinder*)obj.obj)->direction)), vec3d_sub_vec3d(obj.transform.position, p)), 1 / vec3d_mod(((t_cylinder*)obj.obj)->direction));
 	}
 	else if (obj.type == obj_cone)
 	{
 		t_vec3	pc = vec3d_sub_vec3d(p, obj.transform.position);
 		t_vec3	pv = vec3d_sub_vec3d(p, obj.figures.ver);
-		//t_vec3	pv = vec3d_sub_vec3d(p, ((t_cone*)obj.obj)->ver);
 		double	cos = obj.figures.height / sqrt(obj.figures.height * obj.figures.height + obj.figures.radius * obj.figures.radius);
-		//double	cos = ((t_cone*)obj.obj)->height / sqrt(((t_cone*)obj.obj)->height * ((t_cone*)obj.obj)->height + ((t_cone*)obj.obj)->radius * ((t_cone*)obj.obj)->radius);
 		norm = vec3d_add_vec3d(obj.transform.position, vec3d_mul_d(obj.figures.direction, obj.figures.height - vec3d_mod(pv) / cos));
-		//norm = vec3d_add_vec3d(obj.transform.position, vec3d_mul_d(((t_cone*)obj.obj)->direction, ((t_cone*)obj.obj)->height - vec3d_mod(pv) / cos));
 		norm = vec3d_sub_vec3d(p, norm);
 		norm = vec3d_mul_d(norm, 1 / vec3d_mod(norm));
 	}
@@ -334,12 +330,10 @@ void    raytracing(t_retr *r, t_app *app)
         j = 0;
         while (j < WIN_WIDTH)
         {
-            //r->ds = vec3d_mul_vec3d(r->camera.rotation, canvasToViewport(WIN_HEIGHT/2 - i, j - WIN_WIDTH/2, r));
 			r->ds = canvas_to_viewport(WIN_HEIGHT/2 - i, j - WIN_WIDTH/2, r);
 			r->ds = rotation_axis(r->camera.rotation.z, (t_vec3){0, 1, 0}, r->ds);
 			r->t_c.t_min = 1.0;
 			r->t_c.t_max = DBL_MAX;
-			//r->o = r->camera.position;
 			color = trace_ray(r);
 			col = color_int(color);
 			((int*)(app->vulkan.buf.mem_ptr))[i * WIN_WIDTH + j] = col;

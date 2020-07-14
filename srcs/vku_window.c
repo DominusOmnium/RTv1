@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 13:59:58 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/14 16:27:39 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/14 22:34:21 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,11 @@ int	vku_window_create(t_app *app)
 			SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_VULKAN);
 	if (app->vulkan.window == NULL)
 		return (0);
-	if (!SDL_Vulkan_CreateSurface(app->vulkan.window, app->vulkan.inst,
-													&(app->vulkan.surface)))
+	if (SDL_Vulkan_CreateSurface(app->vulkan.window, app->vulkan.inst,
+													&(app->vulkan.surface)) == SDL_FALSE)
+	{
+		ft_printf("SDL_Vulkan_CreateSurface error\n");
+		return (0);
+	}
 	return (1);
 }

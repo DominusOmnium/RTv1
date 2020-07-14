@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/15 10:50:02 by marvin            #+#    #+#             */
-/*   Updated: 2020/05/26 14:05:28 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/14 22:25:02 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,10 +55,7 @@ void	parse_sphere(char *str, t_retr *r, int i)
 {
 	r->figures[i].type = obj_sphere;
 	if (ft_strstr(str, "position") != NULL)
-	{
 		r->figures[i].transform.position = string_to_vector(str);
-		//printf("position: %f, %f, %f\n", r->figures[i].transform.position.x, r->figures[i].transform.position.y, r->figures[i].transform.position.z);
-	}
 	else if (ft_strstr(str, "color") != NULL)
 		r->figures[i].color = string_to_vector(str);
 	else if (ft_strstr(str, "specular") != NULL)
@@ -79,20 +76,11 @@ void	parse_plane(char *str, t_retr *r, int i)
 {
 	r->figures[i].type = obj_plane;
 	if (ft_strstr(str, "position") != NULL)
-	{
 		r->figures[i].transform.position = string_to_vector(str);
-		//printf("position: %f, %f, %f\n", r->figures[i].transform.position.x, r->figures[i].transform.position.y, r->figures[i].transform.position.z);
-	}
 	else if (ft_strstr(str, "direction") != NULL)
-	{
 		r->figures[i].figures.direction = string_to_vector(str);
-		//printf("direction: %f, %f, %f\n", r->figures[i].figures.direction.x, r->figures[i].figures.direction.y, r->figures[i].figures.direction.z);
-	}
 	else if (ft_strstr(str, "color") != NULL)
-	{
 		r->figures[i].color = string_to_vector(str);
-		//printf("color: %f, %f, %f\n", r->figures[i].color.x, r->figures[i].color.y, r->figures[i].color.z);
-	}
 	else if (ft_strstr(str, "specular") != NULL)
 	{
 		while (!(*str >= '0' && *str <= '9'))
@@ -100,25 +88,13 @@ void	parse_plane(char *str, t_retr *r, int i)
 		r->figures[i].specular = ft_atoi(str);
 	}
 	else if (ft_strstr(str, "vertices[0]") != NULL)
-	{
 		r->figures[i].figures.vertices[0] = string_to_vector(str);
-		//printf("v0: %f, %f, %f\n", r->figures[i].figures.vertices[0].x, r->figures[i].figures.vertices[0].y, r->figures[i].figures.vertices[0].z);
-	}
 	else if (ft_strstr(str, "vertices[1]") != NULL)
-	{
 		r->figures[i].figures.vertices[1] = string_to_vector(str);
-		//printf("v1: %f, %f, %f\n", r->figures[i].figures.vertices[1].x, r->figures[i].figures.vertices[1].y, r->figures[i].figures.vertices[1].z);
-	}
 	else if (ft_strstr(str, "vertices[2]") != NULL)
-	{
 		r->figures[i].figures.vertices[2] = string_to_vector(str);
-		//printf("v2: %f, %f, %f\n", r->figures[i].figures.vertices[2].x, r->figures[i].figures.vertices[2].y, r->figures[i].figures.vertices[2].z);
-	}
 	else if (ft_strstr(str, "vertices[3]") != NULL)
-	{
 		r->figures[i].figures.vertices[3] = string_to_vector(str);
-		//printf("v3: %f, %f, %f\n", r->figures[i].figures.vertices[3].x, r->figures[i].figures.vertices[3].y, r->figures[i].figures.vertices[3].z);
-	}
 }
 
 void	parse_cone(char *str, t_retr *r, int i)
@@ -145,13 +121,9 @@ void	parse_cone(char *str, t_retr *r, int i)
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
 		r->figures[i].figures.height = string_to_double(&str);
-		//printf("height - %f\n", r->figures[i].figures.height);
 	}
 	else if (ft_strstr(str, "vertex") != NULL)
-	{
 		r->figures[i].figures.ver = string_to_vector(str);
-		//printf("vertex: %f, %f, %f\n", r->figures[i].figures.ver.x, r->figures[i].figures.ver.y, r->figures[i].figures.ver.z);
-	}
 	else if (ft_strstr(str, "direction") != NULL)
 		r->figures[i].figures.direction = string_to_vector(str);
 }
@@ -192,18 +164,11 @@ void	parse_light(char *str, t_retr *r, int j, int type)
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
 		r->lights[j].intensity = string_to_double(&str);
-		//printf("intensity - %d, %f\n", r->lights[j].type, r->lights[j].intensity);
 	}
 	else if (ft_strstr(str, "position") != NULL)
-	{
 		r->lights[j].position = string_to_vector(str);
-		//printf("position: %f, %f, %f\n", r->lights[j].position.x, r->lights[j].position.y, r->lights[j].position.z);
-	}
 	else if (ft_strstr(str, "direction") != NULL)
-	{
 		r->lights[j].direction = string_to_vector(str);
-		//printf("direction: %f, %f, %f\n", r->lights[j].direction.x, r->lights[j].direction.y, r->lights[j].direction.z);
-	}
 }
 
 void	parse_camera(t_retr *r, char *str)
@@ -211,13 +176,10 @@ void	parse_camera(t_retr *r, char *str)
 	if (ft_strstr(str, "rotation") != NULL)
 		r->camera.rotation = string_to_vector(str);
 	else if (ft_strstr(str, "position") != NULL)
-	{
 		r->camera.position = string_to_vector(str);
-		//r->o = r->camera.position;
-	}
 }
 
-void	parse_string(int type, char *str, t_retr *r, int i, int j)
+void	sc_parse_string(int type, char *str, t_retr *r, int i, int j)
 {
 	if (type == 0)
 		return ;
@@ -229,14 +191,13 @@ void	parse_string(int type, char *str, t_retr *r, int i, int j)
 		parse_cone(str, r, i);
 	else if (type == 4)
 		parse_cylinder(str, r, i);
-	
 	else if (type >= 5 && type <= 7)
 		parse_light(str, r, j, type);
-
 	else if (type == 8)
 		parse_camera(r, str);
 }
 
+// ПЕРЕДЕЛАТЬ ЭТУ ФУНКЦИЮ. РЕШИТЬ ВОПРОС С ТИПАМИ НОРМАЛЬНО
 int		parse_type(char *str, int *i, int *j)
 {
 	if (ft_strstr(str, "sphere") != NULL)
@@ -259,7 +220,6 @@ int		parse_type(char *str, int *i, int *j)
 		(*i)++;
 		return (4);
 	}
-	
 	if (ft_strstr(str, "ambient") != NULL)
 	{
 		(*j)++;
@@ -275,6 +235,7 @@ int		parse_type(char *str, int *i, int *j)
 		(*j)++;
 		return (7);
 	}
+	return (0);
 }
 
 int		read_scene(char *fname, t_retr *r)
@@ -286,7 +247,6 @@ int		read_scene(char *fname, t_retr *r)
 	int		i;
 	int		j;
 
-	//getchar();
 	i = -1;
 	j = -1;
 	type = 0;
@@ -315,7 +275,7 @@ int		read_scene(char *fname, t_retr *r)
 		else if (ft_strstr(str, "camera") != NULL)
 			type = 8;
 		else
-			parse_string(type, str, r, i, j);
+			sc_parse_string(type, str, r, i, j);
 	}
 	return (1);
 }
