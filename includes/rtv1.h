@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/05/26 14:09:15 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/20 21:48:59 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,12 @@
 # else
 # define VK_USE_PLATFORM_XCB_KHR
 # endif
-# include "SDL.h"
-# include "SDL_vulkan.h"
+# include <SDL.h>
+# include <SDL_vulkan.h>
 # include "vec_lib.h"
 # include "ft_printf.h"
 
+#include <shaderc/shaderc.h>
 
 # include <vulkan/vulkan.h>
 # include <vulkan/vk_sdk_platform.h>
@@ -73,10 +74,17 @@ typedef struct					s_vulkan
 	u_int32_t					family_index;
 	t_physical_device			phys_device;
 	VkSwapchainKHR				swapchain;
+	VkPipeline					pipeline;
+	VkPipelineLayout			pipelineLayout;
+	VkRenderPass				renderpass;
 	SDL_Window					*window;
 	uint32_t					sc_image_count;
 	VkImage						*sc_images;
+	VkImageView					sc_image_views[3];
+	VkFramebuffer				frame_buffers[3];
+	VkFormat					image_format;
 	VkCommandBuffer				*command_buffers;
+	VkCommandPool				commandpool;
 	VkQueue						queue;
 	t_buffer					buf;
 }								t_vulkan;
@@ -199,4 +207,9 @@ int		vku_create_buffer(t_vulkan *v);
 void	handle_error(char *msg);
 void    raytracing(t_retr *r, t_app *app);
 int		read_scene(char *fname, t_retr *r);
+size_t	load_shader_file(char *fname, char **shader);
+VkShaderModule	vku_createShaderModule(t_vulkan *v, char *code, uint32_t codeL);
+int init_render(t_vulkan *v);
+void draw_frame(t_vulkan *v);
+//void	shader_compile(char *code);
 #endif

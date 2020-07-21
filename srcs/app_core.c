@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/07/14 22:22:56 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/17 02:26:49 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,9 @@ int		rtv_app_create(t_app *app)
 	if (vku_swapchain_create(&(app->vulkan)) == 0)
 		handle_error("Swapchain creation error\n");
 	ft_printf("Swapchain creation done\n");
-	if (vku_init_render(app) == 0)
+	if (init_render(&(app->vulkan)) == 0)
+		handle_error("Render initialisation error\n");
+	/*if (vku_init_render(app) == 0)
 		handle_error("Render initialisation error\n");
 	ft_printf("Renderer initialization done\n");
 	if (vku_create_buffer(&(app->vulkan)) == 0)
@@ -37,7 +39,7 @@ int		rtv_app_create(t_app *app)
 	ft_printf("Buffer creation done\n");
 	if (vku_record_cmb(&(app->vulkan)) == 0)
 		handle_error("Cmb record error\n");
-	ft_printf("Cmb record done\n");
+	ft_printf("Cmb record done\n");*/
 }
 
 void	rtv_app_destroy(t_vulkan *v)
@@ -103,9 +105,10 @@ void	rtv_app_run(t_app *app, char *fname)
 		int i = 0;
 		if (j == 0)
 		{
-			raytracing(&r, app);
+			/*raytracing(&r, app);
 			if (vku_draw_frame(&(app->vulkan)) == 0)
-				handle_error("Draw frame error");
+				handle_error("Draw frame error");*/
+			draw_frame(&(app->vulkan));
 		}
 		j++;
     }

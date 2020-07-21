@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku_swapchain.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 01:11:01 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/24 18:26:30 by marvin           ###   ########.fr       */
+/*   Updated: 2020/07/16 18:59:49 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,14 +28,12 @@ int vku_swapchain_create(t_vulkan *v)
 	int							i;
 	
 	surf_form = v->phys_device.surface_formats;
-	surf_form->format =	surf_form->format ==
-	VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8A8_UNORM : surf_form->format;
-	
+	if (surf_form->format == VK_FORMAT_UNDEFINED)
+		surf_form->format = VK_FORMAT_B8G8R8A8_UNORM;
 	vkGetPhysicalDeviceSurfacePresentModesKHR(v->phys_device.device,
 	v->surface, &pres_mode_count, NULL);
 	pres_modes = (VkPresentModeKHR*)ft_memalloc(sizeof(VkPresentModeKHR) * pres_mode_count);
 	vkGetPhysicalDeviceSurfacePresentModesKHR(v->phys_device.device, v->surface, &pres_mode_count, pres_modes);
-	
 	presentMode = VK_PRESENT_MODE_FIFO_KHR;
 	i = 0;
 	while (i < pres_mode_count)

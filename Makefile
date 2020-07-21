@@ -16,7 +16,9 @@ SRCS =	main.c \
 		vku_buffers.c \
 		utils.c \
 		raytracing.c \
-		scene_reader.c
+		scene_reader.c \
+		shader.c \
+		shader_reader.c
 
 OBJS = $(addprefix $(OBJDIR), $(SRCS:.c=.o))
 
@@ -68,5 +70,13 @@ fclean: clean
 	rm -rf $(NAME)
 
 re: fclean all
+
+test:
+	gcc -I C:\VulkanSDK\1.2.131.2\Include -I SDL2_win1/include/SDL2 -l SDL2 -l vulkan -lm -c test.c
+	gcc -o q test.o -l SDL2 -l vulkan -lm
+
+shaders:
+	glslc -o shaders/raytracing.spv shaders/raytracing.frag
+	glslc -o shaders/shader.spv shaders/shader.vert
 
 .PHONY: clean fclean all re windows libs
