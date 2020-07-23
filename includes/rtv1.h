@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/07/20 21:48:59 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/23 22:53:36 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,8 @@
 # include <float.h>
 # define WIN_WIDTH	1500
 # define WIN_HEIGHT	1000
-# define PRESENT_MODE_MAILBOX_IMAGE_COUNT 3
-# define PRESENT_MODE_DEFAULT_IMAGE_COUNT 2
+/*# define PRESENT_MODE_MAILBOX_IMAGE_COUNT 3
+# define PRESENT_MODE_DEFAULT_IMAGE_COUNT 2*/
 # ifdef _WIN32
 # include <float.h>
 typedef int32_t u_int32_t;
@@ -192,6 +192,42 @@ typedef struct					s_app
 	char						*appname;
 
 }								t_app;
+
+
+enum {
+    Kb = (1 << 10),
+    Mb = (1 << 20),
+    MAX_DEVICE_COUNT = 8,
+    MAX_QUEUE_COUNT = 4, //ATM there should be at most transfer, graphics, compute, graphics+compute families
+    MAX_PRESENT_MODE_COUNT = 6, // At the moment in spec
+    MAX_SWAPCHAIN_IMAGES = 3,
+    FRAME_COUNT = 2,
+    PRESENT_MODE_MAILBOX_IMAGE_COUNT = 3,
+    PRESENT_MODE_DEFAULT_IMAGE_COUNT = 2,
+    UPLOAD_REGION_SIZE = 64 * Kb,
+    UPLOAD_BUFFER_SIZE = FRAME_COUNT * UPLOAD_REGION_SIZE,
+    STATIC_BUFFER_SIZE = 64 * Kb,
+};
+
+enum {
+    VULKAN_MEM_DEVICE_READBACK,
+    VULKAN_MEM_DEVICE_UPLOAD,
+    VULKAN_MEM_DEVICE_LOCAL,
+    VULKAN_MEM_COUNT
+};
+
+VkFence frameFences[2];
+VkSemaphore imageAvailableSemaphores[2];
+VkSemaphore renderFinishedSemaphores[2];
+
+VkBuffer uploadBuffer;
+VkDeviceMemory uploadBufferMemory;
+void* uploadBufferPtr;
+VkBuffer staticBuffer;
+VkDeviceMemory staticBufferMemory;
+VkPhysicalDeviceMemoryProperties deviceMemProperties;
+uint32_t compatibleMemTypes[VULKAN_MEM_COUNT];
+
 
 int		rtv_app_create(t_app *app);
 void	rtv_app_run(t_app *app, char *fname);

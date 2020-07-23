@@ -6,12 +6,12 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/16 12:45:59 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/07/20 18:11:38 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/23 22:52:15 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
-#include <shaderc/shaderc.h>
+//#include <shaderc/shaderc.h>
 
 VkShaderModule	vku_createShaderModule(t_vulkan *v, char *code, uint32_t codeL)
 {

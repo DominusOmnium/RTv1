@@ -6,11 +6,16 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 17:56:35 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/07/20 20:17:52 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/24 00:28:32 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
+
+uint32_t bit_ffs32(uint32_t word)
+{
+    return __builtin_ffs(word) - 1;
+}
 
 int		vku_record_cmb(t_vulkan *v)
 {
@@ -106,7 +111,7 @@ int createFramebuffers(t_vulkan *v)
             .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
             .image = (v->sc_images)[i],
             .viewType = VK_IMAGE_VIEW_TYPE_2D,
-            .format = v->image_format,
+            .format = v->phys_device.surface_formats->format,
             .subresourceRange = {
                 .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
                 .baseMipLevel = 0,
@@ -142,31 +147,13 @@ typedef struct tagVertexP2C
 
 int createPipeline(t_vulkan *v)
 {
-	const uint32_t fragment[] = {
-	0x07230203,0x00010000,0x00080008,0x00000013,0x00000000,0x00020011,0x00000001,0x0006000b,
-	0x00000001,0x4c534c47,0x6474732e,0x3035342e,0x00000000,0x0003000e,0x00000000,0x00000001,
-	0x0007000f,0x00000004,0x00000004,0x6e69616d,0x00000000,0x00000009,0x0000000c,0x00030010,
-	0x00000004,0x00000007,0x00030003,0x00000002,0x000001c2,0x00090004,0x415f4c47,0x735f4252,
-	0x72617065,0x5f657461,0x64616873,0x6f5f7265,0x63656a62,0x00007374,0x00040005,0x00000004,
-	0x6e69616d,0x00000000,0x00050005,0x00000009,0x4374756f,0x726f6c6f,0x00000000,0x00050005,
-	0x0000000c,0x67617266,0x6f6c6f43,0x00000072,0x00040047,0x00000009,0x0000001e,0x00000000,
-	0x00040047,0x0000000c,0x0000001e,0x00000000,0x00020013,0x00000002,0x00030021,0x00000003,
-	0x00000002,0x00030016,0x00000006,0x00000020,0x00040017,0x00000007,0x00000006,0x00000004,
-	0x00040020,0x00000008,0x00000003,0x00000007,0x0004003b,0x00000008,0x00000009,0x00000003,
-	0x00040017,0x0000000a,0x00000006,0x00000003,0x00040020,0x0000000b,0x00000001,0x0000000a,
-	0x0004003b,0x0000000b,0x0000000c,0x00000001,0x0004002b,0x00000006,0x0000000e,0x3f800000,
-	0x00050036,0x00000002,0x00000004,0x00000000,0x00000003,0x000200f8,0x00000005,0x0004003d,
-	0x0000000a,0x0000000d,0x0000000c,0x00050051,0x00000006,0x0000000f,0x0000000d,0x00000000,
-	0x00050051,0x00000006,0x00000010,0x0000000d,0x00000001,0x00050051,0x00000006,0x00000011,
-	0x0000000d,0x00000002,0x00070050,0x00000007,0x00000012,0x0000000f,0x00000010,0x00000011,
-	0x0000000e,0x0003003e,0x00000009,0x00000012,0x000100fd,0x00010038
-};
 	char *code;
-	size_t code_len = load_shader_file("shaders/raytracing.spv", &code);
-	ft_printf("sizeof(fragment): %d\n", sizeof(fragment));
-	ft_printf("sizeof(*fragment): %d\n", sizeof(*fragment));
 	
-    VkShaderModule fragmentShader = vku_createShaderModule(v, (char*)fragment, sizeof(fragment));
+	size_t code_len = load_shader_file("shaders/test.spv", &code);
+    VkShaderModule fragmentShader = vku_createShaderModule(v, code, code_len);
+
+	code_len = load_shader_file("shaders/testver.spv", &code);
+    VkShaderModule vertexShader = vku_createShaderModule(v, code, code_len);
 
 	//load_shader_file("shaders/raytracing.frag", &code);
 	//shader_compile(code);
@@ -174,10 +161,16 @@ int createPipeline(t_vulkan *v)
     const VkPipelineShaderStageCreateInfo stages[] = {
         {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+            .stage = VK_SHADER_STAGE_VERTEX_BIT,
+            .module = vertexShader,
+            .pName = "main",
+        },
+        {
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .stage = VK_SHADER_STAGE_FRAGMENT_BIT,
             .module = fragmentShader,
             .pName = "main",
-        },
+        }
     };
 
     VkPipelineVertexInputStateCreateInfo vertexInputState = {
@@ -251,12 +244,18 @@ int createPipeline(t_vulkan *v)
 
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+		.pushConstantRangeCount = 1,
+        .pPushConstantRanges = &(VkPushConstantRange) {
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .offset = 0,
+            .size = 20,
+        }
     };
     VkResult res = vkCreatePipelineLayout(v->device, &pipelineLayoutCreateInfo, 0, &(v->pipelineLayout));
 	ft_printf("vkCreatePipelineLayout: %d\n", res);
     VkGraphicsPipelineCreateInfo pipelineCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-        .stageCount = 1,
+        .stageCount = 2,
         .pStages = stages,
         .pVertexInputState = &vertexInputState,
         .pInputAssemblyState = &inputAssemblyState,
@@ -285,17 +284,62 @@ uint32_t frameIndex = 0;
 void draw_frame(t_vulkan *v)
 {
     uint32_t index = frameIndex % 2;
-    //vkWaitForFences(v->device, 1, &frameFences[index], VK_TRUE, UINT64_MAX);
-    //vkResetFences(device, 1, &frameFences[index]);
+    vkWaitForFences(v->device, 1, &frameFences[index], VK_TRUE, UINT64_MAX);
+    vkResetFences(v->device, 1, &frameFences[index]);
+
+	size_t uploadOffset = index * UPLOAD_REGION_SIZE;
+    size_t uploadLimit = uploadOffset + UPLOAD_REGION_SIZE;
+    uint8_t* uploadPtr = (uint8_t*)uploadBufferPtr;
+
+    uint32_t mask = (SDL_GetTicks() >> 3) & 0x1FF;
+    mask = mask > 0xFF ? 0x1FF - mask : mask;
+    mask = (mask << 16) | (mask << 8) | mask;
+    VertexP2C dynamicVertices[] = {
+        { -0.5f, -1.0f, 0xFF0000FF|mask },
+        {  0.0f,  0.0f, 0xFF00FF00|mask },
+        { -1.0f,  0.0f, 0xFFFF0000|mask }
+    };
+    memcpy(uploadPtr+uploadOffset, dynamicVertices, sizeof(dynamicVertices));
+    uploadOffset += sizeof(dynamicVertices);
+
+    VkBufferCopy bufferCopyInfo;
+    if (frameIndex == 0)
+    {
+        VertexP2C staticVertices[] = {
+            { 0.5f, 0.0f, 0xFF0000FF },
+            { 1.0f, 1.0f, 0xFF00FF00 },
+            { 0.0f, 1.0f, 0xFFFF0000 }
+        };
+        memcpy(uploadPtr + uploadOffset, staticVertices, sizeof(staticVertices));
+        bufferCopyInfo = (VkBufferCopy){
+            .srcOffset = uploadOffset,
+            .dstOffset = 0,
+            .size = sizeof(staticVertices),
+        };
+    }
 
     uint32_t imageIndex;
-    vkAcquireNextImageKHR(v->device, v->swapchain, UINT64_MAX, NULL, VK_NULL_HANDLE, &imageIndex);
+    vkAcquireNextImageKHR(v->device, v->swapchain, UINT64_MAX, imageAvailableSemaphores[index], VK_NULL_HANDLE, &imageIndex);
 
     VkCommandBufferBeginInfo beginInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
         .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
     };
     vkBeginCommandBuffer((v->command_buffers)[index], &beginInfo);
+
+	if (frameIndex == 0)
+    {
+        vkCmdCopyBuffer((v->command_buffers)[index], uploadBuffer, staticBuffer, 1, &bufferCopyInfo);
+        vkCmdPipelineBarrier((v->command_buffers)[index],
+            VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 
+            1, &(VkMemoryBarrier){
+                .sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+                .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+                .dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT
+            },
+            0, NULL, 0, NULL
+        );
+    }
 
     vkCmdBeginRenderPass((v->command_buffers)[index],
         &(VkRenderPassBeginInfo) {
@@ -310,10 +354,29 @@ void draw_frame(t_vulkan *v)
         VK_SUBPASS_CONTENTS_INLINE
     );
 
-    vkCmdBindPipeline((v->command_buffers)[index], VK_PIPELINE_BIND_POINT_GRAPHICS, v->pipeline);
+	static int px = 0, py = 0;
+    int x = 0, y = 0;
+    if (SDL_GetRelativeMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT))
+    {
+        px += x; py += y;
+        px = px < 0 ? 0 : px; px = px > (int)v->phys_device.surface_cap.currentExtent.width ? v->phys_device.surface_cap.currentExtent.width : px;
+        py = py < 0 ? 0 : py; py = py >(int)v->phys_device.surface_cap.currentExtent.height ? v->phys_device.surface_cap.currentExtent.height : py;
+    }
+
+    float fragmentConstants[5] = { (float)v->phys_device.surface_cap.currentExtent.width, (float)v->phys_device.surface_cap.currentExtent.height, (float)px, (float)py, SDL_GetTicks() / 1000.0f };
+
+    vkCmdPushConstants((v->command_buffers)[index], v->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(fragmentConstants), fragmentConstants);
+	
     vkCmdSetViewport((v->command_buffers)[index], 0, 1, &(VkViewport){ 0.0f, 0.0f, (float)v->phys_device.surface_cap.currentExtent.width, (float)v->phys_device.surface_cap.currentExtent.height, 0.0f, 1.0f});
     vkCmdSetScissor((v->command_buffers)[index], 0, 1, &(VkRect2D){ {0, 0}, v->phys_device.surface_cap.currentExtent});
+	vkCmdBindPipeline((v->command_buffers)[index], VK_PIPELINE_BIND_POINT_GRAPHICS, v->pipeline);
+    
+	vkCmdBindVertexBuffers((v->command_buffers)[index], 0, 1, &uploadBuffer, (VkDeviceSize[]) { 0 });
+    vkCmdDraw((v->command_buffers)[index], 3, 1, 0, 0);
 
+    vkCmdBindVertexBuffers((v->command_buffers)[index], 0, 1, &staticBuffer, (VkDeviceSize[]) { 0 });
+    vkCmdDraw((v->command_buffers)[index], 3, 1, 0, 0);
+	
     vkCmdEndRenderPass((v->command_buffers)[index]);
 
     vkEndCommandBuffer((v->command_buffers)[index]);
@@ -321,16 +384,19 @@ void draw_frame(t_vulkan *v)
     VkSubmitInfo submitInfo = {
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
         .waitSemaphoreCount = 1,
+		.pWaitSemaphores = &imageAvailableSemaphores[index],
         .pWaitDstStageMask = (VkPipelineStageFlags[]) { VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT },
         .commandBufferCount = 1,
         .pCommandBuffers = &((v->command_buffers)[index]),
-        .signalSemaphoreCount = 1
+        .signalSemaphoreCount = 1,
+		.pSignalSemaphores = &renderFinishedSemaphores[index]
     };
-    vkQueueSubmit(v->queue, 1, &submitInfo, NULL);
+    vkQueueSubmit(v->queue, 1, &submitInfo, frameFences[index]);
 
     VkPresentInfoKHR presentInfo = {
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
         .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &renderFinishedSemaphores[index],
         .swapchainCount = 1,
         .pSwapchains = &(v->swapchain),
         .pImageIndices = &imageIndex,
@@ -338,6 +404,64 @@ void draw_frame(t_vulkan *v)
     vkQueuePresentKHR(v->queue, &presentInfo);
 
     ++frameIndex;
+}
+
+int createUploadBuffer(t_vulkan *v)
+{
+    VkBufferCreateInfo bufferCreateInfo;
+    VkMemoryAllocateInfo allocInfo;
+    VkMemoryRequirements memoryRequirements;
+    uint32_t memoryIndex;
+
+    bufferCreateInfo = (VkBufferCreateInfo){
+        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size = UPLOAD_BUFFER_SIZE,
+        .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT
+                | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
+                | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .queueFamilyIndexCount = 1,
+        .pQueueFamilyIndices = &(v->family_index),
+    };
+    VkResult res = vkCreateBuffer(v->device, &bufferCreateInfo, NULL, &uploadBuffer);
+	printf("vkCreateBuffer: %d\n", res);
+    vkGetBufferMemoryRequirements(v->device, uploadBuffer, &memoryRequirements);
+	printf("vkGetBufferMemoryRequirements: %d\n", res);
+
+    memoryIndex = bit_ffs32(compatibleMemTypes[VULKAN_MEM_DEVICE_UPLOAD] & memoryRequirements.memoryTypeBits);
+    allocInfo = (VkMemoryAllocateInfo){
+        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize = memoryRequirements.size,
+        .memoryTypeIndex = memoryIndex,
+    };
+    res = vkAllocateMemory(v->device, &allocInfo, NULL, &uploadBufferMemory);
+	printf("vkAllocateMemory: %d\n", res);
+    vkBindBufferMemory(v->device, uploadBuffer, uploadBufferMemory, 0);
+    vkMapMemory(v->device, uploadBufferMemory, 0, VK_WHOLE_SIZE, 0, &uploadBufferPtr);
+
+    bufferCreateInfo = (VkBufferCreateInfo){
+        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size = STATIC_BUFFER_SIZE,
+        .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT
+        | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
+        | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .queueFamilyIndexCount = 1,
+        .pQueueFamilyIndices = &(v->family_index),
+    };
+    vkCreateBuffer(v->device, &bufferCreateInfo, NULL, &staticBuffer);
+    vkGetBufferMemoryRequirements(v->device, staticBuffer, &memoryRequirements);
+
+    memoryIndex = bit_ffs32(compatibleMemTypes[VULKAN_MEM_DEVICE_LOCAL] & memoryRequirements.memoryTypeBits);
+    allocInfo = (VkMemoryAllocateInfo){
+        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize = memoryRequirements.size,
+        .memoryTypeIndex = memoryIndex,
+    };
+    vkAllocateMemory(v->device, &allocInfo, NULL, &staticBufferMemory);
+    vkBindBufferMemory(v->device, staticBuffer, staticBufferMemory, 0);
+
+    return 1;
 }
 
 int init_render(t_vulkan *v)
@@ -355,16 +479,32 @@ int init_render(t_vulkan *v)
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
         .commandPool = v->commandpool,
         .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-        .commandBufferCount = 3,
+        .commandBufferCount = 2,            ///////////////////////////////////////////
     };
 
 	v->command_buffers = (VkCommandBuffer*)ft_memalloc(sizeof(VkCommandBuffer) * v->sc_image_count);
     res = vkAllocateCommandBuffers(v->device, &commandBufferAllocInfo, v->command_buffers);
 	ft_printf("vkAllocateCommandBuffers: %d\n", res);
 
+	    VkSemaphoreCreateInfo semaphoreCreateInfo = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+
+    vkCreateSemaphore(v->device, &semaphoreCreateInfo, 0, &imageAvailableSemaphores[0]);
+    vkCreateSemaphore(v->device, &semaphoreCreateInfo, 0, &imageAvailableSemaphores[1]);
+    vkCreateSemaphore(v->device, &semaphoreCreateInfo, 0, &renderFinishedSemaphores[0]);
+    vkCreateSemaphore(v->device, &semaphoreCreateInfo, 0, &renderFinishedSemaphores[1]);
+
+    VkFenceCreateInfo fenceCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+        .flags = VK_FENCE_CREATE_SIGNALED_BIT
+    };
+
+    vkCreateFence(v->device, &fenceCreateInfo, 0, &frameFences[0]);
+    vkCreateFence(v->device, &fenceCreateInfo, 0, &frameFences[1]);
+
     createRenderPass(v);
     createFramebuffers(v);
     createPipeline(v);
+	createUploadBuffer(v);
 
     return 1;
 }

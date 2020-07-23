@@ -6,11 +6,24 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:37:45 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/07/20 19:45:58 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/23 22:57:40 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
+
+uint32_t vkutFindCompatibleMemoryType(VkPhysicalDeviceMemoryProperties* memProperties, VkMemoryPropertyFlags flags)
+{
+    const uint32_t count = memProperties->memoryTypeCount;
+    uint32_t compatibleMemoryTypes = 0;
+    for (uint32_t i = 0; i < count; i++)
+    {
+        int isCompatible = ( memProperties->memoryTypes[i].propertyFlags & flags) == flags;
+        compatibleMemoryTypes |= (isCompatible << i);
+    }
+
+    return compatibleMemoryTypes;
+}
 
 int			vku_get_physical_device(t_vulkan *v)
 {
@@ -93,5 +106,14 @@ int			vku_create_logical_device(t_vulkan *v)
     if (vkCreateDevice(v->phys_device.device, &dev_info, NULL, &(v->device)) != VK_SUCCESS)
 		return (0);
 	vkGetDeviceQueue(v->device, v->family_index, 0, &(v->queue));
+	vkGetPhysicalDeviceMemoryProperties(v->phys_device.device, &deviceMemProperties);
+    compatibleMemTypes[VULKAN_MEM_DEVICE_READBACK]
+        = vkutFindCompatibleMemoryType(&deviceMemProperties, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+                                                            | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+    compatibleMemTypes[VULKAN_MEM_DEVICE_UPLOAD]
+        = vkutFindCompatibleMemoryType(&deviceMemProperties, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+                                                            | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    compatibleMemTypes[VULKAN_MEM_DEVICE_LOCAL]
+        = vkutFindCompatibleMemoryType(&deviceMemProperties, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 	return (1);
 }

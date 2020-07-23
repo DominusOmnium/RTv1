@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:23:27 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/07/21 00:17:05 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/23 21:44:32 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ int			vku_instance_create(t_app *app)
 	appInfo = (VkApplicationInfo){
 		.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
 		.pApplicationName = app->appname,
+		.applicationVersion = VK_MAKE_VERSION(1, 0, 0),
+		.pEngineName = "No Engine",
 		.engineVersion = 1,
 		.apiVersion = VK_API_VERSION_1_0
 	};
