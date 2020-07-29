@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 17:56:35 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/07/24 00:28:32 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/29 12:17:08 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ int createPipeline(t_vulkan *v)
 {
 	char *code;
 	
-	size_t code_len = load_shader_file("shaders/test.spv", &code);
+	size_t code_len = load_shader_file("shaders/rtv1-frag.spv", &code);
     VkShaderModule fragmentShader = vku_createShaderModule(v, code, code_len);
 
 	code_len = load_shader_file("shaders/testver.spv", &code);
