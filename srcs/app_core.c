@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/07/29 20:31:42 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/08/01 18:48:42 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,20 @@ void	init_struct(t_retr *r, char *fname)
     r->d = 1;
 }
 
+t_vec3	rotation_axis1(double angle, t_vec3 axis, t_vec3 p)
+{
+	t_vec3 res;
+	double c;
+	double s;
+
+	c = cos(angle);
+	s = sin(angle);
+	res.x = p.x * (c + axis.x * axis.x * (1 - c)) + p.y * (axis.y * axis.x * (1 - c) + axis.z * s) + p.z * (axis.z * axis.x * (1 - c) - axis.y * s);
+	res.y = p.x * (axis.x * axis.y * (1 - c) - axis.z * s) + p.y * (c + axis.y * axis.y * (1 - c)) + p.z * (axis.z * axis.y * (1 - c) + axis.x * s);
+	res.z = p.x * (axis.x * axis.z * (1 - c) + axis.y * s) + p.y * (axis.y * axis.z* (1 - c) - axis.x * s) + p.z * (c + axis.z * axis.z * (1 - c));
+	return (res);
+}
+
 void	rtv_app_run(t_app *app, char *fname)
 {
 	int	run;
@@ -82,35 +96,43 @@ void	rtv_app_run(t_app *app, char *fname)
 			{
 				if (evt.key.keysym.sym == SDLK_UP)
 				{
-					r.camera.position = vec3d_add_vec3d(r.camera.position, (t_vec3){0, 1, 0});
+					r.camera.position = vec3d_add_vec3d(r.camera.position, vec3d_mul_d(r.camera.rotation, vec3d_mod(r.camera.rotation)));
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_DOWN)
 				{
-					r.camera.position = vec3d_add_vec3d(r.camera.position, (t_vec3){0, -1, 0});
+					r.camera.position = vec3d_sub_vec3d(r.camera.position, vec3d_mul_d(r.camera.rotation, vec3d_mod(r.camera.rotation)));
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_LEFT)
 				{
-					r.camera.position = vec3d_add_vec3d(r.camera.position, (t_vec3){-1, 0, 0});
+					r.camera.position = vec3d_add_vec3d(r.camera.position, (t_vec3){-0.1, 0, 0});
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_RIGHT)
 				{
-					r.camera.position = vec3d_add_vec3d(r.camera.position, (t_vec3){1, 0, 0});
+					r.camera.position = vec3d_add_vec3d(r.camera.position, (t_vec3){0.1, 0, 0});
+					j = 0;
+				}
+				if (evt.key.keysym.sym == SDLK_q)
+				{
+					r.camera.rotation = rotation_axis1(0.1, (t_vec3){0, 1, 0}, r.camera.rotation);
+					//r.camera.rotation = vec3d_add_vec3d(r.camera.rotation, (t_vec3){0.1, 0, 0});
+					j = 0;
+				}
+				if (evt.key.keysym.sym == SDLK_e)
+				{
+					r.camera.rotation = rotation_axis1(-0.1, (t_vec3){0, 1, 0}, r.camera.rotation);
+					//r.camera.rotation = vec3d_add_vec3d(r.camera.rotation, (t_vec3){-0.1, 0, 0});
 					j = 0;
 				}
 			}
         }
-		//int i = 0;
 		if (j == 0)
 		{
-			/*raytracing(&r, app);
-			if (vku_draw_frame(&(app->vulkan)) == 0)
-				handle_error("Draw frame error");*/
-			draw_frame(&(app->vulkan));
+			draw_frame(&(app->vulkan), &r);
+			j = 1;
 		}
-		j++;
     }
 	rtv_app_destroy(&(app->vulkan));
     SDL_Quit();

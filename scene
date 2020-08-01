@@ -64,5 +64,5 @@ direction = {1, 4, 4}
 
 camera
 
-rotation = {1, 0, 0}
+direction = {0, 0, 1}
 position = {0, 0, 0}

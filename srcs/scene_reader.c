@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/15 10:50:02 by marvin            #+#    #+#             */
-/*   Updated: 2020/07/14 22:25:02 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/08/01 13:32:02 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,7 +173,7 @@ void	parse_light(char *str, t_retr *r, int j, int type)
 
 void	parse_camera(t_retr *r, char *str)
 {
-	if (ft_strstr(str, "rotation") != NULL)
+	if (ft_strstr(str, "direction") != NULL)
 		r->camera.rotation = string_to_vector(str);
 	else if (ft_strstr(str, "position") != NULL)
 		r->camera.position = string_to_vector(str);

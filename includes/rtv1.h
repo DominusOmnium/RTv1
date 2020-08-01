@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/07/23 22:53:36 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/31 23:35:18 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ typedef t_vec3_double t_vec3;
 */
 typedef struct					s_buffer
 {
+	
 	VkDeviceMemory				dev_mem;
 	VkBuffer					buffer;
 	void						*mem_ptr;
@@ -246,6 +247,6 @@ int		read_scene(char *fname, t_retr *r);
 size_t	load_shader_file(char *fname, char **shader);
 VkShaderModule	vku_createShaderModule(t_vulkan *v, char *code, uint32_t codeL);
 int init_render(t_vulkan *v);
-void draw_frame(t_vulkan *v);
+void draw_frame(t_vulkan *v, t_retr *r);
 //void	shader_compile(char *code);
 #endif

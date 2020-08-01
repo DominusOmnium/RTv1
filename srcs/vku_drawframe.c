@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 17:56:35 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/07/29 12:17:08 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/07/31 23:52:57 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,7 +248,7 @@ int createPipeline(t_vulkan *v)
         .pPushConstantRanges = &(VkPushConstantRange) {
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
             .offset = 0,
-            .size = 20,
+            .size = 32,
         }
     };
     VkResult res = vkCreatePipelineLayout(v->device, &pipelineLayoutCreateInfo, 0, &(v->pipelineLayout));
@@ -281,7 +281,7 @@ int createPipeline(t_vulkan *v)
 
 uint32_t frameIndex = 0;
 
-void draw_frame(t_vulkan *v)
+void draw_frame(t_vulkan *v, t_retr *r)
 {
     uint32_t index = frameIndex % 2;
     vkWaitForFences(v->device, 1, &frameFences[index], VK_TRUE, UINT64_MAX);
@@ -363,7 +363,11 @@ void draw_frame(t_vulkan *v)
         py = py < 0 ? 0 : py; py = py >(int)v->phys_device.surface_cap.currentExtent.height ? v->phys_device.surface_cap.currentExtent.height : py;
     }
 
-    float fragmentConstants[5] = { (float)v->phys_device.surface_cap.currentExtent.width, (float)v->phys_device.surface_cap.currentExtent.height, (float)px, (float)py, SDL_GetTicks() / 1000.0f };
+    float fragmentConstants[9] = { (float)r->camera.position.x, (float)r->camera.position.y, (float)r->camera.position.z,
+									(float)v->phys_device.surface_cap.currentExtent.width,
+									(float)r->camera.rotation.x, (float)r->camera.rotation.y, (float)r->camera.rotation.z,
+									(float)v->phys_device.surface_cap.currentExtent.height, r->d/*,
+									SDL_GetTicks() / 1000.0f */};
 
     vkCmdPushConstants((v->command_buffers)[index], v->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(fragmentConstants), fragmentConstants);
 	
