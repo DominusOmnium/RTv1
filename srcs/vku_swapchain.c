@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 01:11:01 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/07/23 21:54:44 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/08/04 15:27:01 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,9 @@ int vku_swapchain_create(t_vulkan *v)
 	surf_form = v->phys_device.surface_formats;
 	if (surf_form->format == VK_FORMAT_UNDEFINED)
 		surf_form->format = VK_FORMAT_B8G8R8A8_UNORM;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(v->phys_device.device,
-	v->surface, &pres_mode_count, NULL);
-	pres_modes = (VkPresentModeKHR*)ft_memalloc(sizeof(VkPresentModeKHR) * pres_mode_count);
+	vkGetPhysicalDeviceSurfacePresentModesKHR(v->phys_device.device, 
+											v->surface, &pres_mode_count, NULL);
+	pres_modes = ft_memalloc(sizeof(VkPresentModeKHR) * pres_mode_count);
 	vkGetPhysicalDeviceSurfacePresentModesKHR(v->phys_device.device, v->surface, &pres_mode_count, pres_modes);
 	presentMode = VK_PRESENT_MODE_FIFO_KHR;
 	i = 0;
@@ -45,11 +45,10 @@ int vku_swapchain_create(t_vulkan *v)
 		}
 		i++;
 	}
-	v->sc_image_count = presentMode == VK_PRESENT_MODE_MAILBOX_KHR ?
-	PRESENT_MODE_MAILBOX_IMAGE_COUNT : PRESENT_MODE_DEFAULT_IMAGE_COUNT;
-	free(pres_modes);
+	v->framebuffer.sc_image_count = presentMode == VK_PRESENT_MODE_MAILBOX_KHR ?
+			PRESENT_MODE_MAILBOX_IMAGE_COUNT : PRESENT_MODE_DEFAULT_IMAGE_COUNT;
+	ft_memdel((void**)&pres_modes);
 	
-	v->sc_images = (VkImage*)ft_memalloc(sizeof(VkImage) * v->sc_image_count);
 	swapchainExtent = v->phys_device.surface_cap.currentExtent;
 	if (swapchainExtent.width == UINT32_MAX)
     {
@@ -66,7 +65,7 @@ int vku_swapchain_create(t_vulkan *v)
 	VkSwapchainCreateInfoKHR swapChainCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .surface = v->surface,
-        .minImageCount = v->sc_image_count,
+        .minImageCount = v->framebuffer.sc_image_count,
         .imageFormat = surf_form->format,
         .imageColorSpace = surf_form->colorSpace,
         .imageExtent = swapchainExtent,
@@ -85,8 +84,8 @@ int vku_swapchain_create(t_vulkan *v)
 		printf("Create Swapchain Error: %d\n", result);
         return (0);
 	}
-	vkGetSwapchainImagesKHR(v->device, v->swapchain, &v->sc_image_count, NULL);
-    vkGetSwapchainImagesKHR(v->device, v->swapchain, &v->sc_image_count, v->sc_images);
+	//vkGetSwapchainImagesKHR(v->device, v->swapchain, &v->framebuffer.sc_image_count, NULL);
+    vkGetSwapchainImagesKHR(v->device, v->swapchain, &v->framebuffer.sc_image_count, v->framebuffer.sc_images);
 
     return (1);
 }

@@ -15,7 +15,6 @@ SRCS =	main.c \
 		vku_window.c \
 		vku_buffers.c \
 		utils.c \
-		raytracing.c \
 		scene_reader.c \
 		shader.c \
 		shader_reader.c
@@ -76,7 +75,7 @@ test:
 	gcc -o q test.o -l SDL2 -l vulkan -lm
 
 shaders:
-	glslc -o shaders/raytracing.spv shaders/raytracing.frag
+	glslc -o shaders/rtv1-frag.spv shaders/rtv1.frag
 	glslc -o shaders/shader.spv shaders/shader.vert
 
 .PHONY: clean fclean all re windows libs

@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 16:39:47 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/03/14 16:41:20 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/08/10 15:37:36 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,6 @@
 
 void	handle_error(char *msg)
 {
-	int i;
-
-	i = 0;
-	while (msg[i])
-		i++;
-	write(1, msg, i);
+	ft_putendl(msg);
 	exit(0);
 }

@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/08/01 18:48:42 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/08/10 16:42:33 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int		rtv_app_create(t_app *app)
 	if (vku_swapchain_create(&(app->vulkan)) == 0)
 		handle_error("Swapchain creation error\n");
 	ft_printf("Swapchain creation done\n");
-	if (init_render(&(app->vulkan)) == 0)
+	if (init_render(&(app->vulkan), &app->r) == 0)
 		handle_error("Render initialisation error\n");
 	/*if (vku_init_render(app) == 0)
 		handle_error("Render initialisation error\n");
@@ -44,20 +44,12 @@ int		rtv_app_create(t_app *app)
 
 void	rtv_app_destroy(t_vulkan *v)
 {
-	vkUnmapMemory(v->device, v->buf.dev_mem);
-	vkFreeMemory(v->device, v->buf.dev_mem, NULL);
-	vkDestroyBuffer(v->device, v->buf.buffer, NULL);
+	//vkUnmapMemory(v->device, v->buf.dev_mem);
+	//vkFreeMemory(v->device, v->buf.dev_mem, NULL);
+	//vkDestroyBuffer(v->device, v->buf.buffer, NULL);
 	vkDestroySwapchainKHR(v->device, v->swapchain, NULL);
 	vkDestroyDevice(v->device, NULL);
 	vkDestroyInstance(v->inst, NULL);
-}
-
-void	init_struct(t_retr *r, char *fname)
-{
-	read_scene(fname, r);
-    r->vw = 1.5;
-    r->vh = 1;
-    r->d = 1;
 }
 
 t_vec3	rotation_axis1(double angle, t_vec3 axis, t_vec3 p)
@@ -78,9 +70,9 @@ void	rtv_app_run(t_app *app, char *fname)
 {
 	int	run;
 	int j;
-	t_retr r;
+	//t_retr r;
 
-	init_struct(&r, fname);
+	//init_struct(&r, fname);
 	run = 1;
 	j = 0;
 	while (run)
@@ -96,33 +88,39 @@ void	rtv_app_run(t_app *app, char *fname)
 			{
 				if (evt.key.keysym.sym == SDLK_UP)
 				{
-					r.camera.position = vec3d_add_vec3d(r.camera.position, vec3d_mul_d(r.camera.rotation, vec3d_mod(r.camera.rotation)));
+					app->r.camera.position = vec3_add_vec3(app->r.camera.position, vec3_mul_f(app->r.camera.rotation, vec3_mod(app->r.camera.rotation)));
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_DOWN)
 				{
-					r.camera.position = vec3d_sub_vec3d(r.camera.position, vec3d_mul_d(r.camera.rotation, vec3d_mod(r.camera.rotation)));
+					app->r.camera.position = vec3_sub_vec3(app->r.camera.position, vec3_mul_f(app->r.camera.rotation, vec3_mod(app->r.camera.rotation)));
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_LEFT)
 				{
-					r.camera.position = vec3d_add_vec3d(r.camera.position, (t_vec3){-0.1, 0, 0});
+					app->r.camera.position = vec3_add_vec3(app->r.camera.position, (t_vec3){-0.1, 0, 0});
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_RIGHT)
 				{
-					r.camera.position = vec3d_add_vec3d(r.camera.position, (t_vec3){0.1, 0, 0});
+					app->r.camera.position = vec3_add_vec3(app->r.camera.position, (t_vec3){0.1, 0, 0});
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_q)
 				{
-					r.camera.rotation = rotation_axis1(0.1, (t_vec3){0, 1, 0}, r.camera.rotation);
-					//r.camera.rotation = vec3d_add_vec3d(r.camera.rotation, (t_vec3){0.1, 0, 0});
+					t_vec3 prev = app->r.camera.rotation;
+					app->r.camera.rotation = rotation_axis1(3.14/10, (t_vec3){0, 1, 0}, app->r.camera.rotation);
+					float cos = vec3_scalar(prev, app->r.camera.rotation);
+					ft_printf("Cos: %f\n", cos);
+					//r.camera.rotation = vec3_add_vec3(r.camera.rotation, (t_vec3){0.1, 0, 0});
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_e)
 				{
-					r.camera.rotation = rotation_axis1(-0.1, (t_vec3){0, 1, 0}, r.camera.rotation);
+					t_vec3 prev = app->r.camera.rotation;
+					app->r.camera.rotation = rotation_axis1(-3.14/10, (t_vec3){0, 1, 0}, app->r.camera.rotation);
+					float cos = vec3_scalar(prev, app->r.camera.rotation);
+					ft_printf("Cos: %f\n", cos);
 					//r.camera.rotation = vec3d_add_vec3d(r.camera.rotation, (t_vec3){-0.1, 0, 0});
 					j = 0;
 				}
@@ -130,7 +128,7 @@ void	rtv_app_run(t_app *app, char *fname)
         }
 		if (j == 0)
 		{
-			draw_frame(&(app->vulkan), &r);
+			draw_frame1(&(app->vulkan), &(app->r));
 			j = 1;
 		}
     }

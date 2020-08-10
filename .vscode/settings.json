@@ -16,6 +16,10 @@
 		"stdarg.h": "c",
 		"stdlib.h": "c",
 		"string.h": "c",
-		"cmath": "c"
-	}
+		"cmath": "c",
+		"array": "c",
+		"string": "c",
+		"string_view": "c"
+	},
+	
 }
