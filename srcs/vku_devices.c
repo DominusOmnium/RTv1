@@ -3,45 +3,48 @@
 /*                                                        :::      ::::::::   */
 /*   vku_devices.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:37:45 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/08/04 16:19:46 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/08/19 14:53:14 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
 
-uint32_t vku_find_compatible_memory_type(VkPhysicalDeviceMemoryProperties* mem_prop, VkMemoryPropertyFlags flags)
+static uint32_t	find_comp_mem_type(VkPhysicalDeviceMemoryProperties* mem_prop,
+									VkMemoryPropertyFlags flags)
 {
-    uint32_t	compatible_mem_types;
+    uint32_t	res;
 	uint32_t	i;
 	
-	compatible_mem_types = 0;
+	res = 0;
 	i = 0;
 	while (i < mem_prop->memoryTypeCount)
 	{
-        compatible_mem_types |= (((mem_prop->memoryTypes[i].propertyFlags & flags) == flags) << i);
+        res |= ((mem_prop->memoryTypes[i].propertyFlags & flags) == flags) << i;
 		i++;
 	}
-    return compatible_mem_types;
+    return (res);
 }
 
-int			vku_get_physical_device(t_vulkan *v)
+void			vku_get_physical_device(t_vulkan *v)
 {
 	VkPhysicalDevice			*d;
 	VkPhysicalDeviceProperties	*d_prop;
 	VkQueueFamilyProperties		*qf_prop;
 	VkBool32					*sup_pres;
-	u_int32_t					num_d;
-	u_int32_t					num;
-	u_int32_t					i;
-	u_int32_t					j;
+	uint32_t					num_d;
+	uint32_t					num;
+	uint32_t					i;
+	uint32_t					j;
 
-	VkResult r = vkEnumeratePhysicalDevices(v->inst, &num_d, NULL);
+	if (vkEnumeratePhysicalDevices(v->inst, &num_d, NULL) != VK_SUCCESS)
+		handle_error("Enumerate Physical Devices error!");
 	d = ft_memalloc(sizeof(VkPhysicalDevice) * num_d);
 	d_prop = ft_memalloc(sizeof(VkPhysicalDeviceProperties) * num_d);
-	r = vkEnumeratePhysicalDevices(v->inst, &num_d, d);
+	if (vkEnumeratePhysicalDevices(v->inst, &num_d, d) != VK_SUCCESS)
+		handle_error("Enumerate Physical Devices error!");
 	i = 0;
 	while (i < num_d)
 	{
@@ -54,7 +57,7 @@ int			vku_get_physical_device(t_vulkan *v)
 		while (++j < num)
 		{
 			vkGetPhysicalDeviceSurfaceSupportKHR(d[i], j, v->surface, &(sup_pres[j]));
-			if (qf_prop[j].queueFlags & VK_QUEUE_GRAPHICS_BIT && d_prop[i].deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+			if (qf_prop[j].queueFlags & VK_QUEUE_GRAPHICS_BIT/* && d_prop[i].deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU*/)
 				if (sup_pres[j])
 				{
 					v->phys_device.dev_prop = d_prop[i];
@@ -70,7 +73,7 @@ int			vku_get_physical_device(t_vulkan *v)
 					vkGetPhysicalDeviceSurfaceCapabilitiesKHR(d[i], v->surface, &(v->phys_device.surface_cap));
 					ft_memdel((void**)&d);
 					ft_memdel((void**)&d_prop);
-					return (1);
+					break ;
 				}
 			ft_memdel((void**)&qf_prop);
 			ft_memdel((void**)&sup_pres);
@@ -79,10 +82,9 @@ int			vku_get_physical_device(t_vulkan *v)
 	}
 	ft_memdel((void**)&d);
 	ft_memdel((void**)&d_prop);
-	return (0);
 }
 
-int			vku_create_logical_device(t_vulkan *v)
+void			vku_create_logical_device(t_vulkan *v)
 {
 	float					queue_priorities;
 	VkDeviceCreateInfo		dev_info;
@@ -95,6 +97,7 @@ int			vku_create_logical_device(t_vulkan *v)
 		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
 		.enabledExtensionCount = 1,
 		.ppEnabledExtensionNames = dev_ext,
+		.pEnabledFeatures = NULL,
 		.queueCreateInfoCount = 1,
 		.pQueueCreateInfos = &(VkDeviceQueueCreateInfo){
 			.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
@@ -108,12 +111,11 @@ int			vku_create_logical_device(t_vulkan *v)
 	vkGetDeviceQueue(v->device, v->phys_device.family_index, 0, &(v->queue));
 	vkGetPhysicalDeviceMemoryProperties(v->phys_device.device, &device_mem_prop);
     v->compatible_mem_types[VULKAN_MEM_DEVICE_READBACK]
-        = vku_find_compatible_memory_type(&device_mem_prop, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+        = find_comp_mem_type(&device_mem_prop, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
                                                             | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
     v->compatible_mem_types[VULKAN_MEM_DEVICE_UPLOAD]
-        = vku_find_compatible_memory_type(&device_mem_prop, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+        = find_comp_mem_type(&device_mem_prop, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
                                                             | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     v->compatible_mem_types[VULKAN_MEM_DEVICE_LOCAL]
-        = vku_find_compatible_memory_type(&device_mem_prop, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-	return (1);
+        = find_comp_mem_type(&device_mem_prop, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 }

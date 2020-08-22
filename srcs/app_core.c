@@ -3,58 +3,72 @@
 /*                                                        :::      ::::::::   */
 /*   app_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/08/10 16:42:33 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/08/22 12:15:44 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
 
-int		rtv_app_create(t_app *app)
+void	rtv_app_create(t_app *app)
 {
-	if (vku_instance_create(app) == 0)
-		handle_error("Instance creation error\n");
+	vku_instance_create(app);
 	ft_printf("Instance creation done\n");
-	if (vku_window_create(app) == 0)
-		handle_error("Window creation error\n");
+	vku_window_create(app);
 	ft_printf("Window creation done\n");
-	if (vku_get_physical_device(&(app->vulkan)) == 0)
-		handle_error("Get physical device error\n");
-	ft_printf("Get physical device done: %s\n", app->vulkan.phys_device.dev_prop.deviceName);
-	if (vku_create_logical_device(&(app->vulkan)) == 0)
-		handle_error("Logical device creation error\n");
+	vku_get_physical_device(&(app->vulkan));
+	ft_printf("Get physical device done: %s\n",
+						app->vulkan.phys_device.dev_prop.deviceName);
+	vku_create_logical_device(&(app->vulkan));
 	ft_printf("Logical device creation done\n");
-	if (vku_swapchain_create(&(app->vulkan)) == 0)
-		handle_error("Swapchain creation error\n");
+	vku_swapchain_create(&(app->vulkan), &(app->r));
 	ft_printf("Swapchain creation done\n");
-	if (init_render(&(app->vulkan), &app->r) == 0)
-		handle_error("Render initialisation error\n");
-	/*if (vku_init_render(app) == 0)
-		handle_error("Render initialisation error\n");
-	ft_printf("Renderer initialization done\n");
-	if (vku_create_buffer(&(app->vulkan)) == 0)
-		handle_error("Buffer creation error\n");
-	ft_printf("Buffer creation done\n");
-	if (vku_record_cmb(&(app->vulkan)) == 0)
-		handle_error("Cmb record error\n");
-	ft_printf("Cmb record done\n");*/
+	vku_init_render(&(app->vulkan));
+	ft_printf("Render initialization done\n");
 }
 
 void	rtv_app_destroy(t_vulkan *v)
 {
-	//vkUnmapMemory(v->device, v->buf.dev_mem);
-	//vkFreeMemory(v->device, v->buf.dev_mem, NULL);
-	//vkDestroyBuffer(v->device, v->buf.buffer, NULL);
+	vkWaitForFences(v->device, 3, &(v->sync.frame_fences[0]), VK_TRUE, UINT64_MAX);
+	vkDestroyFramebuffer(v->device, v->framebuffer.frame_buffers[0], NULL);
+	vkDestroyFramebuffer(v->device, v->framebuffer.frame_buffers[1], NULL);
+	vkDestroyFramebuffer(v->device, v->framebuffer.frame_buffers[2], NULL);
+	vkFreeCommandBuffers(v->device, v->commandpool, FRAME_COUNT, v->command_buffers);
+	vkDestroyPipeline(v->device, v->pipeline, NULL);
+	vkDestroyPipelineLayout(v->device, v->pipelineLayout, NULL);
+	vkDestroyRenderPass(v->device, v->renderpass, NULL);
 	vkDestroySwapchainKHR(v->device, v->swapchain, NULL);
+	vkDestroyBuffer(v->device, v->sbo_buffers[0].buffer, NULL);
+	vkFreeMemory(v->device, v->sbo_buffers[0].dev_mem, NULL);
+	vkDestroyBuffer(v->device, v->sbo_buffers[1].buffer, NULL);
+	vkFreeMemory(v->device, v->sbo_buffers[1].dev_mem, NULL);
+	vkDestroyBuffer(v->device, v->sbo_buffers[2].buffer, NULL);
+	vkFreeMemory(v->device, v->sbo_buffers[2].dev_mem, NULL);
+	vkDestroyDescriptorPool(v->device, v->descriptor.pool, NULL);
+	vkDestroyImageView(v->device, v->framebuffer.sc_image_views[0], NULL);
+	vkDestroyImageView(v->device, v->framebuffer.sc_image_views[1], NULL);
+	vkDestroyImageView(v->device, v->framebuffer.sc_image_views[2], NULL);
+	vkDestroyDescriptorSetLayout(v->device, v->descriptor.set_layout, NULL);
+	vkDestroySemaphore(v->device, v->sync.image_available_sem[0], NULL);
+	vkDestroySemaphore(v->device, v->sync.image_available_sem[1], NULL);
+	vkDestroySemaphore(v->device, v->sync.image_available_sem[2], NULL);
+	vkDestroySemaphore(v->device, v->sync.render_finished_sem[0], NULL);
+	vkDestroySemaphore(v->device, v->sync.render_finished_sem[1], NULL);
+	vkDestroySemaphore(v->device, v->sync.render_finished_sem[2], NULL);
+	vkDestroyFence(v->device, v->sync.frame_fences[0], NULL);
+	vkDestroyFence(v->device, v->sync.frame_fences[1], NULL);
+	vkDestroyFence(v->device, v->sync.frame_fences[2], NULL);
+	vkDestroyCommandPool(v->device, v->commandpool, NULL);
 	vkDestroyDevice(v->device, NULL);
+	vkDestroySurfaceKHR(v->inst, v->surface, NULL);
 	vkDestroyInstance(v->inst, NULL);
 }
 
-t_vec3	rotation_axis1(double angle, t_vec3 axis, t_vec3 p)
+t_vec4	rotation_axis1(double angle, t_vec4 axis, t_vec4 p)
 {
-	t_vec3 res;
+	t_vec4 res;
 	double c;
 	double s;
 
@@ -66,13 +80,44 @@ t_vec3	rotation_axis1(double angle, t_vec3 axis, t_vec3 p)
 	return (res);
 }
 
-void	rtv_app_run(t_app *app, char *fname)
+void				p3d_rotate_x(t_vec4 *t, float angle)
+{
+	float		prev_y;
+	float		prev_z;
+
+	prev_y = t->y;
+	prev_z = t->z;
+	t->y = (prev_y * cos(RAD(angle)) - prev_z * sin(RAD(angle)));
+	t->z = (prev_y * sin(RAD(angle)) + prev_z * cos(RAD(angle)));
+}
+
+void				p3d_rotate_y(t_vec4 *t, float angle)
+{
+	float		prev_x;
+	float		prev_z;
+
+	prev_x = t->x;
+	prev_z = t->z;
+	t->x = (prev_x * cos(RAD(angle)) + prev_z * sin(RAD(angle)));
+	t->z = (prev_z * cos(RAD(angle)) - prev_x * sin(RAD(angle)));
+}
+
+void				p3d_rotate_z(t_vec4 *t, float angle)
+{
+	float		prev_x;
+	float		prev_y;
+
+	prev_x = t->x;
+	prev_y = t->y;
+	t->x = (prev_x * cos(RAD(angle)) - prev_y * sin(RAD(angle)));
+	t->y = (prev_x * sin(RAD(angle)) + prev_y * cos(RAD(angle)));
+}
+
+void	rtv_app_run(t_app *app)
 {
 	int	run;
 	int j;
-	//t_retr r;
 
-	//init_struct(&r, fname);
 	run = 1;
 	j = 0;
 	while (run)
@@ -88,47 +133,61 @@ void	rtv_app_run(t_app *app, char *fname)
 			{
 				if (evt.key.keysym.sym == SDLK_UP)
 				{
-					app->r.camera.position = vec3_add_vec3(app->r.camera.position, vec3_mul_f(app->r.camera.rotation, vec3_mod(app->r.camera.rotation)));
+					app->r.camera.transform.position = vec4_add_vec4(app->r.camera.transform.position, vec4_mul_f(app->r.camera.direction, vec4_mod(app->r.camera.direction)));
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_DOWN)
 				{
-					app->r.camera.position = vec3_sub_vec3(app->r.camera.position, vec3_mul_f(app->r.camera.rotation, vec3_mod(app->r.camera.rotation)));
+					app->r.camera.transform.position = vec4_sub_vec4(app->r.camera.transform.position, vec4_mul_f(app->r.camera.direction, vec4_mod(app->r.camera.direction)));
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_LEFT)
 				{
-					app->r.camera.position = vec3_add_vec3(app->r.camera.position, (t_vec3){-0.1, 0, 0});
+					app->r.camera.transform.position = vec4_add_vec4(app->r.camera.transform.position, (t_vec4){-0.1, 0, 0, 0});
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_RIGHT)
 				{
-					app->r.camera.position = vec3_add_vec3(app->r.camera.position, (t_vec3){0.1, 0, 0});
+					app->r.camera.transform.position = vec4_add_vec4(app->r.camera.transform.position, (t_vec4){0.1, 0, 0, 0});
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_q)
 				{
-					t_vec3 prev = app->r.camera.rotation;
-					app->r.camera.rotation = rotation_axis1(3.14/10, (t_vec3){0, 1, 0}, app->r.camera.rotation);
-					float cos = vec3_scalar(prev, app->r.camera.rotation);
-					ft_printf("Cos: %f\n", cos);
-					//r.camera.rotation = vec3_add_vec3(r.camera.rotation, (t_vec3){0.1, 0, 0});
+					p3d_rotate_y(&app->r.camera.direction, 10);
+					app->r.camera.transform.rotation.x = -atanf(app->r.camera.direction.y / app->r.camera.direction.z);
+					app->r.camera.transform.rotation.y = -atanf(app->r.camera.direction.x / app->r.camera.direction.z);
+					app->r.camera.transform.rotation.z = -atanf(app->r.camera.direction.y / app->r.camera.direction.x);
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_e)
 				{
-					t_vec3 prev = app->r.camera.rotation;
-					app->r.camera.rotation = rotation_axis1(-3.14/10, (t_vec3){0, 1, 0}, app->r.camera.rotation);
-					float cos = vec3_scalar(prev, app->r.camera.rotation);
-					ft_printf("Cos: %f\n", cos);
-					//r.camera.rotation = vec3d_add_vec3d(r.camera.rotation, (t_vec3){-0.1, 0, 0});
+					p3d_rotate_y(&app->r.camera.direction, -10);
+					app->r.camera.transform.rotation.x = -atanf(app->r.camera.direction.y / app->r.camera.direction.z);
+					app->r.camera.transform.rotation.y = -atanf(app->r.camera.direction.x / app->r.camera.direction.z);
+					app->r.camera.transform.rotation.z = -atanf(app->r.camera.direction.y / app->r.camera.direction.x);
+					j = 0;
+				}
+				if (evt.key.keysym.sym == SDLK_KP_8)
+				{
+					p3d_rotate_x(&app->r.camera.direction, 10);
+					app->r.camera.transform.rotation.x = -atanf(app->r.camera.direction.y / app->r.camera.direction.z);
+					app->r.camera.transform.rotation.y = -atanf(app->r.camera.direction.x / app->r.camera.direction.z);
+					app->r.camera.transform.rotation.z = -atanf(app->r.camera.direction.y / app->r.camera.direction.x);
+					j = 0;
+				}
+				if (evt.key.keysym.sym == SDLK_KP_2)
+				{
+					p3d_rotate_x(&app->r.camera.direction, -10);
+					app->r.camera.transform.rotation.x = -atanf(app->r.camera.direction.y / app->r.camera.direction.z);
+					app->r.camera.transform.rotation.y = -atanf(app->r.camera.direction.x / app->r.camera.direction.z);
+					app->r.camera.transform.rotation.z = -atanf(app->r.camera.direction.y / app->r.camera.direction.x);
 					j = 0;
 				}
 			}
         }
 		if (j == 0)
 		{
-			draw_frame1(&(app->vulkan), &(app->r));
+			draw_frame(&(app->vulkan), &(app->r));
 			j = 1;
 		}
     }

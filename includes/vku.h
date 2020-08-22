@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/04 09:16:26 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/08/07 01:20:03 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/08/18 16:44:30 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,10 @@
 # include "vec_lib.h"
 # include <vulkan/vulkan.h>
 # include <vulkan/vk_sdk_platform.h>
-
+# ifdef _WIN32
+//# include <float.h>
+typedef uint32_t uint32_t;
+# endif
 
 enum {
     VULKAN_MEM_DEVICE_READBACK,
@@ -33,7 +36,7 @@ enum {
     PRESENT_MODE_DEFAULT_IMAGE_COUNT = 2,
     UPLOAD_REGION_SIZE = 64 * Kb,
     UPLOAD_BUFFER_SIZE = FRAME_COUNT * UPLOAD_REGION_SIZE,
-    STATIC_BUFFER_SIZE = 64 * Kb,
+    STATIC_BUFFER_SIZE = 64 * Kb
 };
 
 typedef struct					s_buffer
@@ -54,9 +57,9 @@ typedef struct					s_framebuffer
 
 typedef struct					s_physical_device
 {
-	u_int32_t					num_families;
-	u_int32_t					num_formats;
-	u_int32_t					family_index;
+	uint32_t					num_families;
+	uint32_t					num_formats;
+	uint32_t					family_index;
     VkPhysicalDevice			device;
     VkPhysicalDeviceProperties	dev_prop;
     VkQueueFamilyProperties		*q_family_prop;
@@ -67,9 +70,9 @@ typedef struct					s_physical_device
 
 typedef struct					s_syncronization
 {
-	VkFence						frame_fences[FRAME_COUNT];
-	VkSemaphore					image_available_semaphores[FRAME_COUNT];
-	VkSemaphore					render_finished_semaphores[FRAME_COUNT];
+	VkFence						frame_fences[MAX_SWAPCHAIN_IMAGES];
+	VkSemaphore					image_available_sem[MAX_SWAPCHAIN_IMAGES];
+	VkSemaphore					render_finished_sem[MAX_SWAPCHAIN_IMAGES];
 }								t_syncronization;
 
 typedef struct					s_descriptor
@@ -89,7 +92,7 @@ typedef struct					s_vulkan
 	VkPipeline					pipeline;
 	VkPipelineLayout			pipelineLayout;
 	VkRenderPass				renderpass;
-	VkCommandBuffer				command_buffers[FRAME_COUNT];
+	VkCommandBuffer				command_buffers[MAX_SWAPCHAIN_IMAGES];
 	VkCommandPool				commandpool;
 	VkQueue						queue;
 	t_physical_device			phys_device;
@@ -101,4 +104,7 @@ typedef struct					s_vulkan
 }								t_vulkan;
 
 void	vku_create_buffer(t_vulkan *v, t_uint32 index, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+void	vku_create_descriptor_pool(t_vulkan *v);
+void	vku_create_descriptor_set_layout(t_vulkan *v);
+void	vku_create_descriptor_sets(t_vulkan *v, uint32_t size);
 #endif

@@ -21,5 +21,6 @@
 		"string": "c",
 		"string_view": "c"
 	},
-	
+	"glsllint.glslangValidatorArgs": "-V",
+	"glsllint.glslangValidatorPath": "C:\\VulkanSDK\\1.2.131.2\\Bin\\glslangValidator.exe"
 }

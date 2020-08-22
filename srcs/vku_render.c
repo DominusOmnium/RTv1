@@ -3,36 +3,76 @@
 /*                                                        :::      ::::::::   */
 /*   vku_render.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/10 10:36:02 by celva             #+#    #+#             */
-/*   Updated: 2020/08/04 15:49:01 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/08/19 14:57:28 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
 
-int vku_init_render(t_app *app)
+static void	create_sync_objects(t_vulkan *v)
 {
-	VkCommandPool				command_pool;
-	VkCommandPoolCreateInfo		cp_create_info;
-	VkCommandBufferAllocateInfo	cp_buffer_alloc_info;
+	uint32_t				i;
+	VkSemaphoreCreateInfo	semaphore_create_info;
+	VkFenceCreateInfo		fence_create_info;
 
-	cp_create_info = (VkCommandPoolCreateInfo){
+	semaphore_create_info = (VkSemaphoreCreateInfo){ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+													.pNext = NULL};
+	fence_create_info = (VkFenceCreateInfo){
+		.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		.flags = VK_FENCE_CREATE_SIGNALED_BIT
+	};
+	i = 0;
+	while (i < v->framebuffer.sc_image_count)
+	{
+		if (vkCreateSemaphore(v->device, &semaphore_create_info, 0,
+				&(v->sync.image_available_sem[i])) != VK_SUCCESS)
+			handle_error("Image Availible Semaphore creation error!");
+		if (vkCreateSemaphore(v->device, &semaphore_create_info, 0,
+				&(v->sync.render_finished_sem[i])) != VK_SUCCESS)
+			handle_error("Render Finished Semaphore creation error!");
+		if (vkCreateFence(v->device, &fence_create_info, 0,
+							&(v->sync.frame_fences[i])) != VK_SUCCESS)
+			handle_error("Fence creation error!");
+		i++;
+	}
+}
+
+static void	create_buffers(t_vulkan *v, VkDeviceSize size)
+{
+	t_uint32	i;
+
+	i = 0;
+	while (i < v->framebuffer.sc_image_count)
+	{
+		(v->sbo_buffers)[i].buf_size = size;
+		vku_create_buffer(v, i, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+								VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+								VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		i++;
+	}
+}
+
+void		vku_init_render(t_vulkan *v)
+{
+	VkCommandPoolCreateInfo		commandpool_create_info;
+	
+    commandpool_create_info = (VkCommandPoolCreateInfo){
         .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
         .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-        .queueFamilyIndex = app->vulkan.phys_device.family_index,
+        .queueFamilyIndex = v->phys_device.family_index,
     };
-	if (vkCreateCommandPool(app->vulkan.device, &cp_create_info, 0, &command_pool))
-		return (0);
-	cp_buffer_alloc_info = (VkCommandBufferAllocateInfo){
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-        .commandPool = command_pool,
-        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-        .commandBufferCount = FRAME_COUNT,
-    };
-	if (app->vulkan.command_buffers == NULL ||
-		vkAllocateCommandBuffers(app->vulkan.device, &cp_buffer_alloc_info, app->vulkan.command_buffers))
-		return (0);
-	return (1);
+    if (vkCreateCommandPool(v->device, &commandpool_create_info, 0, &(v->commandpool)) != VK_SUCCESS)
+		handle_error("Commandpool creation error!");
+	create_sync_objects(v);
+	vku_create_render_pass(v);
+	vku_create_descriptor_set_layout(v);
+	vku_create_pipeline(v);
+	vku_create_framebuffers(v);
+	create_buffers(v, STATIC_BUFFER_SIZE);
+	vku_create_descriptor_pool(v);
+	vku_create_descriptor_sets(v, STATIC_BUFFER_SIZE);
+	vku_create_command_buffers(v);
 }

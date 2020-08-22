@@ -18,87 +18,54 @@ const uint light_ambient		= 0x00000005u;
 const uint light_point			= 0x00000006u;
 const uint light_directional	= 0x00000007u;
 
-struct					s_transform
+struct							s_transform
 {
-	vec3				direction;
-	vec3				position;
-}						t_transform;
+	vec4						position;
+	vec4						rotation;
+}								t_transform;
 
-struct					s_figure
+struct							s_closest
 {
-	float 				radius;
-	vec3				direction;
-	float				height;
-	vec3				ver;
-	vec3				vertices[4];
-
-};
-struct					s_object
-{
-	uint				type;
-	s_transform			transform;
-	vec3				color;
-	int					specular;
-	s_figure			figures;
+	float						t_min;
+	float						t_max;
+	float						closest_t;
 };
 
-struct					s_light
-{
-	uint				sType;
-	float				intensity;
-	vec3				position;
-	vec3				direction;
-};
-
-struct					s_closest
-{
-	float				t_min;
-	float				t_max;
-	float				closest_t;
-};
-
-struct					s_retr
+struct							s_retr
 {
 	vec3						ds;
-	float						vw;
-	float						vh;
-	float						d;
 	float						t_min;
 	float						t_max;
 	s_closest					t_c;
-	s_transform					camera;
 };
 
-struct					s_input
+struct							s_input
 {
 	uint						type;
-	s_transform					transform;
-	vec3						color;
-	float						l_intensity;
 	int							f_specular;
 	float 						f_radius;
-	vec3						f_direction;
 	float						f_height;
-	vec3						f_ver;
-	vec3						f_vertices[4];
+	vec4						f_direction;
+	vec4						f_ver;
+	vec4						f_vertices[4];
+	s_transform					transform;
+	vec4						color;
+	float						l_intensity;
+	float						q[3];
 };
 
-layout(push_constant) uniform FSConst {
-	vec3		camPos;
-	float		win_width;
-	vec3		camRot;
-	float		win_height;
-	float		rd;
-} u_input;
-
-layout(std430, binding = 0) buffer Figures
+layout(std430, binding = 0) readonly buffer Figures
 {
-	s_input sbo_input[];
+	s_transform	camera;
+	float		win_width;
+	float		win_height;
+	float		d;
+	float		vh;
+	float		vw;
+	uint		n_fig;
+	uint		n_lig;
+	s_input		sbo_input[];
 };
-/*
-layout(std140, binding = 0) uniform Figures {
-    s_object figures[];
-};*/
 
 s_retr r;
 
@@ -107,9 +74,9 @@ vec3	canvas_to_viewport(int i, int j)
 {
     vec3	res;
 	
-    res.x = j * r.vw / u_input.win_width;
-    res.y = i * r.vh / u_input.win_height;
-    res.z = r.d;
+    res.x = j * vw / win_width;
+    res.y = i * vh / win_height;
+    res.z = d;
     return (res);
 }
 
@@ -139,13 +106,12 @@ vec2	intersect_ray_sphere(vec3 ds, vec3 o, s_input sphere)
 	float 	discriminant;
 	vec2	res;
 
-	c = sphere.transform.position;
+	c = sphere.transform.position.xyz;
 	r = sphere.f_radius;
-	//r = ((t_sphere*)(sphere.obj)).radius;
-	oc = o - c; //vec3d_sub_vec3d(o, c);
-	k1 = dot(ds, ds); //dot(ds, ds);
-	k2 = dot(oc, ds) * 2; //dot(oc, ds) * 2;
-	k3 = dot(oc, oc) - r * r; //dot(oc, oc) - r * r;
+	oc = o - c;
+	k1 = dot(ds, ds);
+	k2 = dot(oc, ds) * 2;
+	k3 = dot(oc, oc) - r * r;
 	discriminant = k2 * k2 - 4 * k1 * k3;
 	if (discriminant < 0)
 	{
@@ -166,18 +132,17 @@ vec2	intersect_ray_plane(vec3 o, vec3 dir, s_input plane)
 	float		b;
 	vec3		col;
 
-	a = dot(dir, plane.transform.direction); //dot(dir, p.direction);
+	a = dot(dir, plane.transform.rotation.xyz);
 	if (abs(a) < 0.0003f)
 		return (vec2(FLT_MAX, FLT_MAX));
-	b = -dot(o - plane.transform.position, plane.transform.direction) / a; //-dot(vec3d_sub_vec3d(o, plane.transform.position), p.direction) / a;
-	//b = -dot(vec3d_sub_vec3d(o, plane.transform.position), p.normal) / a;
-	col = o + dir * b; //vec3d_add_vec3d(o, vec3d_mul_d(dir, b));
+	b = -dot(o - plane.transform.position.xyz, plane.transform.rotation.xyz) / a;
+	col = o + dir * b;
 	if (b < 0.0003f)
 		return (vec2(FLT_MAX, FLT_MAX));
-	if (dot(plane.transform.direction, cross(plane.f_vertices[1] - plane.f_vertices[0], col - plane.f_vertices[0])) > 0 &&
-		dot(plane.transform.direction, cross(plane.f_vertices[2] - plane.f_vertices[1], col - plane.f_vertices[1])) > 0 &&
-		dot(plane.transform.direction, cross(plane.f_vertices[3] - plane.f_vertices[2], col - plane.f_vertices[2])) > 0 &&
-		dot(plane.transform.direction, cross(plane.f_vertices[0] - plane.f_vertices[3], col - plane.f_vertices[3])) > 0)
+	if (dot(plane.transform.rotation.xyz, cross(plane.f_vertices[1].xyz - plane.f_vertices[0].xyz, col - plane.f_vertices[0].xyz)) > 0 &&
+		dot(plane.transform.rotation.xyz, cross(plane.f_vertices[2].xyz - plane.f_vertices[1].xyz, col - plane.f_vertices[1].xyz)) > 0 &&
+		dot(plane.transform.rotation.xyz, cross(plane.f_vertices[3].xyz - plane.f_vertices[2].xyz, col - plane.f_vertices[2].xyz)) > 0 &&
+		dot(plane.transform.rotation.xyz, cross(plane.f_vertices[0].xyz - plane.f_vertices[3].xyz, col - plane.f_vertices[3].xyz)) > 0)
 		return (vec2(b, b));
 	return (vec2(FLT_MAX, FLT_MAX));
 }
@@ -194,9 +159,9 @@ vec2	intersect_ray_cone(vec3 ds, vec3 o, s_input cone)
 	float 	discriminant;
 
 	cos = cone.f_height / sqrt(cone.f_height * cone.f_height + cone.f_radius * cone.f_radius);
-	ov = cone.f_ver - o; //vec3d_sub_vec3d(cone.ver, o);
-	float ovcd = dot(ov, cone.transform.direction);
-	float dscd = dot(ds, cone.transform.direction);
+	ov = cone.f_ver.xyz - o;
+	float ovcd = dot(ov, cone.transform.rotation.xyz);
+	float dscd = dot(ds, cone.transform.rotation.xyz);
 	k1 = cos * cos * dot(ds, ds) - dscd * dscd;
 	k2 = 2 * (ovcd * dscd - cos * cos * dot(ds, ov));
 	k3 = dot(ov, ov) * cos * cos - ovcd * ovcd;
@@ -211,14 +176,10 @@ vec2	intersect_ray_cone(vec3 ds, vec3 o, s_input cone)
 		res.x = (-k2 + sqrt(discriminant)) / (2 * k1);
 		res.y = (-k2 - sqrt(discriminant)) / (2 * k1);
 	}
-	if ((dot(o, cone.transform.direction) + res.x * dscd - dot(cone.f_ver, cone.transform.direction)) > 0)
+	if ((dot(o, cone.transform.rotation.xyz) + res.x * dscd - dot(cone.f_ver.xyz, cone.transform.rotation.xyz)) > 0)
 		res.x = FLT_MAX;
-	if ((dot(o, cone.transform.direction) + res.y * dscd - dot(cone.f_ver, cone.transform.direction)) > 0)
+	if ((dot(o, cone.transform.rotation.xyz) + res.y * dscd - dot(cone.f_ver.xyz, cone.transform.rotation.xyz)) > 0)
 		res.y = FLT_MAX;
-	/*if ((dot(o, cone.direction) + res.x * dot(ds, cone.direction) - dot(cone.ver, cone.direction)) > 0)
-		res.x = DBL_MAX;
-	if ((dot(o, cone.direction) + res.y * dot(ds, cone.direction) - dot(cone.ver, cone.direction)) > 0)
-		res.y = DBL_MAX;*/
 	return (res);
 }
 
@@ -234,13 +195,13 @@ vec2	intersect_ray_cylinder(vec3 ds, vec3 o, s_input cyl)
 	float 	discriminant;
 	vec2	res;
 
-	c = cyl.transform.position;
+	c = cyl.transform.position.xyz;
 	r = cyl.f_radius;
-	v = cyl.transform.direction;
-	oc = o - c; //vec3d_sub_vec3d(o, c);
-	k1 = dot(cross(ds, v), cross(ds, v)); //dot(vec3d_cross(ds, v), vec3d_cross(ds, v));
-	k2 = 2 * dot(cross(ds, v), cross(oc, v)); //2 * dot(vec3d_cross(ds, v), vec3d_cross(oc, v));
-	k3 = dot(cross(oc, v), cross(oc, v)) - r * r; //dot(vec3d_cross(oc, v), vec3d_cross(oc, v)) - r * r;
+	v = cyl.transform.rotation.xyz;
+	oc = o - c;
+	k1 = dot(cross(ds, v), cross(ds, v));
+	k2 = 2 * dot(cross(ds, v), cross(oc, v));
+	k3 = dot(cross(oc, v), cross(oc, v)) - r * r;
 	discriminant = k2 * k2 - 4 * k1 * k3;
 	if (discriminant < 0)
 	{
@@ -264,8 +225,8 @@ s_input	closest_intersection(vec3 ds, vec3 o)
 	r.t_c.closest_t = FLT_MAX;
 	obj.type = obj_null;
 	i = 0;
-	while (i < sbo_input.length())
-	{
+	while (i < n_fig)
+	{			
 		//t.y = FLT_MAX;
 		if (sbo_input[i].type == obj_sphere)
 			t = intersect_ray_sphere(ds, o, sbo_input[i]);
@@ -298,7 +259,7 @@ s_input	closest_intersection(vec3 ds, vec3 o)
 float	compute_lighting(vec3 p, vec3 n, int s)
 {
 	float		res;
-	int			i;
+	uint		i;
 	vec3		l;
 	float		n_scal_l;
 	float		shadow_t;
@@ -306,21 +267,26 @@ float	compute_lighting(vec3 p, vec3 n, int s)
 	float		t_max;
 
 	res = 0.0;
-	i = 0;
-	while (i < sbo_input.length())
+	i = n_fig;
+	while (i < n_fig + n_lig)
 	{
+		if (sbo_input[i].type != light_ambient && sbo_input[i].type != light_point && sbo_input[i].type != light_directional)
+		{
+			i++;
+			continue;
+		}
 		if (sbo_input[i].type == light_ambient)
 			res += sbo_input[i].l_intensity;
 		else 
 		{
 			if (sbo_input[i].type == light_point)
 			{
-				l = sbo_input[i].transform.position - p; //vec3d_sub_vec3d(sbo_input[i].position, p);
+				l = sbo_input[i].transform.position.xyz - p;
 				t_max = 1.0;
 			}
 			else
 			{
-				l = sbo_input[i].transform.direction;
+				l = sbo_input[i].transform.rotation.xyz;
 				t_max = FLT_MAX;
 			}
 			
@@ -335,17 +301,17 @@ float	compute_lighting(vec3 p, vec3 n, int s)
 			}
 			
 			//Диффузность
-			n_scal_l = dot(n, l); //dot(n, l);
+			n_scal_l = dot(n, l);
 			if (n_scal_l > 0)
-				res += sbo_input[i].l_intensity * n_scal_l / (length(n) * length(l)); //res += sbo_input[i].l_intensity * n_scal_l / (vec3d_mod(n) * vec3d_mod(l));
+				res += sbo_input[i].l_intensity * n_scal_l / (length(n) * length(l));
 
 			//Зеркальность
 			if (s != -1)
 			{
-				vec3 r_v = n * dot(n, l) * 2 - l; //vec3d_sub_vec3d(vec3d_mul_d(n, (dot(n, l) * 2.0)), l);
-				float rv_scal_v = dot(r_v, -r.ds); //dot(r_v, v);
+				vec3 r_v = n * dot(n, l) * 2 - l;
+				float rv_scal_v = dot(r_v, -r.ds);
 				if (rv_scal_v > 0)
-					res += sbo_input[i].l_intensity * pow(rv_scal_v / (length(r_v) * length(-r.ds)), s);//res += sbo_input[i].l_intensity * pow(rv_scal_v / (vec3d_mod(r_v) * vec3d_mod(-r.ds)), s);
+					res += sbo_input[i].l_intensity * pow(rv_scal_v / (length(r_v) * length(-r.ds)), s);
 			}
 		}
 		i++;
@@ -355,7 +321,7 @@ float	compute_lighting(vec3 p, vec3 n, int s)
 	return (res);
 }
 
-vec3	trace_ray()
+vec4	trace_ray()
 {
 	int			i;
 	vec3		norm;
@@ -363,111 +329,83 @@ vec3	trace_ray()
 	s_input		obj;
 	float		cL;
 
-	obj = closest_intersection(r.ds, r.camera.position);
+	obj = closest_intersection(r.ds, camera.position.xyz);
 	if (obj.type == obj_null)
-		return (vec3(1.0, 1.0, 1.0));
-	p = r.camera.position + r.ds * r.t_c.closest_t; // vec3d_add_vec3d(r.camera.position, vec3d_mul_d(r.ds, r.t_c.closest_t));
+		return (vec4(1.0, 1.0, 1.0, 1.0));
+	p = camera.position.xyz + r.ds * r.t_c.closest_t;
 	if (obj.type == obj_sphere)
 	{
-		norm = p - obj.transform.position; //vec3d_sub_vec3d(p, obj.transform.position);
-		norm = norm * (1.0 / length(norm)); //vec3d_mul_d(norm, 1.0/vec3d_mod(norm));	
+		norm = p - obj.transform.position.xyz;
+		norm = norm * (1.0 / length(norm));	
 	}
 	else if (obj.type == obj_plane)
 	{
-		if (dot(r.ds, obj.transform.direction) < 0)
-			norm = obj.transform.direction;
+		if (dot(r.ds, obj.transform.rotation.xyz) < 0)
+			norm = obj.transform.rotation.xyz;
 		else
-			norm = -obj.transform.direction; //vec3d_mul_d(obj.figures.direction, -1);
+			norm = -obj.transform.rotation.xyz;
 	}
 	else if (obj.type == obj_cylinder)
 	{
-		vec3 tmp = obj.transform.position - p;
-		norm = (obj.transform.direction * dot(tmp, obj.transform.direction) - tmp) / length(obj.transform.direction);
-		/*vec3d_mul_d(vec3d_sub_vec3d(vec3d_mul_d(obj.figures.direction,
-			dot(vec3d_sub_vec3d(obj.transform.position, p), obj.figures.direction)),
-			vec3d_sub_vec3d(obj.transform.position, p)), 1 / vec3d_mod(obj.figures.direction));*/
+		vec3 tmp = obj.transform.position.xyz - p;
+		norm = (obj.transform.rotation.xyz * dot(tmp, obj.transform.rotation.xyz) - tmp) / length(obj.transform.rotation.xyz);
 	}
 	else if (obj.type == obj_cone)
 	{
-		vec3	pc = p - obj.transform.position; //vec3d_sub_vec3d(p, obj.transform.position);
-		vec3	pv = p - obj.f_ver; //vec3d_sub_vec3d(p, obj.figures.ver);
+		vec3	pc = p - obj.transform.position.xyz;
+		vec3	pv = p - obj.f_ver.xyz;
 		float	cos = obj.f_height / sqrt(obj.f_height * obj.f_height + obj.f_radius * obj.f_radius);
-		norm = vec3(obj.transform.position + obj.transform.direction * (obj.f_height - length(pv) / cos)); //vec3d_add_vec3d(obj.transform.position, vec3d_mul_d(obj.figures.direction, obj.figures.height - vec3d_mod(pv) / cos));
-		norm = p - norm; //vec3d_sub_vec3d(p, norm);
-		norm = norm / length(norm); //vec3d_mul_d(norm, 1 / vec3d_mod(norm));
+		norm = vec3(obj.transform.position.xyz + obj.transform.rotation.xyz * (obj.f_height - length(pv) / cos));
+		norm = p - norm;
+		norm = norm / length(norm);
 	}
 	cL = compute_lighting(p, norm, obj.f_specular);
-	return (obj.color * cL); //(vec3d_mul_d(obj.color, cL));
+	return (obj.color * cL);
+}
+
+vec3	p3d_rotate_x(vec3 t, float angle)
+{
+	float		prev_y;
+	float		prev_z;
+
+	prev_y = t.y;
+	prev_z = t.z;
+	t.y = (prev_y * cos(angle) - prev_z * sin(angle));
+	t.z = (prev_y * sin(angle) + prev_z * cos(angle));
+	return (t);
+}
+
+vec3	p3d_rotate_y(vec3 t, float angle)
+{
+	float		prev_x;
+	float		prev_z;
+
+	prev_x = t.x;
+	prev_z = t.z;
+	t.x = (prev_x * cos(angle) + prev_z * sin(angle));
+	t.z = (prev_z * cos(angle) - prev_x * sin(angle));
+	return (t);
+}
+
+vec3	p3d_rotate_z(vec3 t, float angle)
+{
+	float		prev_x;
+	float		prev_y;
+
+	prev_x = t.x;
+	prev_y = t.y;
+	t.x = (prev_x * cos(angle) - prev_y * sin(angle));
+	t.y = (prev_x * sin(angle) + prev_y * cos(angle));
+	return (t);
 }
 
 void main()
 {
-    r.vh = 1.0;
-	r.vw = u_input.win_width * r.vh / u_input.win_height;
-    r.d = u_input.rd;
-	r.camera.position = u_input.camPos;
-	r.camera.direction = u_input.camRot;
-
-	/*r.n_fig = 6;
-	r.n_lig = 3;
-
-	r.lights[0].type = light_ambient;
-	r.lights[0].l_intensity = 0.2;
-	r.lights[1].type = light_directional;
-	r.lights[1].l_intensity = 0.2;
-	r.lights[1].direction = vec3(1, 4, 4);
-	r.lights[2].type = light_point;
-	r.lights[2].l_intensity = 0.6;
-	r.lights[2].position = vec3(0, 2, 1);
-
-	r.figures[0].figures.radius = 1.0;
-	r.figures[0].transform.position = vec3(0.0, 0.0, 3.0);
-	r.figures[0].color = vec3(1.0, 0.0, 0.0);
-	r.figures[0].type = obj_sphere;
-	r.figures[0].specular = 500;
-
-	r.figures[1].figures.radius = 1;
-	r.figures[1].transform.position = vec3(2.0, 0.0, 4.0);
-	r.figures[1].color = vec3(0.0, 0.0, 1.0);
-	r.figures[1].type = obj_sphere;
-	r.figures[1].specular = 500;
-
-	r.figures[2].figures.radius = 1.0;
-	r.figures[2].transform.position = vec3(-2, 0.0, 4.0);
-	r.figures[2].color = vec3(0.0, 1.0, 0.0824);
-	r.figures[2].type = obj_sphere;
-	r.figures[2].specular = 10;
-
-	r.figures[3].type = obj_plane;
-	r.figures[3].color = vec3(0, 0.5, 0);
-	r.figures[3].specular = 100;
-	r.figures[3].transform.position = vec3(0, -1, 0);
-	r.figures[3].figures.direction = vec3(0, 1, 0);
-	r.figures[3].figures.vertices[0] = vec3(-2, -1, 4);
-	r.figures[3].figures.vertices[1] = vec3(2, -1, 4);
-	r.figures[3].figures.vertices[2] = vec3(2, -1, 2);
-	r.figures[3].figures.vertices[3] = vec3(-2, -1, 2);
-
-	r.figures[4].type = obj_cylinder;
-	r.figures[4].transform.position = vec3(0, 0, 3);
-	r.figures[4].figures.direction = vec3(0, 1, 0);
-	r.figures[4].color = vec3(1, 1, 0);
-	r.figures[4].specular = 100;
-	r.figures[4].figures.radius = 0.5;
-
-	r.figures[5].type = obj_cone;
-	r.figures[5].transform.position = vec3(0, -1, 3);
-	r.figures[5].figures.direction = vec3(0, 1, 0);
-	r.figures[5].color = vec3(0.1, 0.5, 0.25);
-	r.figures[5].specular = 100;
-	r.figures[5].figures.radius = 1;
-	r.figures[5].figures.height = 1;
-	r.figures[5].figures.ver = vec3(0, 0, 3);*/
-
-	r.ds = canvas_to_viewport(int(u_input.win_height/2 - gl_FragCoord.y), int(gl_FragCoord.x - u_input.win_width/2));
-	r.ds = rotation_axis(acos(dot(vec3(0, 0, 1), r.camera.direction) / length(r.camera.direction)), cross(r.camera.direction, vec3(0, 0, 1)), r.ds);
+	r.ds = canvas_to_viewport(int(win_height/2 - gl_FragCoord.y), int(gl_FragCoord.x - win_width/2));
+	r.ds = p3d_rotate_y(r.ds, camera.rotation.y);
+	r.ds = p3d_rotate_x(r.ds, camera.rotation.x);
+	r.ds = p3d_rotate_z(r.ds, camera.rotation.z);
 	r.t_c.t_min = 1.0;
 	r.t_c.t_max = FLT_MAX;
-	outColor = vec4(trace_ray(), 1.0);
-	//outColor = col;
+	outColor = trace_ray();
 }
