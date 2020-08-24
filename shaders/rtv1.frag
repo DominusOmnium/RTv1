@@ -402,8 +402,8 @@ vec3	p3d_rotate_z(vec3 t, float angle)
 void main()
 {
 	r.ds = canvas_to_viewport(int(win_height/2 - gl_FragCoord.y), int(gl_FragCoord.x - win_width/2));
-	r.ds = p3d_rotate_y(r.ds, camera.rotation.y);
 	r.ds = p3d_rotate_x(r.ds, camera.rotation.x);
+	r.ds = p3d_rotate_y(r.ds, camera.rotation.y);
 	r.ds = p3d_rotate_z(r.ds, camera.rotation.z);
 	r.t_c.t_min = 1.0;
 	r.t_c.t_max = FLT_MAX;

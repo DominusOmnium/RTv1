@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/15 10:50:02 by marvin            #+#    #+#             */
-/*   Updated: 2020/08/22 12:15:54 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/24 16:35:48 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,8 +124,8 @@ void	parse_cone(char *str, t_rt *r, int i)
 	}
 	else if (ft_strstr(str, "vertex") != NULL)
 		r->sbo_figures[i].f_ver = string_to_vector(str);
-	else if (ft_strstr(str, "rotation") != NULL)
-		r->sbo_figures[i].transform.rotation = string_to_vector(str);
+	else if (ft_strstr(str, "direction") != NULL)
+		r->sbo_figures[i].f_direction = string_to_vector(str);
 }
 
 void	parse_cylinder(char *str, t_rt *r, int i)
@@ -177,13 +177,19 @@ void	parse_camera(t_rt *r, char *str)
 	{
 		r->camera.direction = string_to_vector(str);
 		r->camera.direction = vec4_mul_f(r->camera.direction, 1.0 / vec4_mod(r->camera.direction));
-		r->camera.transform.rotation.x = -atanf(r->camera.direction.y / r->camera.direction.z);
-		r->camera.transform.rotation.y = -atanf(r->camera.direction.x / r->camera.direction.z);
-		r->camera.transform.rotation.z = -atanf(r->camera.direction.y / r->camera.direction.x);
-		/*r->camera.transform.rotation.z = asinf(r->camera.direction.y);
-		r->camera.transform.rotation.y = atan2f(r->camera.direction.y, r->camera.direction.x);
-		r->camera.transform.rotation.y = asinf(r->camera.direction.z);*/
-		r->camera.transform.position.w = 0;
+		if (r->camera.direction.z != 0.0f)
+			r->camera.transform.rotation.x = -atanf(r->camera.direction.y / r->camera.direction.z);
+		else
+			r->camera.transform.rotation.x = 0.0f;
+		if (r->camera.direction.z != 0.0f)
+			r->camera.transform.rotation.y = -atanf(r->camera.direction.x / r->camera.direction.z);
+		else
+			r->camera.transform.rotation.y = 0.0f;
+		if (r->camera.direction.x != 0.0f)
+			r->camera.transform.rotation.z = -atanf(r->camera.direction.y / r->camera.direction.x);
+		else
+			r->camera.transform.rotation.z = 0.0f;
+		r->camera.transform.rotation.w = 0.0f;
 		printf("r->camera.direction: (%f, %f, %f)\n", r->camera.direction.x, r->camera.direction.y, r->camera.direction.z);
 		printf("r->camera.transform.rotation.x: %f\n", r->camera.transform.rotation.x);
 		printf("r->camera.transform.rotation.y: %f\n", r->camera.transform.rotation.y);

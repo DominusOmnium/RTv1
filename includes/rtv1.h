@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/08/22 11:49:15 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/24 01:41:47 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ typedef struct					s_camera
 {
 	t_transform					transform;
 	t_vec4						direction;
+	t_vec4						up;
 	float						d;
 	float						vh;
 	float						vw;
