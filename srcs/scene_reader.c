@@ -51,124 +51,124 @@ t_vec4	string_to_vector(char *str)
 	return (res);
 }
 
-void	parse_sphere(char *str, t_rt *r, int i)
+void	parse_sphere(char *str, t_rt *r, int figure_number)
 {
-	r->sbo_figures[i].type = obj_sphere;
+	r->sbo_figures[figure_number].type = obj_sphere;
 	if (ft_strstr(str, "position") != NULL)
-		r->sbo_figures[i].transform.position = string_to_vector(str);
+		r->sbo_figures[figure_number].transform.position = string_to_vector(str);
 	else if (ft_strstr(str, "color") != NULL)
-		r->sbo_figures[i].color = string_to_vector(str);
+		r->sbo_figures[figure_number].color = string_to_vector(str);
 	else if (ft_strstr(str, "specular") != NULL)
 	{
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
-		r->sbo_figures[i].f_specular = ft_atoi(str);
+		r->sbo_figures[figure_number].f_specular = ft_atoi(str);
 	}
 	else if (ft_strstr(str, "radius") != NULL)
 	{
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
-		r->sbo_figures[i].f_radius = string_to_float(&str);
+		r->sbo_figures[figure_number].f_radius = string_to_float(&str);
 	}
 }
 
-void	parse_plane(char *str, t_rt *r, int i)
+void	parse_plane(char *str, t_rt *r, int figure_number)
 {
-	r->sbo_figures[i].type = obj_plane;
+	r->sbo_figures[figure_number].type = obj_plane;
 	if (ft_strstr(str, "position") != NULL)
-		r->sbo_figures[i].transform.position = string_to_vector(str);
+		r->sbo_figures[figure_number].transform.position = string_to_vector(str);
 	else if (ft_strstr(str, "rotation") != NULL)
-		r->sbo_figures[i].transform.rotation = string_to_vector(str);
+		r->sbo_figures[figure_number].transform.rotation = string_to_vector(str);
 	else if (ft_strstr(str, "color") != NULL)
-		r->sbo_figures[i].color = string_to_vector(str);
+		r->sbo_figures[figure_number].color = string_to_vector(str);
 	else if (ft_strstr(str, "specular") != NULL)
 	{
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
-		r->sbo_figures[i].f_specular = ft_atoi(str);
+		r->sbo_figures[figure_number].f_specular = ft_atoi(str);
 	}
 	else if (ft_strstr(str, "vertices[0]") != NULL)
-		r->sbo_figures[i].f_vertices[0] = string_to_vector(str);
+		r->sbo_figures[figure_number].f_vertices[0] = string_to_vector(str);
 	else if (ft_strstr(str, "vertices[1]") != NULL)
-		r->sbo_figures[i].f_vertices[1] = string_to_vector(str);
+		r->sbo_figures[figure_number].f_vertices[1] = string_to_vector(str);
 	else if (ft_strstr(str, "vertices[2]") != NULL)
-		r->sbo_figures[i].f_vertices[2] = string_to_vector(str);
+		r->sbo_figures[figure_number].f_vertices[2] = string_to_vector(str);
 	else if (ft_strstr(str, "vertices[3]") != NULL)
-		r->sbo_figures[i].f_vertices[3] = string_to_vector(str);
+		r->sbo_figures[figure_number].f_vertices[3] = string_to_vector(str);
 }
 
-void	parse_cone(char *str, t_rt *r, int i)
+void	parse_cone(char *str, t_rt *r, int figure_number)
 {
-	r->sbo_figures[i].type = obj_cone;
+	r->sbo_figures[figure_number].type = obj_cone;
 	if (ft_strstr(str, "position") != NULL)
-		r->sbo_figures[i].transform.position = string_to_vector(str);
+		r->sbo_figures[figure_number].transform.position = string_to_vector(str);
 	else if (ft_strstr(str, "color") != NULL)
-		r->sbo_figures[i].color = string_to_vector(str);
+		r->sbo_figures[figure_number].color = string_to_vector(str);
 	else if (ft_strstr(str, "specular") != NULL)
 	{
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
-		r->sbo_figures[i].f_specular = ft_atoi(str);
+		r->sbo_figures[figure_number].f_specular = ft_atoi(str);
 	}
 	else if (ft_strstr(str, "radius") != NULL)
 	{
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
-		r->sbo_figures[i].f_radius = string_to_float(&str);
+		r->sbo_figures[figure_number].f_radius = string_to_float(&str);
 	}
 	else if (ft_strstr(str, "height") != 0)
 	{
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
-		r->sbo_figures[i].f_height = string_to_float(&str);
+		r->sbo_figures[figure_number].f_height = string_to_float(&str);
 	}
 	else if (ft_strstr(str, "vertex") != NULL)
-		r->sbo_figures[i].f_ver = string_to_vector(str);
+		r->sbo_figures[figure_number].f_ver = string_to_vector(str);
 	else if (ft_strstr(str, "direction") != NULL)
-		r->sbo_figures[i].f_direction = string_to_vector(str);
+		r->sbo_figures[figure_number].f_direction = string_to_vector(str);
 }
 
-void	parse_cylinder(char *str, t_rt *r, int i)
+void	parse_cylinder(char *str, t_rt *r, int figure_number)
 {
-	r->sbo_figures[i].type = obj_cylinder;
+	r->sbo_figures[figure_number].type = obj_cylinder;
 	if (ft_strstr(str, "position") != NULL)
-		r->sbo_figures[i].transform.position = string_to_vector(str);
+		r->sbo_figures[figure_number].transform.position = string_to_vector(str);
 	else if (ft_strstr(str, "color") != NULL)
-		r->sbo_figures[i].color = string_to_vector(str);
+		r->sbo_figures[figure_number].color = string_to_vector(str);
 	else if (ft_strstr(str, "specular") != NULL)
 	{
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
-		r->sbo_figures[i].f_specular = ft_atoi(str);
+		r->sbo_figures[figure_number].f_specular = ft_atoi(str);
 	}
 	else if (ft_strstr(str, "rotation") != NULL)
-		r->sbo_figures[i].transform.rotation = string_to_vector(str);
+		r->sbo_figures[figure_number].transform.rotation = string_to_vector(str);
 	else if (ft_strstr(str, "radius") != NULL)
 	{
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
-		r->sbo_figures[i].f_radius = string_to_float(&str);
+		r->sbo_figures[figure_number].f_radius = string_to_float(&str);
 	}
 }
 
-void	parse_light(char *str, t_rt *r, int j, int type)
+void	parse_light(char *str, t_rt *r, int light_number, int type)
 {
-	if (type == 5)
-		r->sbo_lights[j].type = light_ambient;
-	if (type == 6)
-		r->sbo_lights[j].type = light_point;
-	if (type == 7)
-		r->sbo_lights[j].type = light_directional;
+	if (type == light_ambient)
+		r->sbo_lights[light_number].type = light_ambient;
+	if (type == light_point)
+		r->sbo_lights[light_number].type = light_point;
+	if (type == light_directional)
+		r->sbo_lights[light_number].type = light_directional;
 	if (ft_strstr(str, "intensity") != NULL)
 	{
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
-		r->sbo_lights[j].l_intensity = string_to_float(&str);
+		r->sbo_lights[light_number].l_intensity = string_to_float(&str);
 	}
 	else if (ft_strstr(str, "position") != NULL)
-		r->sbo_lights[j].transform.position = string_to_vector(str);
+		r->sbo_lights[light_number].transform.position = string_to_vector(str);
 	else if (ft_strstr(str, "rotation") != NULL)
-		r->sbo_lights[j].transform.rotation = string_to_vector(str);
+		r->sbo_lights[light_number].transform.rotation = string_to_vector(str);
 }
 
 void	parse_camera(t_rt *r, char *str)
@@ -199,63 +199,63 @@ void	parse_camera(t_rt *r, char *str)
 		r->camera.transform.position = string_to_vector(str);
 }
 
-void	sc_parse_string(int type, char *str, t_rt *r, int i, int j)
+void	sc_parse_string(int type, char *str, t_rt *r, int figure_number, int light_number)
 {
-	if (type == 0)
+	if (type == obj_null)
 		return ;
-	else if (type == 1)
-		parse_sphere(str, r, i);
-	else if (type == 2)
-		parse_plane(str, r, i);
-	else if (type == 3)
-		parse_cone(str, r, i);
-	else if (type == 4)
-		parse_cylinder(str, r, i);
-	else if (type >= 5 && type <= 7)
-		parse_light(str, r, j, type);
-	else if (type == 8)
+	else if (type == obj_sphere)
+		parse_sphere(str, r, figure_number);
+	else if (type == obj_plane)
+		parse_plane(str, r, figure_number);
+	else if (type == obj_cone)
+		parse_cone(str, r, figure_number);
+	else if (type == obj_cylinder)
+		parse_cylinder(str, r, figure_number);
+	else if (type == light_ambient || type == light_point || type == light_directional)
+		parse_light(str, r, light_number, type);
+	else if (type == camera)
 		parse_camera(r, str);
 }
 
 // ПЕРЕДЕЛАТЬ ЭТУ ФУНКЦИЮ. РЕШИТЬ ВОПРОС С ТИПАМИ НОРМАЛЬНО
-int		parse_type(char *str, int *i, int *j)
+int		parse_type(char *str, int *figure_number, int *light_number)
 {
 	if (ft_strstr(str, "sphere") != NULL)
 	{
-		(*i)++;
-		return (1);
+		(*figure_number)++;
+		return (obj_sphere);
 	}
 	if (ft_strstr(str, "plane") != NULL)
 	{
-		(*i)++;
-		return (2);
+		(*figure_number)++;
+		return (obj_plane);
 	}
 	if (ft_strstr(str, "cone") != NULL)
 	{
-		(*i)++;
-		return (3);
+		(*figure_number)++;
+		return (obj_cone);
 	}
 	if (ft_strstr(str, "cylinder") != NULL)
 	{
-		(*i)++;
-		return (4);
+		(*figure_number)++;
+		return (obj_cylinder);
 	}
 	if (ft_strstr(str, "ambient") != NULL)
 	{
-		(*j)++;
-		return (5);
+		(*light_number)++;
+		return (light_ambient);
 	}
 	if (ft_strstr(str, "point") != NULL)
 	{
-		(*j)++;
-		return (6);
+		(*light_number)++;
+		return (light_point);
 	}
-	if (ft_strstr(str, "rotational") != NULL)
+	if (ft_strstr(str, "directional") != NULL)
 	{
-		(*j)++;
-		return (7);
+		(*light_number)++;
+		return (light_directional);
 	}
-	return (0);
+	return (obj_null);
 }
 
 void		read_scene(char *fname, t_rt *r)
@@ -267,8 +267,8 @@ void		read_scene(char *fname, t_rt *r)
 	int		i;
 	int		j;
 
-	i = -1;
-	j = -1;
+	figure_number = -1;
+	light_number = -1;
 	type = 0;
 	if ((fd = open(fname, O_RDONLY)) == -1)
 		handle_error("Open file error!");
@@ -277,7 +277,7 @@ void		read_scene(char *fname, t_rt *r)
 		if (gnl == -1)
 			handle_error("Read file error!");
 		if (ft_strstr(str, "type") != NULL)
-			type = parse_type(str, &i, &j);
+			type = parse_type(str, &figure_number, &light_number);
 		else if (ft_strstr(str, "figures") != NULL)
 		{
 			while (!(*str >= '0' && *str <= '9'))
@@ -293,8 +293,8 @@ void		read_scene(char *fname, t_rt *r)
 			r->sbo_lights = (t_object*)ft_memalloc(sizeof(t_object) * r->n_lig);
 		}
 		else if (ft_strstr(str, "camera") != NULL)
-			type = 8;
+			type = camera;
 		else
-			sc_parse_string(type, str, r, i, j);
+			sc_parse_string(type, str, r, figure_number, light_number);
 	}
 }
