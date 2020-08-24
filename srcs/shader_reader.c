@@ -19,7 +19,7 @@ static size_t	read_shader_file(char *fname, char **shader)
 	size_t	nor;
 	char	line[16];
 
-	if ((fd = open(fname, O_RDONLY | O_BINARY)) == -1)
+	if ((fd = open(fname, O_RDONLY/* | O_BINARY*/)) == -1)
 		return (0);
 	nor = 0;
 	while ((r = read(fd, line, 16)) != 0)

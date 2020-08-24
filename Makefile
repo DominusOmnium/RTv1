@@ -34,7 +34,7 @@ CFLAGS = -g -Wall -Wextra -Werror
 
 OPENCLLNK = -framework OpenCL
 
-VULKANLINK = -l vulkan
+VULKANLINK = -l vulkan-1
 VULKANINC_WIN = -I C:\VulkanSDK\1.2.131.2\Include
 VULKANLINK_WIN = -L C:\VulkanSDK\1.2.131.2\Lib -l vulkan-1
 
@@ -61,6 +61,9 @@ $(OBJDIR)%.o:$(SRCDIR)%.c
 	$(CC) $(CFLAGS) $(FTINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC_WIN) $(SDL2INC_win) -o $@ -c $<
 
 $(NAME): libs obj $(OBJS)
+	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a libs/printf/libftprintf.a -F libs/ -framework SDL2 -L libs/ -l libvulkan -lm -o $(NAME)
+
+linux: libs obj $(OBJS)
 	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a libs/printf/libftprintf.a $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)
 
 win: libs obj $(OBJS)
