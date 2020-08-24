@@ -49,7 +49,7 @@ typedef struct					s_transform
 typedef enum
 {
 	obj_null, obj_sphere, obj_plane, obj_cone, obj_cylinder,
-	light_ambient, light_point, light_directional
+	light_ambient, light_point, light_directional, camera
 }	t_obj_type;
 
 /*
