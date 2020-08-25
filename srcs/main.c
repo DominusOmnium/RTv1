@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:25 by celva             #+#    #+#             */
-/*   Updated: 2020/08/20 14:56:17 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/25 13:52:19 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ int	main(int ac, char **av)
 {
 	t_app	app;
 
+	(void)av;
 	if (ac == 1)
 		return (0);
 	app.appname = "RTv1";
@@ -30,7 +31,7 @@ int	main(int ac, char **av)
 	app.r.camera.vh = 1.0;
 	app.r.camera.vw = app.r.win_width
 								/ app.r.win_height;
-	ft_printf("App created\n");
+	printf("App created\n");
 	rtv_app_run(&app);
 	return (0);
 }

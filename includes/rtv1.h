@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/08/24 01:41:47 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/25 14:30:57 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ typedef struct					s_object
 	int32_t						f_specular;
 	float 						f_radius;
 	float						f_height;
-	t_vec4						f_direction;
+	t_vec4						direction;
 	t_vec4						f_ver;
 	t_vec4						f_vertices[4];
 	t_transform					transform;

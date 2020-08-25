@@ -45,7 +45,7 @@ struct							s_input
 	int							f_specular;
 	float 						f_radius;
 	float						f_height;
-	vec4						f_direction;
+	vec4						direction;
 	vec4						f_ver;
 	vec4						f_vertices[4];
 	s_transform					transform;
@@ -94,7 +94,7 @@ vec3	rotation_axis(float angle, vec3 axis, vec3 p)
 	return (res);
 }
 
-vec2	intersect_ray_sphere(vec3 ds, vec3 o, s_input sphere)
+vec2	intersect_ray_sphere(vec3 ray_start, vec3 ray_dir, s_input sphere)
 {
 	vec3	c;
 	float	r;
@@ -108,9 +108,9 @@ vec2	intersect_ray_sphere(vec3 ds, vec3 o, s_input sphere)
 
 	c = sphere.transform.position.xyz;
 	r = sphere.f_radius;
-	oc = o - c;
-	k1 = dot(ds, ds);
-	k2 = dot(oc, ds) * 2;
+	oc = ray_start - c;
+	k1 = dot(ray_dir, ray_dir);
+	k2 = dot(oc, ray_dir) * 2;
 	k3 = dot(oc, oc) - r * r;
 	discriminant = k2 * k2 - 4 * k1 * k3;
 	if (discriminant < 0)
@@ -126,17 +126,17 @@ vec2	intersect_ray_sphere(vec3 ds, vec3 o, s_input sphere)
 	return (res);
 }
 
-vec2	intersect_ray_plane(vec3 o, vec3 dir, s_input plane)
+vec2	intersect_ray_plane(vec3 ray_start, vec3 ray_dir, s_input plane)
 {
 	float		a;
 	float		b;
 	vec3		col;
 
-	a = dot(dir, plane.transform.rotation.xyz);
+	a = dot(ray_dir, plane.transform.rotation.xyz);
 	if (abs(a) < 0.0003f)
 		return (vec2(FLT_MAX, FLT_MAX));
-	b = -dot(o - plane.transform.position.xyz, plane.transform.rotation.xyz) / a;
-	col = o + dir * b;
+	b = -dot(ray_start - plane.transform.position.xyz, plane.transform.rotation.xyz) / a;
+	col = ray_start + ray_dir * b;
 	if (b < 0.0003f)
 		return (vec2(FLT_MAX, FLT_MAX));
 	if (dot(plane.transform.rotation.xyz, cross(plane.f_vertices[1].xyz - plane.f_vertices[0].xyz, col - plane.f_vertices[0].xyz)) > 0 &&
@@ -147,7 +147,7 @@ vec2	intersect_ray_plane(vec3 o, vec3 dir, s_input plane)
 	return (vec2(FLT_MAX, FLT_MAX));
 }
 
-vec2	intersect_ray_cone(vec3 ds, vec3 o, s_input cone)
+vec2	intersect_ray_cone(vec3 ray_start, vec3 ray_dir, s_input cone)
 {
 	vec3	c;
 	vec3	ov;
@@ -159,11 +159,11 @@ vec2	intersect_ray_cone(vec3 ds, vec3 o, s_input cone)
 	float 	discriminant;
 
 	cos = cone.f_height / sqrt(cone.f_height * cone.f_height + cone.f_radius * cone.f_radius);
-	ov = cone.f_ver.xyz - o;
-	float ovcd = dot(ov, cone.transform.rotation.xyz);
-	float dscd = dot(ds, cone.transform.rotation.xyz);
-	k1 = cos * cos * dot(ds, ds) - dscd * dscd;
-	k2 = 2 * (ovcd * dscd - cos * cos * dot(ds, ov));
+	ov = cone.f_ver.xyz - ray_start;
+	float ovcd = dot(ov, cone.direction.xyz);
+	float dscd = dot(ray_dir, cone.direction.xyz);
+	k1 = cos * cos * dot(ray_dir, ray_dir) - dscd * dscd;
+	k2 = 2 * (ovcd * dscd - cos * cos * dot(ray_dir, ov));
 	k3 = dot(ov, ov) * cos * cos - ovcd * ovcd;
 	discriminant = k2 * k2 - 4 * k1 * k3;
 	if (discriminant < 0)
@@ -176,14 +176,38 @@ vec2	intersect_ray_cone(vec3 ds, vec3 o, s_input cone)
 		res.x = (-k2 + sqrt(discriminant)) / (2 * k1);
 		res.y = (-k2 - sqrt(discriminant)) / (2 * k1);
 	}
-	if ((dot(o, cone.transform.rotation.xyz) + res.x * dscd - dot(cone.f_ver.xyz, cone.transform.rotation.xyz)) > 0)
+	/*
+		Top part clipping
+	*/
+	if ((dot(ray_start, cone.direction.xyz) + res.x * dscd - dot(cone.f_ver.xyz, cone.direction.xyz)) > 0)
 		res.x = FLT_MAX;
-	if ((dot(o, cone.transform.rotation.xyz) + res.y * dscd - dot(cone.f_ver.xyz, cone.transform.rotation.xyz)) > 0)
+	if ((dot(ray_start, cone.direction.xyz) + res.y * dscd - dot(cone.f_ver.xyz, cone.direction.xyz)) > 0)
+		res.y = FLT_MAX;	
+	/*
+		Bottom part clipping
+	*/
+	float cone_side_len = sqrt(cone.f_height * cone.f_height + cone.f_radius * cone.f_radius);
+	if (length(ray_start + ray_dir * res.x - cone.f_ver.xyz) > cone_side_len)
+		res.x = FLT_MAX;
+	if (length(ray_start + ray_dir * res.y - cone.f_ver.xyz) > cone_side_len)
 		res.y = FLT_MAX;
+	/*
+		Bottom plane intersection check
+	*/
+	float a = dot(ray_dir, -cone.direction.xyz);
+	if (abs(a) < 0.0003f)
+		return (res);
+	float b = -dot(ray_start - cone.transform.position.xyz, -cone.direction.xyz) / a;
+	if (b < 0.0003f || length(ray_start + b * ray_dir - cone.transform.position.xyz) > cone.f_radius)
+		return (res);
+	if (res.x == FLT_MAX)
+		res.x = b;
+	if (res.y == FLT_MAX)
+		res.y = b;
 	return (res);
 }
 
-vec2	intersect_ray_cylinder(vec3 ds, vec3 o, s_input cyl)
+vec2	intersect_ray_cylinder(vec3 ray_start, vec3 ray_dir, s_input cyl)
 {
 	vec3	c;
 	vec3	oc;
@@ -198,9 +222,9 @@ vec2	intersect_ray_cylinder(vec3 ds, vec3 o, s_input cyl)
 	c = cyl.transform.position.xyz;
 	r = cyl.f_radius;
 	v = cyl.transform.rotation.xyz;
-	oc = o - c;
-	k1 = dot(cross(ds, v), cross(ds, v));
-	k2 = 2 * dot(cross(ds, v), cross(oc, v));
+	oc = ray_start - c;
+	k1 = dot(cross(ray_dir, v), cross(ray_dir, v));
+	k2 = 2 * dot(cross(ray_dir, v), cross(oc, v));
 	k3 = dot(cross(oc, v), cross(oc, v)) - r * r;
 	discriminant = k2 * k2 - 4 * k1 * k3;
 	if (discriminant < 0)
@@ -216,7 +240,7 @@ vec2	intersect_ray_cylinder(vec3 ds, vec3 o, s_input cyl)
 	return (res);
 }
 
-s_input	closest_intersection(vec3 ds, vec3 o)
+s_input	closest_intersection(vec3 ray_dir, vec3 ray_start)
 {
 	s_input		obj;
 	int			i;
@@ -229,13 +253,13 @@ s_input	closest_intersection(vec3 ds, vec3 o)
 	{			
 		//t.y = FLT_MAX;
 		if (sbo_input[i].type == obj_sphere)
-			t = intersect_ray_sphere(ds, o, sbo_input[i]);
+			t = intersect_ray_sphere(ray_start, ray_dir, sbo_input[i]);
 		else if (sbo_input[i].type == obj_plane)
-			t = intersect_ray_plane(o, ds, sbo_input[i]);
+			t = intersect_ray_plane(ray_start, ray_dir, sbo_input[i]);
 		else if (sbo_input[i].type == obj_cylinder)
-			t = intersect_ray_cylinder(ds, o, sbo_input[i]);
+			t = intersect_ray_cylinder(ray_start, ray_dir, sbo_input[i]);
 		else if (sbo_input[i].type == obj_cone)
-			t = intersect_ray_cone(ds, o, sbo_input[i]);
+			t = intersect_ray_cone(ray_start, ray_dir, sbo_input[i]);
 		else
 		{
 			i++;
@@ -246,7 +270,7 @@ s_input	closest_intersection(vec3 ds, vec3 o)
 			r.t_c.closest_t = t.x;
 			obj = sbo_input[i];
 		}
-		if ((r.t_c.t_min < t.y && r.t_c.t_max > t.y) && t.y < r.t_c.closest_t)
+		if ((r.t_c.t_min < t.y && t.y < r.t_c.t_max) && t.y < r.t_c.closest_t)
 		{
 			r.t_c.closest_t = t.y;
 			obj = sbo_input[i];
@@ -286,7 +310,7 @@ float	compute_lighting(vec3 p, vec3 n, int s)
 			}
 			else
 			{
-				l = sbo_input[i].transform.rotation.xyz;
+				l = sbo_input[i].direction.xyz;
 				t_max = FLT_MAX;
 			}
 			
@@ -352,11 +376,16 @@ vec4	trace_ray()
 	}
 	else if (obj.type == obj_cone)
 	{
-		vec3	pc = p - obj.transform.position.xyz;
-		vec3	pv = p - obj.f_ver.xyz;
-		float	cos = obj.f_height / sqrt(obj.f_height * obj.f_height + obj.f_radius * obj.f_radius);
-		norm = vec3(obj.transform.position.xyz + obj.transform.rotation.xyz * (obj.f_height - length(pv) / cos));
-		norm = p - norm;
+		if (dot(-obj.direction.xyz, obj.transform.position.xyz - p) < 0.003f)
+			norm = -obj.direction.xyz;
+		else
+		{
+			vec3	pc = p - obj.transform.position.xyz;
+			vec3	pv = p - obj.f_ver.xyz;
+			float	cos = obj.f_height / sqrt(obj.f_height * obj.f_height + obj.f_radius * obj.f_radius);
+			norm = vec3(obj.transform.position.xyz + obj.direction.xyz * (obj.f_height - length(pv) / cos));
+			norm = p - norm;
+		}
 		norm = norm / length(norm);
 	}
 	cL = compute_lighting(p, norm, obj.f_specular);

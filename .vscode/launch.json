@@ -9,7 +9,7 @@
 			"request": "launch",
 			"name": "Launch",
 			"program": "${workspaceFolder}/rtv1",
-			"args": ["scene"],
+			"args": ["scenes/scene"],
 			"cwd": "${workspaceFolder}"
 		}
 	]

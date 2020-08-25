@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/15 10:50:02 by marvin            #+#    #+#             */
-/*   Updated: 2020/08/24 16:35:48 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/25 14:31:27 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,9 +123,10 @@ void	parse_cone(char *str, t_rt *r, int figure_number)
 		r->sbo_figures[figure_number].f_height = string_to_float(&str);
 	}
 	else if (ft_strstr(str, "vertex") != NULL)
-		r->sbo_figures[figure_number].f_ver = string_to_vector(str);
+		//r->sbo_figures[figure_number].f_ver = string_to_vector(str);
+		r->sbo_figures[figure_number].f_ver = vec4_add_vec4(r->sbo_figures[figure_number].transform.position, vec4_mul_f(r->sbo_figures[figure_number].direction, r->sbo_figures[figure_number].f_height));
 	else if (ft_strstr(str, "direction") != NULL)
-		r->sbo_figures[figure_number].f_direction = string_to_vector(str);
+		r->sbo_figures[figure_number].direction = string_to_vector(str);
 }
 
 void	parse_cylinder(char *str, t_rt *r, int figure_number)
@@ -167,8 +168,8 @@ void	parse_light(char *str, t_rt *r, int light_number, int type)
 	}
 	else if (ft_strstr(str, "position") != NULL)
 		r->sbo_lights[light_number].transform.position = string_to_vector(str);
-	else if (ft_strstr(str, "rotation") != NULL)
-		r->sbo_lights[light_number].transform.rotation = string_to_vector(str);
+	else if (ft_strstr(str, "direction") != NULL)
+		r->sbo_lights[light_number].direction = string_to_vector(str);
 }
 
 void	parse_camera(t_rt *r, char *str)
@@ -264,8 +265,8 @@ void		read_scene(char *fname, t_rt *r)
 	char	*str;
 	int		gnl;
 	int		type;
-	int		i;
-	int		j;
+	int		figure_number;
+	int		light_number;
 
 	figure_number = -1;
 	light_number = -1;

@@ -35,12 +35,12 @@ CFLAGS = -g -Wall -Wextra -Werror
 OPENCLLNK = -framework OpenCL
 
 VULKANLINK = -l vulkan-1
-VULKANINC_WIN = -I C:\VulkanSDK\1.2.131.2\Include
-VULKANLINK_WIN = -L C:\VulkanSDK\1.2.131.2\Lib -l vulkan-1
+VULKANINC_WIN = -I $(WIN_VULKAN_INCLUDE_PATH)
+VULKANLINK_WIN = -L $(WIN_VULKAN_LIB_PATH) -l vulkan-1
 
 SDL2LINK = -l SDL2
-SDL2INC_win = -I SDL2_win/include/SDL2
-SDL2LINK_win = -L SDL2_win/bin -l SDL2
+SDL2INC = -I $(addprefix $(LIBSDIR), SDL2/includes/)
+SDL2LINK_win = -L $(addprefix $(LIBSDIR), SDL2/lib/) -l SDL2
 
 VECLIB =  $(addprefix $(LIBSDIR), vec_lib/lib)
 VECINC =  $(addprefix $(LIBSDIR), vec_lib/includes)
@@ -58,7 +58,7 @@ obj:
 	mkdir -p $(OBJDIR)
 
 $(OBJDIR)%.o:$(SRCDIR)%.c
-	$(CC) $(CFLAGS) $(FTINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC_WIN) $(SDL2INC_win) -o $@ -c $<
+	$(CC) $(CFLAGS) $(FTINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC_WIN) $(SDL2INC) -o $@ -c $<
 
 $(NAME): libs obj $(OBJS)
 	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a libs/printf/libftprintf.a -F libs/ -framework SDL2 -L libs/ -l libvulkan -lm -o $(NAME)
@@ -68,6 +68,7 @@ linux: libs obj $(OBJS)
 
 win: libs obj $(OBJS)
 	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a libs/printf/libftprintf.a $(SDL2LINK_win) $(VULKANLINK_WIN) -lm -o $(NAME)
+	cp libs/SDL2/lib/SDL2.dll .
 
 winre: fclean win
 
@@ -75,11 +76,16 @@ libs:
 	@make -C libs/printf
 	@make -C libs/vec_lib
 
+libsre:
+	@make -C libs/printf re
+	@make -C libs/vec_lib re
+
 clean:
 	rm -rf $(OBJDIR)
 
 fclean: clean
 	rm -rf $(NAME)
+	rm -rf SDL2.dll
 
 re: fclean all
 
