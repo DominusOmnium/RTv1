@@ -1,25 +1,25 @@
 figures: 6
 
 type: sphere
-position = {0, 100000, 3.0}
+position = {0, 0, 3.0}
 color = {1.0, 0, 0}
 specular = 5000
 radius = 1.0
 
 type: sphere
-position = {2.0, 100000, 4.0}
+position = {2.0, 0, 4.0}
 color = {0, 0, 1.0}
 specular = 500
 radius = 1.0
 
 type: sphere
-position = {-2.0, 100000, 4.0}
+position = {-2.0, 0, 4.0}
 color = {0, 1.0, 0}
 specular = 10
 radius = 1.0
 
 type: plane
-position = {0.0, -10000.0, 0.0}
+position = {0.0, -1.0, 0.0}
 color = {0, 0.5, 0}
 specular = 100
 radius = 1.0
@@ -30,7 +30,7 @@ vertices[2] = {2, -1, 2}
 vertices[3] = {-2, -1, 2}
 
 type: cylinder
-position = {10000.0, 0.0, 3.0}
+position = {0.0, 0.0, 3.0}
 color = {1.0, 1.0, 0}
 specular = 100
 radius = 0.5
@@ -38,7 +38,7 @@ rotation = {0, 1.0, 0.0}
 
 type: cone
 position = {0.0, -1.0, 3.0}
-direction = {0.0, 0.0, 1.0}
+direction = {0.0, 1.0, 0.0}
 color = {0.15, 0.5, 0.23}
 specular = 100
 radius = 1.0

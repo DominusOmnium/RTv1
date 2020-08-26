@@ -6,15 +6,15 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/04 09:16:26 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/08/18 16:44:30 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/25 17:22:01 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VKU_H
 # define VKU_H
 # include "vec_lib.h"
-# include <vulkan/vulkan.h>
-# include <vulkan/vk_sdk_platform.h>
+# include <vulkan.h>
+# include <vk_sdk_platform.h>
 # ifdef _WIN32
 //# include <float.h>
 typedef uint32_t uint32_t;

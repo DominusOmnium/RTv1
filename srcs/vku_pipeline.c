@@ -17,9 +17,9 @@ void	vku_create_pipeline(t_vulkan *v)
 	char	*code;
 	size_t	code_len;
 	
-	code_len = load_shader_file("shaders/rtv1-frag.spv", &code);
+	code_len = load_shader_file("shaders/rtv1.frag.spv", &code);
     VkShaderModule fragmentShader = vku_create_shader_module(v, code, code_len);
-	code_len = load_shader_file("shaders/rtv1-vert.spv", &code);
+	code_len = load_shader_file("shaders/rtv1.vert.spv", &code);
     VkShaderModule vertexShader = vku_create_shader_module(v, code, code_len);
     const VkPipelineShaderStageCreateInfo stages[] = {
         {

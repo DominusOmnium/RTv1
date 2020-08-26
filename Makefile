@@ -4,9 +4,12 @@ SRCDIR					= srcs/
 INCDIR					= includes/
 OBJDIR					= obj/
 LIBSDIR					= libs/
-WIN_VULKAN_INCLUDE_PATH = C:\VulkanSDK\1.2.131.2\Include
-WIN_VULKAN_LIB_PATH		= C:\VulkanSDK\1.2.131.2\Lib
+VULKAN_INCLUDE_PATH 	= libs/vulkan/includes/
+VULKAN_LIB_PATH			= libs/vulkan/lib/
 
+SHADER_COMPILER = libs/vulkan/glslangValidator
+GLSLS = $(wildcard shaders/*.vert shaders/*.frag)
+SPIRVS = $(addsuffix .spv,$(GLSLS))
 
 SRCS =	app_core.c \
 		main.c \
@@ -34,22 +37,19 @@ CFLAGS = -g -Wall -Wextra -Werror
 
 OPENCLLNK = -framework OpenCL
 
-VULKANLINK = -l vulkan-1
-VULKANINC_WIN = -I $(WIN_VULKAN_INCLUDE_PATH)
-VULKANLINK_WIN = -L $(WIN_VULKAN_LIB_PATH) -l vulkan-1
+VULKANINC = -I $(VULKAN_INCLUDE_PATH)
+VULKANLINK = -L $(VULKAN_LIB_PATH) -l vulkan-1
 
 SDL2LINK = -l SDL2
 SDL2INC = -I $(addprefix $(LIBSDIR), SDL2/includes/)
 SDL2LINK_win = -L $(addprefix $(LIBSDIR), SDL2/lib/) -l SDL2
 
-VECLIB =  $(addprefix $(LIBSDIR), vec_lib/lib)
+VECLIB =  $(addprefix $(LIBSDIR), vec_lib/lib/vec_lib.a)
 VECINC =  $(addprefix $(LIBSDIR), vec_lib/includes)
-VECLIBLINK = -L $(VECLIB) -l vec_lib.a
 VECLIBINC = -I $(VECINC)
 
-FTLIBDIR =  $(addprefix $(LIBSDIR), printf)
+FTLIB =  $(addprefix $(LIBSDIR), printf/libftprintf.a)
 FTINCDIR =  $(addprefix $(LIBSDIR), printf/includes)
-FTLINK = -L $(FTLIBDIR) -l libftprintf.a
 FTINC = -I $(FTINCDIR)
 
 all: $(NAME)
@@ -58,19 +58,21 @@ obj:
 	mkdir -p $(OBJDIR)
 
 $(OBJDIR)%.o:$(SRCDIR)%.c
-	$(CC) $(CFLAGS) $(FTINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC_WIN) $(SDL2INC) -o $@ -c $<
+	$(CC) $(CFLAGS) $(FTINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC) $(SDL2INC) -o $@ -c $<
 
-$(NAME): libs obj $(OBJS)
-	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a libs/printf/libftprintf.a -F libs/ -framework SDL2 -L libs/ -l libvulkan -lm -o $(NAME)
+$(NAME): libs obj $(OBJS) shaders
+	$(CC) $(OBJS) $(VECLIB) $(FTLIB) -F libs/ -framework SDL2 -L libs/ -l libvulkan -lm -o $(NAME)
 
-linux: libs obj $(OBJS)
-	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a libs/printf/libftprintf.a $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)
+linux: libs obj $(OBJS) shaders
+	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)
 
-win: libs obj $(OBJS)
-	$(CC) $(OBJS) libs/vec_lib/lib/vec_lib.a libs/printf/libftprintf.a $(SDL2LINK_win) $(VULKANLINK_WIN) -lm -o $(NAME)
+win: libs obj $(OBJS) shaders
+	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(SDL2LINK_win) $(VULKANLINK) -lm -o $(NAME)
 	cp libs/SDL2/lib/SDL2.dll .
 
 winre: fclean win
+
+linuxre: fclean linux
 
 libs:
 	@make -C libs/printf
@@ -82,6 +84,7 @@ libsre:
 
 clean:
 	rm -rf $(OBJDIR)
+	rm -f $(SPIRVS)
 
 fclean: clean
 	rm -rf $(NAME)
@@ -89,12 +92,9 @@ fclean: clean
 
 re: fclean all
 
-test:
-	gcc -I C:\VulkanSDK\1.2.131.2\Include -I SDL2_win1/include/SDL2 -l SDL2 -l vulkan -lm -c test.c
-	gcc -o q test.o -l SDL2 -l vulkan -lm
+shaders: $(SPIRVS)
 
-shaders:
-	glslc -o shaders/rtv1-frag.spv shaders/rtv1.frag
-	glslc -o shaders/rtv1-vert.spv shaders/rtv1.vert
+$(SPIRVS): %.spv: %
+	$(SHADER_COMPILER) -V $< -o $@
 
 .PHONY: clean fclean all re windows libs
