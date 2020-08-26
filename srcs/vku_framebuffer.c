@@ -38,10 +38,10 @@ void							vku_create_framebuffers(t_vulkan *v)
 	VkImageViewCreateInfo	imageview_create_info;
 	VkFramebufferCreateInfo	framebuffer_create_info;
 	uint32_t				i;
-	
+
 	i = 0;
 	while (i < v->framebuffer.sc_image_count)
-    {
+	{
 		imageview_create_info = get_imageview_create_info(v, i);
 		if (vkCreateImageView(v->device, &imageview_create_info, 0,
 						&((v->framebuffer.sc_image_views)[i])) != VK_SUCCESS)
@@ -59,5 +59,5 @@ void							vku_create_framebuffers(t_vulkan *v)
 							&((v->framebuffer.frame_buffers)[i])) != VK_SUCCESS)
 			handle_error("Framebuffer creation error!");
 		i++;
-    }
+	}
 }

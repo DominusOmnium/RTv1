@@ -155,54 +155,36 @@ void	rtv_app_run(t_app *app)
 				{
 					p3d_rotate_y(&app->r.camera.direction, -10);
 					app->r.camera.transform.rotation.y -= RAD(10);
-					//app->r.camera.transform.rotation.x = -atanf(app->r.camera.direction.y / app->r.camera.direction.z);
-					//app->r.camera.transform.rotation.y = -atanf(app->r.camera.direction.x / app->r.camera.direction.z);
-					//app->r.camera.transform.rotation.z = -atanf(app->r.camera.direction.y / app->r.camera.direction.x);
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_e)
 				{
 					p3d_rotate_y(&app->r.camera.direction, 10);
 					app->r.camera.transform.rotation.y += RAD(10);
-					//app->r.camera.transform.rotation.x = -atanf(app->r.camera.direction.y / app->r.camera.direction.z);
-					//app->r.camera.transform.rotation.y = -atanf(app->r.camera.direction.x / app->r.camera.direction.z);
-					//app->r.camera.transform.rotation.z = -atanf(app->r.camera.direction.y / app->r.camera.direction.x);
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_KP_8)
 				{
 					p3d_rotate_x(&app->r.camera.direction, 10);
 					app->r.camera.transform.rotation.x += RAD(10);
-					//app->r.camera.transform.rotation.x = -atanf(app->r.camera.direction.y / app->r.camera.direction.z);
-					//app->r.camera.transform.rotation.y = -atanf(app->r.camera.direction.x / app->r.camera.direction.z);
-					//app->r.camera.transform.rotation.z = -atanf(app->r.camera.direction.y / app->r.camera.direction.x);
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_KP_2)
 				{
 					p3d_rotate_x(&app->r.camera.direction, -10);
 					app->r.camera.transform.rotation.x -= RAD(10);
-					//app->r.camera.transform.rotation.x = -atanf(app->r.camera.direction.y / app->r.camera.direction.z);
-					//app->r.camera.transform.rotation.y = -atanf(app->r.camera.direction.x / app->r.camera.direction.z);
-					//app->r.camera.transform.rotation.z = -atanf(app->r.camera.direction.y / app->r.camera.direction.x);
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_KP_4)
 				{
 					p3d_rotate_z(&app->r.camera.direction, -10);
 					app->r.camera.transform.rotation.z -= RAD(10);
-					//app->r.camera.transform.rotation.x = -atanf(app->r.camera.direction.y / app->r.camera.direction.z);
-					//app->r.camera.transform.rotation.y = -atanf(app->r.camera.direction.x / app->r.camera.direction.z);
-					//app->r.camera.transform.rotation.z = -atanf(app->r.camera.direction.y / app->r.camera.direction.x);
 					j = 0;
 				}
 				if (evt.key.keysym.sym == SDLK_KP_6)
 				{
 					p3d_rotate_z(&app->r.camera.direction, 10);
 					app->r.camera.transform.rotation.z += RAD(10);
-					//app->r.camera.transform.rotation.x = -atanf(app->r.camera.direction.y / app->r.camera.direction.z);
-					//app->r.camera.transform.rotation.y = -atanf(app->r.camera.direction.x / app->r.camera.direction.z);
-					//app->r.camera.transform.rotation.z = -atanf(app->r.camera.direction.y / app->r.camera.direction.x);
 					j = 0;
 				}
 			}

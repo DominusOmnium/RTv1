@@ -18,8 +18,9 @@ static void	create_sync_objects(t_vulkan *v)
 	VkSemaphoreCreateInfo	semaphore_create_info;
 	VkFenceCreateInfo		fence_create_info;
 
-	semaphore_create_info = (VkSemaphoreCreateInfo){ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-													.pNext = NULL};
+	semaphore_create_info = (VkSemaphoreCreateInfo){
+		.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+		.pNext = NULL};
 	fence_create_info = (VkFenceCreateInfo){
 		.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
 		.flags = VK_FENCE_CREATE_SIGNALED_BIT
@@ -58,13 +59,14 @@ static void	create_buffers(t_vulkan *v, VkDeviceSize size)
 void		vku_init_render(t_vulkan *v)
 {
 	VkCommandPoolCreateInfo		commandpool_create_info;
-	
-    commandpool_create_info = (VkCommandPoolCreateInfo){
-        .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-        .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-        .queueFamilyIndex = v->phys_device.family_index,
-    };
-    if (vkCreateCommandPool(v->device, &commandpool_create_info, 0, &(v->commandpool)) != VK_SUCCESS)
+
+	commandpool_create_info = (VkCommandPoolCreateInfo){
+		.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+		.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+		.queueFamilyIndex = v->phys_device.family_index,
+	};
+	if (vkCreateCommandPool(v->device, &commandpool_create_info, 0,
+								&(v->commandpool)) != VK_SUCCESS)
 		handle_error("Commandpool creation error!");
 	create_sync_objects(v);
 	vku_create_render_pass(v);

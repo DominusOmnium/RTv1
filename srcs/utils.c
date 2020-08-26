@@ -21,7 +21,7 @@ void		handle_error(char *msg)
 uint32_t	clamp_u32(uint32_t d, uint32_t min, uint32_t max)
 {
 	uint32_t	t;
-	
+
 	t = d < min ? min : d;
 	return (t > max ? max : t);
 }

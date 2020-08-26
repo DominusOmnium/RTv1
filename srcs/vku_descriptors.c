@@ -12,11 +12,11 @@
 
 #include "rtv1.h"
 
-void	vku_create_descriptor_pool(t_vulkan *v)
+void		vku_create_descriptor_pool(t_vulkan *v)
 {
 	VkDescriptorPoolSize		pool_sizes;
 	VkDescriptorPoolCreateInfo	pool_info;
-	
+
 	pool_sizes = (VkDescriptorPoolSize){
 		.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 		.descriptorCount = v->framebuffer.sc_image_count
@@ -27,11 +27,12 @@ void	vku_create_descriptor_pool(t_vulkan *v)
 		.pPoolSizes = &pool_sizes,
 		.maxSets = v->framebuffer.sc_image_count
 	};
-	if (vkCreateDescriptorPool(v->device, &pool_info, NULL, &v->descriptor.pool) != VK_SUCCESS)
+	if (vkCreateDescriptorPool(v->device, &pool_info, NULL, &v->descriptor.pool)
+													!= VK_SUCCESS)
 		handle_error("Descriptor pool creation error!");
 }
 
-void	vku_create_descriptor_set_layout(t_vulkan *v)
+void		vku_create_descriptor_set_layout(t_vulkan *v)
 {
 	VkDescriptorSetLayoutBinding	sbo_layout_binding;
 	VkDescriptorSetLayoutCreateInfo	layout_info;
@@ -48,7 +49,8 @@ void	vku_create_descriptor_set_layout(t_vulkan *v)
 		.bindingCount = 1,
 		.pBindings = &sbo_layout_binding
 	};
-	if (vkCreateDescriptorSetLayout(v->device, &layout_info, NULL, &(v->descriptor.set_layout)) != VK_SUCCESS)
+	if (vkCreateDescriptorSetLayout(v->device, &layout_info, NULL,
+								&(v->descriptor.set_layout)) != VK_SUCCESS)
 		handle_error("Descriptor set layout creation error!");
 }
 
@@ -80,11 +82,11 @@ static void	update_descriptor_sets(t_vulkan *v, uint32_t size)
 	}
 }
 
-void	vku_create_descriptor_sets(t_vulkan *v, uint32_t size)
+void		vku_create_descriptor_sets(t_vulkan *v, uint32_t size)
 {
 	VkDescriptorSetAllocateInfo	alloc_info;
 	VkDescriptorSetLayout		layouts[MAX_SWAPCHAIN_IMAGES];
-	
+
 	layouts[0] = v->descriptor.set_layout;
 	layouts[1] = v->descriptor.set_layout;
 	layouts[2] = v->descriptor.set_layout;
@@ -94,8 +96,8 @@ void	vku_create_descriptor_sets(t_vulkan *v, uint32_t size)
 		.descriptorSetCount = v->framebuffer.sc_image_count,
 		.pSetLayouts = layouts
 	};
-	if (vkAllocateDescriptorSets(v->device, &alloc_info, v->descriptor.sets) != VK_SUCCESS)
+	if (vkAllocateDescriptorSets(v->device, &alloc_info,
+									v->descriptor.sets) != VK_SUCCESS)
 		handle_error("Descriptor sets allocation error!");
 	update_descriptor_sets(v, size);
 }
-

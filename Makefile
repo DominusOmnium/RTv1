@@ -38,7 +38,7 @@ CFLAGS = -g -Wall -Wextra -Werror
 OPENCLLNK = -framework OpenCL
 
 VULKANINC = -I $(VULKAN_INCLUDE_PATH)
-VULKANLINK = -L $(VULKAN_LIB_PATH) -l vulkan-1
+VULKANLINK = -L $(VULKAN_LIB_PATH) -l vulkan
 
 SDL2LINK = -l SDL2
 SDL2INC = -I $(addprefix $(LIBSDIR), SDL2/includes/)
@@ -61,7 +61,7 @@ $(OBJDIR)%.o:$(SRCDIR)%.c
 	$(CC) $(CFLAGS) $(FTINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC) $(SDL2INC) -o $@ -c $<
 
 $(NAME): libs obj $(OBJS) shaders
-	$(CC) $(OBJS) $(VECLIB) $(FTLIB) -F libs/ -framework SDL2 -L libs/ -l libvulkan -lm -o $(NAME)
+	$(CC) $(OBJS) $(VECLIB) $(FTLIB) -F /Users/dkathlee/Library/Frameworks -framework SDL2 -framework vulkan -lm -o $(NAME)
 
 linux: libs obj $(OBJS) shaders
 	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)

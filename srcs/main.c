@@ -18,7 +18,7 @@ void	init_struct(t_rt *r, char *fname)
 	r->camera.d = 1.0;
 }
 
-int	main(int ac, char **av)
+int		main(int ac, char **av)
 {
 	t_app	app;
 

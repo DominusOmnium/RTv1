@@ -29,7 +29,7 @@ static VkAttachmentDescription	get_attechment_description(t_vulkan *v)
 	return (res);
 }
 
-static VkSubpassDependency		get_subpass_dependency()
+static VkSubpassDependency		get_subpass_dependency(void)
 {
 	VkSubpassDependency	res;
 
@@ -44,35 +44,46 @@ static VkSubpassDependency		get_subpass_dependency()
 	return (res);
 }
 
+static VkRenderPassCreateInfo	get_renderpass_create_info(
+								VkAttachmentDescription attechment_description,
+								VkSubpassDependency dependency)
+{
+	VkRenderPassCreateInfo	res;
+
+	res = (VkRenderPassCreateInfo){
+		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+		.attachmentCount = 1,
+		.pAttachments = &attechment_description,
+		.subpassCount = 1,
+		.pSubpasses = &(VkSubpassDescription) {
+			.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+			.preserveAttachmentCount = 0,
+			.pPreserveAttachments = NULL,
+			.pResolveAttachments = NULL,
+			.pDepthStencilAttachment = NULL,
+			.colorAttachmentCount = 1,
+			.pColorAttachments = &(VkAttachmentReference) {
+				.attachment = 0,
+				.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+			}
+		},
+		.dependencyCount = 1,
+		.pDependencies = &dependency
+	};
+	return (res);
+}
+
 void							vku_create_render_pass(t_vulkan *v)
 {
 	VkRenderPassCreateInfo	render_pass_create_info;
 	VkSubpassDependency		dependency;
 	VkAttachmentDescription	attechment_description;
-	
+
 	attechment_description = get_attechment_description(v);
 	dependency = get_subpass_dependency();
-    render_pass_create_info = (VkRenderPassCreateInfo){
-        .sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-        .attachmentCount = 1,
-        .pAttachments = &attechment_description,
-        .subpassCount = 1,
-        .pSubpasses = &(VkSubpassDescription) {
-            .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
-			.preserveAttachmentCount = 0,
-			.pPreserveAttachments = NULL,
-			.pResolveAttachments = NULL,
-			.pDepthStencilAttachment = NULL,
-            .colorAttachmentCount = 1,
-            .pColorAttachments = &(VkAttachmentReference) {
-                .attachment = 0,
-                .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-            }
-        },
-		.dependencyCount = 1,
-		.pDependencies = &dependency
-    };
-    if (vkCreateRenderPass(v->device, &render_pass_create_info,
+	render_pass_create_info = get_renderpass_create_info(attechment_description,
+															dependency);
+	if (vkCreateRenderPass(v->device, &render_pass_create_info,
 								0, &(v->renderpass)) != VK_SUCCESS)
 		handle_error("Renderpass creation error!");
 }

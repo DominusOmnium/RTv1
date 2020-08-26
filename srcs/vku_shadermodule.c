@@ -13,17 +13,18 @@
 #include "rtv1.h"
 
 VkShaderModule	vku_create_shader_module(t_vulkan *v, char *code,
-														uint32_t codeL)
+														uint32_t code_l)
 {
-	VkShaderModuleCreateInfo	smCreateInfo;
-	VkShaderModule				shaderModule;
-	
-	smCreateInfo = (VkShaderModuleCreateInfo) {
+	VkShaderModuleCreateInfo	sm_create_info;
+	VkShaderModule				shader_module;
+
+	sm_create_info = (VkShaderModuleCreateInfo) {
 		.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-		.codeSize = codeL,
+		.codeSize = code_l,
 		.pCode = (uint32_t*)code
 	};
-	if (vkCreateShaderModule(v->device, &smCreateInfo, NULL, &shaderModule) != VK_SUCCESS)
+	if (vkCreateShaderModule(v->device, &sm_create_info, NULL,
+								&shader_module) != VK_SUCCESS)
 		handle_error("Shader module creation error!");
-	return (shaderModule);
+	return (shader_module);
 }
