@@ -19,10 +19,11 @@ SRCS =	app_core.c \
 		vku_buffers.c \
 		vku_commandbuffers.c \
 		vku_descriptors.c \
-		vku_devices.c \
 		vku_drawframe.c \
 		vku_framebuffer.c \
 		vku_instance.c \
+		vku_logical_device.c \
+		vku_physical_device.c \
 		vku_pipeline.c \
 		vku_render.c \
 		vku_renderpass.c \

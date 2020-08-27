@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/18 12:48:25 by marvin            #+#    #+#             */
-/*   Updated: 2020/08/18 12:48:25 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/27 01:24:13 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,13 +44,13 @@ static VkSubpassDependency		get_subpass_dependency(void)
 	return (res);
 }
 
-static VkRenderPassCreateInfo	get_renderpass_create_info(
+static void						create_render_pass(t_vulkan *v,
 								VkAttachmentDescription attechment_description,
 								VkSubpassDependency dependency)
 {
-	VkRenderPassCreateInfo	res;
+	VkRenderPassCreateInfo	render_pass_create_info;
 
-	res = (VkRenderPassCreateInfo){
+	render_pass_create_info = (VkRenderPassCreateInfo){
 		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 		.attachmentCount = 1,
 		.pAttachments = &attechment_description,
@@ -64,26 +64,23 @@ static VkRenderPassCreateInfo	get_renderpass_create_info(
 			.colorAttachmentCount = 1,
 			.pColorAttachments = &(VkAttachmentReference) {
 				.attachment = 0,
-				.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+				.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 			}
 		},
 		.dependencyCount = 1,
 		.pDependencies = &dependency
 	};
-	return (res);
+	if (vkCreateRenderPass(v->device, &render_pass_create_info,
+								0, &(v->renderpass)) != VK_SUCCESS)
+		handle_error("Renderpass creation error!");
 }
 
 void							vku_create_render_pass(t_vulkan *v)
 {
-	VkRenderPassCreateInfo	render_pass_create_info;
 	VkSubpassDependency		dependency;
 	VkAttachmentDescription	attechment_description;
 
 	attechment_description = get_attechment_description(v);
 	dependency = get_subpass_dependency();
-	render_pass_create_info = get_renderpass_create_info(attechment_description,
-															dependency);
-	if (vkCreateRenderPass(v->device, &render_pass_create_info,
-								0, &(v->renderpass)) != VK_SUCCESS)
-		handle_error("Renderpass creation error!");
+	create_render_pass(v, attechment_description, dependency);
 }
