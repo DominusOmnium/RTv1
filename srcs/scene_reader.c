@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   scene_reader.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/15 10:50:02 by marvin            #+#    #+#             */
-/*   Updated: 2020/08/25 14:31:27 by marvin           ###   ########.fr       */
+/*   Updated: 2020/09/01 19:43:40 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,8 +122,8 @@ void	parse_cone(char *str, t_rt *r, int figure_number)
 			str++;
 		r->sbo_figures[figure_number].f_height = string_to_float(&str);
 	}
+	//ПЕРЕДЕЛАТЬ
 	else if (ft_strstr(str, "vertex") != NULL)
-		//r->sbo_figures[figure_number].f_ver = string_to_vector(str);
 		r->sbo_figures[figure_number].f_ver = vec4_add_vec4(r->sbo_figures[figure_number].transform.position, vec4_mul_f(r->sbo_figures[figure_number].direction, r->sbo_figures[figure_number].f_height));
 	else if (ft_strstr(str, "direction") != NULL)
 		r->sbo_figures[figure_number].direction = string_to_vector(str);
@@ -191,10 +191,6 @@ void	parse_camera(t_rt *r, char *str)
 		else
 			r->camera.transform.rotation.z = 0.0f;
 		r->camera.transform.rotation.w = 0.0f;
-		printf("r->camera.direction: (%f, %f, %f)\n", r->camera.direction.x, r->camera.direction.y, r->camera.direction.z);
-		printf("r->camera.transform.rotation.x: %f\n", r->camera.transform.rotation.x);
-		printf("r->camera.transform.rotation.y: %f\n", r->camera.transform.rotation.y);
-		printf("r->camera.transform.rotation.z: %f\n", r->camera.transform.rotation.z);
 	}
 	else if (ft_strstr(str, "position") != NULL)
 		r->camera.transform.position = string_to_vector(str);
