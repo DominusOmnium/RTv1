@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   app_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/08/28 13:27:57 by marvin           ###   ########.fr       */
+/*   Updated: 2020/09/01 19:36:17 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
 
-void	rtv_app_create(t_app *app)
+void				rtv_app_create(t_app *app)
 {
 	vku_instance_create(app);
 	ft_printf("Instance creation done\n");
@@ -29,13 +29,15 @@ void	rtv_app_create(t_app *app)
 	ft_printf("Render initialization done\n");
 }
 
-void	rtv_app_destroy(t_vulkan *v)
+void				rtv_app_destroy(t_vulkan *v)
 {
-	vkWaitForFences(v->device, 3, &(v->sync.frame_fences[0]), VK_TRUE, UINT64_MAX);
+	vkWaitForFences(v->device, 3, &(v->sync.frame_fences[0]),
+								VK_TRUE, UINT64_MAX);
 	vkDestroyFramebuffer(v->device, v->framebuffer.frame_buffers[0], NULL);
 	vkDestroyFramebuffer(v->device, v->framebuffer.frame_buffers[1], NULL);
 	vkDestroyFramebuffer(v->device, v->framebuffer.frame_buffers[2], NULL);
-	vkFreeCommandBuffers(v->device, v->commandpool, FRAME_COUNT, v->command_buffers);
+	vkFreeCommandBuffers(v->device, v->commandpool, FRAME_COUNT,
+								v->command_buffers);
 	vkDestroyPipeline(v->device, v->pipeline, NULL);
 	vkDestroyPipelineLayout(v->device, v->pipelineLayout, NULL);
 	vkDestroyRenderPass(v->device, v->renderpass, NULL);
@@ -58,7 +60,7 @@ void	rtv_app_destroy(t_vulkan *v)
 	vkDestroyInstance(v->inst, NULL);
 }
 
-t_vec4	rotation_axis1(double angle, t_vec4 axis, t_vec4 p)
+t_vec4				rotation_axis1(double angle, t_vec4 axis, t_vec4 p)
 {
 	t_vec4 res;
 	double c;
@@ -66,127 +68,40 @@ t_vec4	rotation_axis1(double angle, t_vec4 axis, t_vec4 p)
 
 	c = cos(angle);
 	s = sin(angle);
-	res.x = p.x * (c + axis.x * axis.x * (1 - c)) + p.y * (axis.y * axis.x * (1 - c) + axis.z * s) + p.z * (axis.z * axis.x * (1 - c) - axis.y * s);
-	res.y = p.x * (axis.x * axis.y * (1 - c) - axis.z * s) + p.y * (c + axis.y * axis.y * (1 - c)) + p.z * (axis.z * axis.y * (1 - c) + axis.x * s);
-	res.z = p.x * (axis.x * axis.z * (1 - c) + axis.y * s) + p.y * (axis.y * axis.z* (1 - c) - axis.x * s) + p.z * (c + axis.z * axis.z * (1 - c));
+	res.x = p.x * (c + axis.x * axis.x * (1 - c)) + p.y * (axis.y * axis.x *
+		(1 - c) + axis.z * s) + p.z * (axis.z * axis.x * (1 - c) - axis.y * s);
+	res.y = p.x * (axis.x * axis.y * (1 - c) - axis.z * s) + p.y * (c + axis.y
+		* axis.y * (1 - c)) + p.z * (axis.z * axis.y * (1 - c) + axis.x * s);
+	res.z = p.x * (axis.x * axis.z * (1 - c) + axis.y * s) + p.y * (axis.y *
+		axis.z * (1 - c) - axis.x * s) + p.z * (c + axis.z * axis.z * (1 - c));
 	return (res);
 }
 
-void				p3d_rotate_x(t_vec4 *t, float angle)
+void				rtv_app_run(t_app *app)
 {
-	float		prev_y;
-	float		prev_z;
-
-	prev_y = t->y;
-	prev_z = t->z;
-	t->y = (prev_y * cos(RAD(angle)) - prev_z * sin(RAD(angle)));
-	t->z = (prev_y * sin(RAD(angle)) + prev_z * cos(RAD(angle)));
-}
-
-void				p3d_rotate_y(t_vec4 *t, float angle)
-{
-	float		prev_x;
-	float		prev_z;
-
-	prev_x = t->x;
-	prev_z = t->z;
-	t->x = (prev_x * cos(RAD(angle)) + prev_z * sin(RAD(angle)));
-	t->z = (prev_z * cos(RAD(angle)) - prev_x * sin(RAD(angle)));
-}
-
-void				p3d_rotate_z(t_vec4 *t, float angle)
-{
-	float		prev_x;
-	float		prev_y;
-
-	prev_x = t->x;
-	prev_y = t->y;
-	t->x = (prev_x * cos(RAD(angle)) - prev_y * sin(RAD(angle)));
-	t->y = (prev_x * sin(RAD(angle)) + prev_y * cos(RAD(angle)));
-}
-
-void	rtv_app_run(t_app *app)
-{
-	int	run;
-	int j;
+	SDL_Event	evt;
+	int			run;
+	int			j;
 
 	run = 1;
 	j = 0;
 	while (run)
-    {
-        SDL_Event evt;
-        while (SDL_PollEvent(&evt))
-        {
-            if (evt.type == SDL_QUIT)
-            {
-                run = 0;
-            }
+	{
+		while (SDL_PollEvent(&evt))
+		{
+			if (evt.type == SDL_QUIT)
+				run = 0;
 			else if (evt.type == SDL_KEYDOWN)
 			{
-				if (evt.key.keysym.sym == SDLK_UP)
-				{
-					app->r.camera.transform.position = vec4_add_vec4(app->r.camera.transform.position, vec4_mul_f(app->r.camera.direction, vec4_mod(app->r.camera.direction)));
-					j = 0;
-				}
-				if (evt.key.keysym.sym == SDLK_DOWN)
-				{
-					app->r.camera.transform.position = vec4_sub_vec4(app->r.camera.transform.position, vec4_mul_f(app->r.camera.direction, vec4_mod(app->r.camera.direction)));
-					j = 0;
-				}
-				if (evt.key.keysym.sym == SDLK_LEFT)
-				{
-					app->r.camera.transform.position = vec4_add_vec4(app->r.camera.transform.position, (t_vec4){-0.1, 0, 0, 0});
-					j = 0;
-				}
-				if (evt.key.keysym.sym == SDLK_RIGHT)
-				{
-					app->r.camera.transform.position = vec4_add_vec4(app->r.camera.transform.position, (t_vec4){0.1, 0, 0, 0});
-					j = 0;
-				}
-				if (evt.key.keysym.sym == SDLK_q)
-				{
-					p3d_rotate_y(&app->r.camera.direction, -10);
-					app->r.camera.transform.rotation.y -= RAD(10);
-					j = 0;
-				}
-				if (evt.key.keysym.sym == SDLK_e)
-				{
-					p3d_rotate_y(&app->r.camera.direction, 10);
-					app->r.camera.transform.rotation.y += RAD(10);
-					j = 0;
-				}
-				if (evt.key.keysym.sym == SDLK_KP_8)
-				{
-					p3d_rotate_x(&app->r.camera.direction, 10);
-					app->r.camera.transform.rotation.x += RAD(10);
-					j = 0;
-				}
-				if (evt.key.keysym.sym == SDLK_KP_2)
-				{
-					p3d_rotate_x(&app->r.camera.direction, -10);
-					app->r.camera.transform.rotation.x -= RAD(10);
-					j = 0;
-				}
-				if (evt.key.keysym.sym == SDLK_KP_4)
-				{
-					p3d_rotate_z(&app->r.camera.direction, -10);
-					app->r.camera.transform.rotation.z -= RAD(10);
-					j = 0;
-				}
-				if (evt.key.keysym.sym == SDLK_KP_6)
-				{
-					p3d_rotate_z(&app->r.camera.direction, 10);
-					app->r.camera.transform.rotation.z += RAD(10);
-					j = 0;
-				}
+				j = handling_keyboard_input(evt, app);
 			}
-        }
+		}
 		if (j == 0)
 		{
 			draw_frame(&(app->vulkan), &(app->r));
 			j = 1;
 		}
-    }
+	}
 	rtv_app_destroy(&(app->vulkan));
-    SDL_Quit();
+	SDL_Quit();
 }

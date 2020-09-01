@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/08/29 21:46:38 by marvin           ###   ########.fr       */
+/*   Updated: 2020/09/01 19:37:27 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,10 @@ void			vku_create_pipeline(t_vulkan *v);
 void			vku_create_render_pass(t_vulkan *v);
 void			vku_create_framebuffers(t_vulkan *v);
 void			vku_create_command_buffers(t_vulkan *v);
+int				handling_keyboard_input(SDL_Event evt, t_app *app);
+void			p3d_rotate_x(t_vec4 *t, float angle);
+void			p3d_rotate_y(t_vec4 *t, float angle);
+void			p3d_rotate_z(t_vec4 *t, float angle);
 VkPipelineVertexInputStateCreateInfo	vertex_input_state(void);
 VkPipelineRasterizationStateCreateInfo	rasterization_state(void);
 VkPipelineMultisampleStateCreateInfo	multisample_state(void);
