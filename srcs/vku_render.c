@@ -6,11 +6,25 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/10 10:36:02 by celva             #+#    #+#             */
-/*   Updated: 2020/08/27 01:23:53 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/28 13:28:31 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
+
+void		vku_destroy_sync_objects(t_vulkan *v)
+{
+	uint32_t				i;
+
+	i = 0;
+	while (i < v->framebuffer.sc_image_count)
+	{
+		vkDestroySemaphore(v->device, v->sync.image_available_sem[i], NULL);
+		vkDestroySemaphore(v->device, v->sync.render_finished_sem[i], NULL);
+		vkDestroyFence(v->device, v->sync.frame_fences[i], NULL);
+		i++;
+	}
+}
 
 static void	create_sync_objects(t_vulkan *v)
 {
@@ -69,11 +83,11 @@ void		vku_init_render(t_vulkan *v)
 								&(v->commandpool)) != VK_SUCCESS)
 		handle_error("Commandpool creation error!");
 	create_sync_objects(v);
+	create_buffers(v, STATIC_BUFFER_SIZE);
 	vku_create_render_pass(v);
 	vku_create_descriptor_set_layout(v);
 	vku_create_pipeline(v);
 	vku_create_framebuffers(v);
-	create_buffers(v, STATIC_BUFFER_SIZE);
 	vku_create_descriptor_pool(v);
 	vku_create_descriptor_sets(v, STATIC_BUFFER_SIZE);
 	vku_create_command_buffers(v);

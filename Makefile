@@ -25,6 +25,7 @@ SRCS =	app_core.c \
 		vku_logical_device.c \
 		vku_physical_device.c \
 		vku_pipeline.c \
+		vku_pipeline_states_creation.c \
 		vku_render.c \
 		vku_renderpass.c \
 		vku_shadermodule.c \

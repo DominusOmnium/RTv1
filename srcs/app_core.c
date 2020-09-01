@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/08/24 10:39:37 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/28 13:27:57 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,15 +51,7 @@ void	rtv_app_destroy(t_vulkan *v)
 	vkDestroyImageView(v->device, v->framebuffer.sc_image_views[1], NULL);
 	vkDestroyImageView(v->device, v->framebuffer.sc_image_views[2], NULL);
 	vkDestroyDescriptorSetLayout(v->device, v->descriptor.set_layout, NULL);
-	vkDestroySemaphore(v->device, v->sync.image_available_sem[0], NULL);
-	vkDestroySemaphore(v->device, v->sync.image_available_sem[1], NULL);
-	vkDestroySemaphore(v->device, v->sync.image_available_sem[2], NULL);
-	vkDestroySemaphore(v->device, v->sync.render_finished_sem[0], NULL);
-	vkDestroySemaphore(v->device, v->sync.render_finished_sem[1], NULL);
-	vkDestroySemaphore(v->device, v->sync.render_finished_sem[2], NULL);
-	vkDestroyFence(v->device, v->sync.frame_fences[0], NULL);
-	vkDestroyFence(v->device, v->sync.frame_fences[1], NULL);
-	vkDestroyFence(v->device, v->sync.frame_fences[2], NULL);
+	vku_destroy_sync_objects(v);
 	vkDestroyCommandPool(v->device, v->commandpool, NULL);
 	vkDestroyDevice(v->device, NULL);
 	vkDestroySurfaceKHR(v->inst, v->surface, NULL);

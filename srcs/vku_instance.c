@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:23:27 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/08/19 14:53:02 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/30 12:19:47 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,14 +39,6 @@ void			vku_instance_create(t_app *app)
 	const char				**inst_ext;
 	uint32_t				count_ext;
 
-	VkResult res;
-	uint32_t ver;
-	res = vkEnumerateInstanceVersion(&ver);
-	printf("vkEnumerateInstanceVersion: %d\n", res);
-	printf("ver:\t\t\t\t%d\n", ver);
-	/*printf("VK_API_VERSION_1_0:\t%d\n", VK_API_VERSION_1_0);
-	printf("VK_API_VERSION_1_1:\t%d\n", VK_API_VERSION_1_1);
-	printf("VK_API_VERSION_1_2:\t%d\n", VK_API_VERSION_1_2);*/
 	inst_ext = vku_get_supported_extentions(&count_ext, &ext_prop);
 	inst_info = (VkInstanceCreateInfo){
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -57,16 +49,14 @@ void			vku_instance_create(t_app *app)
 			.apiVersion = VK_API_VERSION_1_0,
 		},
 		.enabledExtensionCount = count_ext,
-		.ppEnabledExtensionNames = inst_ext
-		/*.enabledLayerCount = 1,
+		.ppEnabledExtensionNames = inst_ext,
+		.enabledLayerCount = 1,
 		.ppEnabledLayerNames = &(const char*){
 			"VK_LAYER_KHRONOS_validation"
-		}*/
+		}
 	};
-	if ((res = vkCreateInstance(&inst_info, NULL, &(app->vulkan.inst))) != VK_SUCCESS){
-		printf("vkCreateInstance: %d\n", res);
+	if (vkCreateInstance(&inst_info, NULL, &(app->vulkan.inst)) != VK_SUCCESS)
 		handle_error("Instance creation error!");
-	}
 	ft_memdel((void**)&ext_prop);
 	ft_memdel((void**)&inst_ext);
 }

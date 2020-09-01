@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:25 by celva             #+#    #+#             */
-/*   Updated: 2020/08/25 13:52:19 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/29 21:52:40 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ int		main(int ac, char **av)
 {
 	t_app	app;
 
-	(void)av;
 	if (ac == 1)
 		return (0);
 	app.appname = "RTv1";

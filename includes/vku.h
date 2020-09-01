@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/04 09:16:26 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/08/25 17:22:01 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/28 13:26:30 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 # include <vulkan.h>
 # include <vk_sdk_platform.h>
 # ifdef _WIN32
-//# include <float.h>
 typedef uint32_t uint32_t;
 # endif
 
@@ -107,4 +106,5 @@ void	vku_create_buffer(t_vulkan *v, t_uint32 index, VkBufferUsageFlags usage, Vk
 void	vku_create_descriptor_pool(t_vulkan *v);
 void	vku_create_descriptor_set_layout(t_vulkan *v);
 void	vku_create_descriptor_sets(t_vulkan *v, uint32_t size);
+void	vku_destroy_sync_objects(t_vulkan *v);
 #endif

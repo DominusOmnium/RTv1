@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/08/25 14:30:57 by marvin           ###   ########.fr       */
+/*   Updated: 2020/08/29 21:46:38 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@
 # define RAD(Value)		((Value) * 0.0174533)
 # define ERROR_MEM_ALLOC "Memory Allocation Error"
 # ifdef _WIN32
-//# include <float.h>
 typedef uint32_t uint32_t;
 # endif
 
@@ -133,4 +132,8 @@ void			vku_create_pipeline(t_vulkan *v);
 void			vku_create_render_pass(t_vulkan *v);
 void			vku_create_framebuffers(t_vulkan *v);
 void			vku_create_command_buffers(t_vulkan *v);
+VkPipelineVertexInputStateCreateInfo	vertex_input_state(void);
+VkPipelineRasterizationStateCreateInfo	rasterization_state(void);
+VkPipelineMultisampleStateCreateInfo	multisample_state(void);
+VkPipelineViewportStateCreateInfo		viewport_state(void);
 #endif
