@@ -12,7 +12,9 @@ GLSLS = $(wildcard shaders/*.vert shaders/*.frag)
 SPIRVS = $(addsuffix .spv,$(GLSLS))
 
 SRCS =	app_core.c \
+		input.c \
 		main.c \
+		p3d_rotate.c \
 		scene_reader.c \
 		shader_reader.c \
 		utils.c \
@@ -54,6 +56,8 @@ FTLIB =  $(addprefix $(LIBSDIR), printf/libftprintf.a)
 FTINCDIR =  $(addprefix $(LIBSDIR), printf/includes)
 FTINC = -I $(FTINCDIR)
 
+TEST = -DVULKAN_SDK=libs/vulkan/macOS -DVK_ICD_FILENAMES=$$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json -DVK_LAYER_PATH=$$VULKAN_SDK/share/vulkan/explicit_layers.d -DDYLD_LIBRARY_PATH="$$VULKAN_SDK/lib" 
+
 all: $(NAME)
 
 obj:
@@ -62,19 +66,11 @@ obj:
 $(OBJDIR)%.o:$(SRCDIR)%.c
 	$(CC) $(CFLAGS) $(FTINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC) $(SDL2INC) -o $@ -c $<
 
-$(NAME): libs env1 obj $(OBJS) shaders
-	$(CC) $(OBJS) $(VECLIB) $(FTLIB) -F libs/SDL2/lib -framework SDL2 -L libs/vulkan/macOS/lib -l vulkan.1.2.148 -l vulkan.1 -l vulkan -lm -o $(NAME)
+$(NAME): libs obj $(OBJS) shaders
+	$(CC) $(TEST) $(OBJS) $(VECLIB) $(FTLIB) -F libs/SDL2/lib -framework SDL2 -L libs/vulkan/macOS/lib -l vulkan.1.2.148 -l vulkan.1 -l vulkan -lm -o $(NAME)
 
-
-env1:
-	env
-	export VULKAN_SDK=libs/vulkan/macOS
-	echo $$VULKAN_SDK
-	export VK_ICD_FILENAMES=$$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json
-	echo $$VK_ICD_FILENAMES
-	export VK_LAYER_PATH=$$VULKAN_SDK/share/vulkan/explicit_layers.d
-	echo $$VK_LAYER_PATH
-	env
+run:
+	VULKAN_SDK=libs/vulkan/macOS VK_ICD_FILENAMES=$$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json VK_LAYER_PATH=$$VULKAN_SDK/share/vulkan/explicit_layers.d DYLD_LIBRARY_PATH="$$VULKAN_SDK/lib" ./rtv1 scenes/scene
 
 env:
 	bash q

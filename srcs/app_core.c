@@ -39,15 +39,10 @@ void				rtv_app_destroy(t_vulkan *v)
 	vkFreeCommandBuffers(v->device, v->commandpool, FRAME_COUNT,
 								v->command_buffers);
 	vkDestroyPipeline(v->device, v->pipeline, NULL);
-	vkDestroyPipelineLayout(v->device, v->pipelineLayout, NULL);
+	vkDestroyPipelineLayout(v->device, v->pipeline_layout, NULL);
 	vkDestroyRenderPass(v->device, v->renderpass, NULL);
 	vkDestroySwapchainKHR(v->device, v->swapchain, NULL);
-	vkDestroyBuffer(v->device, v->sbo_buffers[0].buffer, NULL);
-	vkFreeMemory(v->device, v->sbo_buffers[0].dev_mem, NULL);
-	vkDestroyBuffer(v->device, v->sbo_buffers[1].buffer, NULL);
-	vkFreeMemory(v->device, v->sbo_buffers[1].dev_mem, NULL);
-	vkDestroyBuffer(v->device, v->sbo_buffers[2].buffer, NULL);
-	vkFreeMemory(v->device, v->sbo_buffers[2].dev_mem, NULL);
+	vku_destroy_buffers(v);
 	vkDestroyDescriptorPool(v->device, v->descriptor.pool, NULL);
 	vkDestroyImageView(v->device, v->framebuffer.sc_image_views[0], NULL);
 	vkDestroyImageView(v->device, v->framebuffer.sc_image_views[1], NULL);

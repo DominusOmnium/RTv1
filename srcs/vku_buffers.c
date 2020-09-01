@@ -12,6 +12,19 @@
 
 #include "rtv1.h"
 
+void						vku_destroy_buffers(t_vulkan *v)
+{
+	uint32_t	i;
+
+	i = 0;
+	while (i < v->framebuffer.sc_image_count)
+	{
+		vkDestroyBuffer(v->device, v->sbo_buffers[i].buffer, NULL);
+		vkFreeMemory(v->device, v->sbo_buffers[i].dev_mem, NULL);
+		i++;
+	}
+}
+
 static uint32_t				find_memory_type(VkPhysicalDevice dev,
 												uint32_t type_filter,
 												VkMemoryPropertyFlags prop)

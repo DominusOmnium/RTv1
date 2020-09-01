@@ -52,7 +52,7 @@ static void	write_commands(t_vulkan *v, uint32_t index)
 	vkCmdBindPipeline(v->command_buffers[index],
 						VK_PIPELINE_BIND_POINT_GRAPHICS, v->pipeline);
 	vkCmdBindDescriptorSets(v->command_buffers[index],
-						VK_PIPELINE_BIND_POINT_GRAPHICS, v->pipelineLayout,
+						VK_PIPELINE_BIND_POINT_GRAPHICS, v->pipeline_layout,
 						0, 1, &(v->descriptor.sets[index]), 0, NULL);
 	vkCmdDraw(v->command_buffers[index], 3, 1, 0, 0);
 	vkCmdEndRenderPass(v->command_buffers[index]);

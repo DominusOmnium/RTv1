@@ -49,7 +49,7 @@ static void								create_pipeline_layout(t_vulkan *v)
 		.pSetLayouts = &(v->descriptor.set_layout)
 	};
 	if (vkCreatePipelineLayout(v->device, &pipeline_layout_create_info,
-								0, &(v->pipelineLayout)) != VK_SUCCESS)
+								0, &(v->pipeline_layout)) != VK_SUCCESS)
 		handle_error("Pipeline Layout Creation error!");
 }
 
@@ -78,7 +78,7 @@ static void								create_graphics_pipelines(t_vulkan *v,
 			.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 			.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT },
 		.pColorBlendState = color_blend_state, .pDynamicState = dynamic_state,
-		.layout = v->pipelineLayout, .renderPass = v->renderpass };
+		.layout = v->pipeline_layout, .renderPass = v->renderpass };
 	if (vkCreateGraphicsPipelines(v->device, VK_NULL_HANDLE, 1,
 					&pipeline_create_info, 0, &(v->pipeline)) != VK_SUCCESS)
 		handle_error("Graphics Pipeline creation error!");
