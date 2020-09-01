@@ -29,9 +29,10 @@ static void		set_device_formats(t_vulkan *v, VkPhysicalDevice device,
 								&(v->phys_device.surface_cap));
 }
 
-static void		get_device_family_properties(t_vulkan *v, VkPhysicalDevice device,
-												VkQueueFamilyProperties **qf_prop,
-												VkBool32 **sup_pres)
+static void		get_device_family_properties(t_vulkan *v,
+										VkPhysicalDevice device,
+										VkQueueFamilyProperties **qf_prop,
+										VkBool32 **sup_pres)
 {
 	uint32_t					num;
 
@@ -76,7 +77,7 @@ static void		select_physical_device(t_vulkan *v, uint32_t num_d,
 										VkPhysicalDeviceProperties *device_prop)
 {
 	uint32_t					i;
-	
+
 	i = -1;
 	while (++i < num_d)
 	{

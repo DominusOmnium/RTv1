@@ -12,17 +12,17 @@
 
 #include "rtv1.h"
 
-static const char**	vku_get_supported_extentions(uint32_t *c,
+static const char	**vku_get_supported_extentions(uint32_t *c,
 											VkExtensionProperties **prop)
 {
 	const char				**inst_ext;
 	uint32_t				i;
-	
-    if (vkEnumerateInstanceExtensionProperties(NULL, c, NULL) != VK_SUCCESS)
+
+	if (vkEnumerateInstanceExtensionProperties(NULL, c, NULL) != VK_SUCCESS)
 		handle_error("Enumerate Instance Extention Properties error!");
 	if ((*prop = ft_memalloc(sizeof(VkExtensionProperties) * *c)) == NULL)
 		handle_error(ERROR_MEM_ALLOC);
-    if (vkEnumerateInstanceExtensionProperties(NULL, c, *prop) != VK_SUCCESS)
+	if (vkEnumerateInstanceExtensionProperties(NULL, c, *prop) != VK_SUCCESS)
 		handle_error("Enumerate Instance Extention Properties error!");
 	if ((inst_ext = ft_memalloc(sizeof(char*) * *c)) == NULL)
 		handle_error(ERROR_MEM_ALLOC);
@@ -32,7 +32,7 @@ static const char**	vku_get_supported_extentions(uint32_t *c,
 	return (inst_ext);
 }
 
-void			vku_instance_create(t_app *app)
+void				vku_instance_create(t_app *app)
 {
 	VkExtensionProperties	*ext_prop;
 	VkInstanceCreateInfo	inst_info;

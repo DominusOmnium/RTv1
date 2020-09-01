@@ -49,11 +49,11 @@ VkPipelineViewportStateCreateInfo		viewport_state(void)
 	VkPipelineViewportStateCreateInfo	res;
 
 	res = (VkPipelineViewportStateCreateInfo) {
-        .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
-        .viewportCount = 1,
-        .pViewports = 0,
-        .scissorCount = 1,
-        .pScissors = 0
-    };
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+		.viewportCount = 1,
+		.pViewports = 0,
+		.scissorCount = 1,
+		.pScissors = 0
+	};
 	return (res);
 }

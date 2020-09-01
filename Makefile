@@ -65,6 +65,14 @@ $(OBJDIR)%.o:$(SRCDIR)%.c
 $(NAME): libs obj $(OBJS) shaders
 	$(CC) $(OBJS) $(VECLIB) $(FTLIB) -F /Users/dkathlee/Library/Frameworks -framework SDL2 -framework vulkan -lm -o $(NAME)
 
+env:
+	export VULKAN_ROOT_LOCATON="libs/vulkan/lib/"
+	export VULKAN_SDK="$VULKAN_ROOT_LOCATON/vulkansdk-macos-$VULKAN_SDK_VERSION/macOS"
+	export VK_ICD_FILENAMES="$VULKAN_SDK/etc/vulkan/icd.d/MoltenVK_icd.json"
+	export VK_LAYER_PATH="$VULKAN_SDK/etc/vulkan/explicit_layers.d" 
+	export PATH="/usr/local/opt/python/libexec/bin:$VULKAN_SDK/bin:$PATH"
+
+
 linux: libs obj $(OBJS) shaders
 	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)
 
