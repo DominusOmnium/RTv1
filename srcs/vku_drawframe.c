@@ -18,7 +18,7 @@ static void	update_sbo(t_vulkan *v, t_rt *r, uint32_t buf_index)
 	t_rt_input	input;
 
 	if (vkMapMemory(v->device, v->sbo_buffers[buf_index].dev_mem, 0,
-						STATIC_BUFFER_SIZE, 0, &data) != VK_SUCCESS)
+						STORAGE_BUFFER_SIZE, 0, &data) != VK_SUCCESS)
 		handle_error("Map Memory error!");
 	input = (t_rt_input){
 		.camera = r->camera.transform,

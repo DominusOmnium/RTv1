@@ -18,13 +18,8 @@ static size_t	read_shader_file(char *fname, char **shader)
 	size_t	r;
 	size_t	nor;
 	char	line[16];
-	int32_t	flags;
 
-	flags = O_RDONLY;
-#ifndef __APPLE__
-	flags |= O_BINARY;
-#endif
-	if ((fd = open(fname, flags)) == -1)
+	if ((fd = open(fname, O_RDONLY | O_BINARY)) == -1)
 		return (0);
 	nor = 0;
 	while ((r = read(fd, line, 16)) != 0)
@@ -41,7 +36,7 @@ size_t			load_shader_file(char *fname, char **shader)
 {
 	int	code_len;
 
-	*shader = ft_memalloc(0);
+	*shader = NULL;
 	if ((code_len = read_shader_file(fname, shader)) == 0)
 		return (0);
 	return (code_len);

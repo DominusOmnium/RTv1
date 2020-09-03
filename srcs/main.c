@@ -24,6 +24,8 @@ int		main(int ac, char **av)
 
 	if (ac == 1)
 		return (0);
+	setenv("VK_ICD_FILENAMES", VK_ICD_FILENAMES, 1);
+	setenv("VK_LAYER_PATH", VK_LAYER_PATH, 1);
 	app.appname = "RTv1";
 	init_struct(&app.r, av[1]);
 	rtv_app_create(&app);

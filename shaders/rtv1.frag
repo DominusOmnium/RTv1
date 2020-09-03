@@ -69,7 +69,6 @@ layout(std430, binding = 0) readonly buffer Figures
 
 s_retr r;
 
-
 vec3	canvas_to_viewport(int i, int j)
 {
     vec3	res;
@@ -251,7 +250,6 @@ s_input	closest_intersection(vec3 ray_dir, vec3 ray_start)
 	i = 0;
 	while (i < n_fig)
 	{			
-		//t.y = FLT_MAX;
 		if (sbo_input[i].type == obj_sphere)
 			t = intersect_ray_sphere(ray_start, ray_dir, sbo_input[i]);
 		else if (sbo_input[i].type == obj_plane)
@@ -260,11 +258,6 @@ s_input	closest_intersection(vec3 ray_dir, vec3 ray_start)
 			t = intersect_ray_cylinder(ray_start, ray_dir, sbo_input[i]);
 		else if (sbo_input[i].type == obj_cone)
 			t = intersect_ray_cone(ray_start, ray_dir, sbo_input[i]);
-		else
-		{
-			i++;
-			continue;
-		}
 		if ((r.t_c.t_min < t.x && r.t_c.t_max > t.x) && t.x < r.t_c.closest_t)
 		{
 			r.t_c.closest_t = t.x;
@@ -392,7 +385,7 @@ vec4	trace_ray()
 	return (obj.color * cL);
 }
 
-vec3	p3d_rotate_x(vec3 t, float angle)
+vec3	rotate_x(vec3 t, float angle)
 {
 	float		prev_y;
 	float		prev_z;
@@ -404,7 +397,7 @@ vec3	p3d_rotate_x(vec3 t, float angle)
 	return (t);
 }
 
-vec3	p3d_rotate_y(vec3 t, float angle)
+vec3	rotate_y(vec3 t, float angle)
 {
 	float		prev_x;
 	float		prev_z;
@@ -416,7 +409,7 @@ vec3	p3d_rotate_y(vec3 t, float angle)
 	return (t);
 }
 
-vec3	p3d_rotate_z(vec3 t, float angle)
+vec3	rotate_z(vec3 t, float angle)
 {
 	float		prev_x;
 	float		prev_y;
@@ -431,9 +424,9 @@ vec3	p3d_rotate_z(vec3 t, float angle)
 void main()
 {
 	r.ds = canvas_to_viewport(int(win_height/2 - gl_FragCoord.y), int(gl_FragCoord.x - win_width/2));
-	r.ds = p3d_rotate_x(r.ds, camera.rotation.x);
-	r.ds = p3d_rotate_y(r.ds, camera.rotation.y);
-	r.ds = p3d_rotate_z(r.ds, camera.rotation.z);
+	r.ds = rotate_x(r.ds, camera.rotation.x);
+	r.ds = rotate_y(r.ds, camera.rotation.y);
+	r.ds = rotate_z(r.ds, camera.rotation.z);
 	r.t_c.t_min = 1.0;
 	r.t_c.t_max = FLT_MAX;
 	outColor = trace_ray();

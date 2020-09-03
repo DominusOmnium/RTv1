@@ -56,25 +56,25 @@ static int	keyboard_input_q_e_8_2(SDL_Event evt, t_app *app)
 {
 	if (evt.key.keysym.sym == SDLK_q)
 	{
-		p3d_rotate_y(&app->r.camera.direction, -10);
+		rotate_y(&app->r.camera.direction, -10);
 		app->r.camera.transform.rotation.y -= RAD(10);
 		return (0);
 	}
 	if (evt.key.keysym.sym == SDLK_e)
 	{
-		p3d_rotate_y(&app->r.camera.direction, 10);
+		rotate_y(&app->r.camera.direction, 10);
 		app->r.camera.transform.rotation.y += RAD(10);
 		return (0);
 	}
 	if (evt.key.keysym.sym == SDLK_KP_8)
 	{
-		p3d_rotate_x(&app->r.camera.direction, 10);
+		rotate_x(&app->r.camera.direction, 10);
 		app->r.camera.transform.rotation.x += RAD(10);
 		return (0);
 	}
 	if (evt.key.keysym.sym == SDLK_KP_2)
 	{
-		p3d_rotate_x(&app->r.camera.direction, -10);
+		rotate_x(&app->r.camera.direction, -10);
 		app->r.camera.transform.rotation.x -= RAD(10);
 		return (0);
 	}
@@ -85,13 +85,13 @@ static int	keyboard_input_4_6(SDL_Event evt, t_app *app)
 {
 	if (evt.key.keysym.sym == SDLK_KP_4)
 	{
-		p3d_rotate_z(&app->r.camera.direction, -10);
+		rotate_z(&app->r.camera.direction, -10);
 		app->r.camera.transform.rotation.z -= RAD(10);
 		return (0);
 	}
 	if (evt.key.keysym.sym == SDLK_KP_6)
 	{
-		p3d_rotate_z(&app->r.camera.direction, 10);
+		rotate_z(&app->r.camera.direction, 10);
 		app->r.camera.transform.rotation.z += RAD(10);
 		return (0);
 	}
@@ -105,5 +105,5 @@ int			handling_keyboard_input(SDL_Event evt, t_app *app)
 		(keyboard_input_q_e_8_2(evt, app) == 0) ||
 		(keyboard_input_4_6(evt, app) == 0))
 		return (0);
-	return (-1);
+	return (1);
 }

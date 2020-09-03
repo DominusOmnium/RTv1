@@ -83,12 +83,12 @@ void		vku_init_render(t_vulkan *v)
 								&(v->commandpool)) != VK_SUCCESS)
 		handle_error("Commandpool creation error!");
 	create_sync_objects(v);
-	create_buffers(v, STATIC_BUFFER_SIZE);
+	create_buffers(v, STORAGE_BUFFER_SIZE);
 	vku_create_render_pass(v);
 	vku_create_descriptor_set_layout(v);
 	vku_create_pipeline(v);
 	vku_create_framebuffers(v);
 	vku_create_descriptor_pool(v);
-	vku_create_descriptor_sets(v, STATIC_BUFFER_SIZE);
+	vku_create_descriptor_sets(v, STORAGE_BUFFER_SIZE);
 	vku_create_command_buffers(v);
 }

@@ -14,11 +14,13 @@
 # define RTV1_H
 # ifdef __APPLE__
 #  define VK_USE_PLATFORM_MACOS_MVK
+#  define O_BINARY 0x0000
 # elif _WIN32
 #  define VK_USE_PLATFORM_WIN32_KHR
 #  define SDL_MAIN_HANDLED
 # else
 #  define VK_USE_PLATFORM_XCB_KHR
+#  define O_BINARY 0x0000
 # endif
 # include "SDL.h"
 # include "SDL_vulkan.h"
@@ -112,21 +114,20 @@ void			vku_init_render(t_vulkan *v);
 void			vku_record_cmb(t_vulkan *v);
 void			vku_draw_frame(t_vulkan *v);
 void			vku_swapchain_create(t_vulkan *v, t_rt *r);
-void			handle_error(char *msg);
-uint32_t		clamp_u32(uint32_t d, uint32_t min, uint32_t max);
-void			raytracing(t_rt *r, t_app *app);
-void			read_scene(char *fname, t_rt *r);
-size_t			load_shader_file(char *fname, char **shader);
 VkShaderModule	vku_create_shader_module(t_vulkan *v, char *code,
 												uint32_t code_l);
-void			draw_frame(t_vulkan *v, t_rt *r);
 void			vku_create_pipeline(t_vulkan *v);
 void			vku_create_render_pass(t_vulkan *v);
 void			vku_create_framebuffers(t_vulkan *v);
 void			vku_create_command_buffers(t_vulkan *v);
-int				handling_keyboard_input(SDL_Event evt, t_app *app);
-void			p3d_rotate_x(t_vec4 *t, float angle);
-void			p3d_rotate_y(t_vec4 *t, float angle);
-void			p3d_rotate_z(t_vec4 *t, float angle);
 void			vku_destroy_buffers(t_vulkan *v);
+void			read_scene(char *fname, t_rt *r);
+size_t			load_shader_file(char *fname, char **shader);
+void			draw_frame(t_vulkan *v, t_rt *r);
+int				handling_keyboard_input(SDL_Event evt, t_app *app);
+void			rotate_x(t_vec4 *t, float angle);
+void			rotate_y(t_vec4 *t, float angle);
+void			rotate_z(t_vec4 *t, float angle);
+void			handle_error(char *msg);
+uint32_t		clamp_u32(uint32_t d, uint32_t min, uint32_t max);
 #endif

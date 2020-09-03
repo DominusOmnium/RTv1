@@ -12,7 +12,7 @@
 
 #include "rtv1.h"
 
-void				p3d_rotate_x(t_vec4 *t, float angle)
+void				rotate_x(t_vec4 *t, float angle)
 {
 	float		prev_y;
 	float		prev_z;
@@ -23,7 +23,7 @@ void				p3d_rotate_x(t_vec4 *t, float angle)
 	t->z = (prev_y * sin(RAD(angle)) + prev_z * cos(RAD(angle)));
 }
 
-void				p3d_rotate_y(t_vec4 *t, float angle)
+void				rotate_y(t_vec4 *t, float angle)
 {
 	float		prev_x;
 	float		prev_z;
@@ -34,7 +34,7 @@ void				p3d_rotate_y(t_vec4 *t, float angle)
 	t->z = (prev_z * cos(RAD(angle)) - prev_x * sin(RAD(angle)));
 }
 
-void				p3d_rotate_z(t_vec4 *t, float angle)
+void				rotate_z(t_vec4 *t, float angle)
 {
 	float		prev_x;
 	float		prev_y;

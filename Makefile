@@ -14,7 +14,7 @@ SPIRVS = $(addsuffix .spv,$(GLSLS))
 SRCS =	app_core.c \
 		input.c \
 		main.c \
-		p3d_rotate.c \
+		rotation.c \
 		scene_reader.c \
 		shader_reader.c \
 		utils.c \
@@ -67,7 +67,8 @@ $(OBJDIR)%.o:$(SRCDIR)%.c
 	$(CC) $(CFLAGS) $(FTINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC) $(SDL2INC) -o $@ -c $<
 
 $(NAME): libs obj $(OBJS) shaders
-	$(CC) $(TEST) $(OBJS) $(VECLIB) $(FTLIB) -F libs/SDL2/lib -framework SDL2 -L libs/vulkan/macOS/lib -l vulkan.1.2.148 -l vulkan.1 -l vulkan -lm -o $(NAME)
+	$(CC) $(OBJS) $(VECLIB) $(FTLIB) -F libs/SDL2/lib -framework SDL2 -L libs/vulkan/macOS/lib -l vulkan.1.2.148 -l vulkan.1 -l vulkan -lm -o $(NAME)
+	install_name_tool -change @rpath/libvulkan.1.dylib libs/vulkan/macOS/lib/libvulkan.1.dylib rtv1
 
 run:
 	VULKAN_SDK=libs/vulkan/macOS VK_ICD_FILENAMES=$$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json VK_LAYER_PATH=$$VULKAN_SDK/share/vulkan/explicit_layers.d DYLD_LIBRARY_PATH="$$VULKAN_SDK/lib" ./rtv1 scenes/scene

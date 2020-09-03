@@ -12,12 +12,6 @@
 
 #include "rtv1.h"
 
-void	vku_window_destroy(t_app *app)
-{
-	vkDestroySurfaceKHR(app->vulkan.inst, app->vulkan.surface, 0);
-	SDL_DestroyWindow(app->window);
-}
-
 void	vku_window_create(t_app *app)
 {
 	app->window = SDL_CreateWindow(app->appname, SDL_WINDOWPOS_CENTERED,

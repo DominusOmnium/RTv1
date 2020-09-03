@@ -22,8 +22,10 @@ static VkPipelineShaderStageCreateInfo	*get_stage_create_infos(t_vulkan *v,
 
 	code_len = load_shader_file("shaders/rtv1.frag.spv", &code);
 	fragment_shader = vku_create_shader_module(v, code, code_len);
+	ft_memdel((void**)&code);
 	code_len = load_shader_file("shaders/rtv1.vert.spv", &code);
 	vertex_shader = vku_create_shader_module(v, code, code_len);
+	ft_memdel((void**)&code);
 	stages[0] = (VkPipelineShaderStageCreateInfo){
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 		.stage = VK_SHADER_STAGE_VERTEX_BIT,
@@ -51,6 +53,19 @@ static void								create_pipeline_layout(t_vulkan *v)
 	if (vkCreatePipelineLayout(v->device, &pipeline_layout_create_info,
 								0, &(v->pipeline_layout)) != VK_SUCCESS)
 		handle_error("Pipeline Layout Creation error!");
+}
+
+static void								destroy_shader_modules(t_vulkan *v,
+				VkPipelineShaderStageCreateInfo *stages, uint32_t stage_count)
+{
+	uint32_t	i;
+
+	i = 0;
+	while (i < stage_count)
+	{
+		vkDestroyShaderModule(v->device, stages[i].module, NULL);
+		i++;
+	}
 }
 
 static void								create_graphics_pipelines(t_vulkan *v,
@@ -82,33 +97,26 @@ static void								create_graphics_pipelines(t_vulkan *v,
 	if (vkCreateGraphicsPipelines(v->device, VK_NULL_HANDLE, 1,
 					&pipeline_create_info, 0, &(v->pipeline)) != VK_SUCCESS)
 		handle_error("Graphics Pipeline creation error!");
-	vkDestroyShaderModule(v->device, stages[0].module, 0);
-	vkDestroyShaderModule(v->device, stages[1].module, 0);
+	destroy_shader_modules(v, stages, 2);
 }
 
 void									vku_create_pipeline(t_vulkan *v)
 {
 	VkPipelineInputAssemblyStateCreateInfo	input_assembly_state;
-	VkPipelineColorBlendStateCreateInfo		color_blend_state;
+	VkPipelineColorBlendStateCreateInfo		color_blend_state_create_info;
 	VkPipelineDynamicStateCreateInfo		dynamic_state;
+	VkPipelineColorBlendAttachmentState		color_blend_attachment;
 
 	input_assembly_state = (VkPipelineInputAssemblyStateCreateInfo){
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
 		.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
 		.primitiveRestartEnable = VK_FALSE,
 	};
-	color_blend_state = (VkPipelineColorBlendStateCreateInfo) {
-		.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
-		.logicOpEnable = VK_FALSE,
-		.blendConstants = {0, 0, 0, 0},
-		.attachmentCount = 1,
-		.pAttachments = &(VkPipelineColorBlendAttachmentState) {
-			.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
-								VK_COLOR_COMPONENT_G_BIT |
-								VK_COLOR_COMPONENT_B_BIT |
-								VK_COLOR_COMPONENT_A_BIT
-		}
+	color_blend_attachment = (VkPipelineColorBlendAttachmentState){
+		.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+							VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
 	};
+	color_blend_state_create_info = color_blend_state(&color_blend_attachment);
 	dynamic_state = (VkPipelineDynamicStateCreateInfo) {
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
 		.dynamicStateCount = 2,
@@ -117,5 +125,5 @@ void									vku_create_pipeline(t_vulkan *v)
 	};
 	create_pipeline_layout(v);
 	create_graphics_pipelines(v, &input_assembly_state, &dynamic_state,
-											&color_blend_state);
+											&color_blend_state_create_info);
 }

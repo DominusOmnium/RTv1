@@ -57,3 +57,18 @@ VkPipelineViewportStateCreateInfo		viewport_state(void)
 	};
 	return (res);
 }
+
+VkPipelineColorBlendStateCreateInfo		color_blend_state(
+						VkPipelineColorBlendAttachmentState *attachments)
+{
+	VkPipelineColorBlendStateCreateInfo	res;
+
+	res = (VkPipelineColorBlendStateCreateInfo) {
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+		.logicOpEnable = VK_FALSE,
+		.blendConstants = {0, 0, 0, 0},
+		.attachmentCount = 1,
+		.pAttachments = attachments
+	};
+	return (res);
+}

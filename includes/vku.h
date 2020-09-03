@@ -15,6 +15,8 @@
 # include "vec_lib.h"
 # include <vulkan.h>
 # include <vk_sdk_platform.h>
+# define VK_ICD_FILENAMES "libs/vulkan/macOS/icd.d/MoltenVK_icd.json"
+# define VK_LAYER_PATH "$VULKAN_SDK/explicit_layers.d"
 
 enum {
 	VULKAN_MEM_DEVICE_READBACK,
@@ -25,14 +27,10 @@ enum {
 
 enum {
 	Kb = (1 << 10),
-	Mb = (1 << 20),
 	MAX_SWAPCHAIN_IMAGES = 3,
-	FRAME_COUNT = 2,
 	PRESENT_MODE_MAILBOX_IMAGE_COUNT = 3,
 	PRESENT_MODE_DEFAULT_IMAGE_COUNT = 2,
-	UPLOAD_REGION_SIZE = 64 * Kb,
-	UPLOAD_BUFFER_SIZE = FRAME_COUNT * UPLOAD_REGION_SIZE,
-	STATIC_BUFFER_SIZE = 64 * Kb
+	STORAGE_BUFFER_SIZE = 64 * Kb
 };
 
 typedef struct							s_buffer
@@ -113,4 +111,6 @@ VkPipelineVertexInputStateCreateInfo	vertex_input_state(void);
 VkPipelineRasterizationStateCreateInfo	rasterization_state(void);
 VkPipelineMultisampleStateCreateInfo	multisample_state(void);
 VkPipelineViewportStateCreateInfo		viewport_state(void);
+VkPipelineColorBlendStateCreateInfo		color_blend_state(
+						VkPipelineColorBlendAttachmentState *attachments);
 #endif

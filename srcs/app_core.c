@@ -31,13 +31,14 @@ void				rtv_app_create(t_app *app)
 
 void				rtv_app_destroy(t_vulkan *v)
 {
-	vkWaitForFences(v->device, 3, &(v->sync.frame_fences[0]),
-								VK_TRUE, UINT64_MAX);
+	vkWaitForFences(v->device, v->framebuffer.sc_image_count,
+					&(v->sync.frame_fences[0]), VK_TRUE, UINT64_MAX);
 	vkDestroyFramebuffer(v->device, v->framebuffer.frame_buffers[0], NULL);
 	vkDestroyFramebuffer(v->device, v->framebuffer.frame_buffers[1], NULL);
-	vkDestroyFramebuffer(v->device, v->framebuffer.frame_buffers[2], NULL);
-	vkFreeCommandBuffers(v->device, v->commandpool, FRAME_COUNT,
-								v->command_buffers);
+	if (v->framebuffer.sc_image_count == 3)
+		vkDestroyFramebuffer(v->device, v->framebuffer.frame_buffers[2], NULL);
+	vkFreeCommandBuffers(v->device, v->commandpool,
+						v->framebuffer.sc_image_count, v->command_buffers);
 	vkDestroyPipeline(v->device, v->pipeline, NULL);
 	vkDestroyPipelineLayout(v->device, v->pipeline_layout, NULL);
 	vkDestroyRenderPass(v->device, v->renderpass, NULL);
@@ -46,30 +47,14 @@ void				rtv_app_destroy(t_vulkan *v)
 	vkDestroyDescriptorPool(v->device, v->descriptor.pool, NULL);
 	vkDestroyImageView(v->device, v->framebuffer.sc_image_views[0], NULL);
 	vkDestroyImageView(v->device, v->framebuffer.sc_image_views[1], NULL);
-	vkDestroyImageView(v->device, v->framebuffer.sc_image_views[2], NULL);
+	if (v->framebuffer.sc_image_count == 3)
+		vkDestroyImageView(v->device, v->framebuffer.sc_image_views[2], NULL);
 	vkDestroyDescriptorSetLayout(v->device, v->descriptor.set_layout, NULL);
 	vku_destroy_sync_objects(v);
 	vkDestroyCommandPool(v->device, v->commandpool, NULL);
 	vkDestroyDevice(v->device, NULL);
 	vkDestroySurfaceKHR(v->inst, v->surface, NULL);
 	vkDestroyInstance(v->inst, NULL);
-}
-
-t_vec4				rotation_axis1(double angle, t_vec4 axis, t_vec4 p)
-{
-	t_vec4 res;
-	double c;
-	double s;
-
-	c = cos(angle);
-	s = sin(angle);
-	res.x = p.x * (c + axis.x * axis.x * (1 - c)) + p.y * (axis.y * axis.x *
-		(1 - c) + axis.z * s) + p.z * (axis.z * axis.x * (1 - c) - axis.y * s);
-	res.y = p.x * (axis.x * axis.y * (1 - c) - axis.z * s) + p.y * (c + axis.y
-		* axis.y * (1 - c)) + p.z * (axis.z * axis.y * (1 - c) + axis.x * s);
-	res.z = p.x * (axis.x * axis.z * (1 - c) + axis.y * s) + p.y * (axis.y *
-		axis.z * (1 - c) - axis.x * s) + p.z * (c + axis.z * axis.z * (1 - c));
-	return (res);
 }
 
 void				rtv_app_run(t_app *app)
@@ -87,9 +72,7 @@ void				rtv_app_run(t_app *app)
 			if (evt.type == SDL_QUIT)
 				run = 0;
 			else if (evt.type == SDL_KEYDOWN)
-			{
 				j = handling_keyboard_input(evt, app);
-			}
 		}
 		if (j == 0)
 		{
@@ -98,5 +81,6 @@ void				rtv_app_run(t_app *app)
 		}
 	}
 	rtv_app_destroy(&(app->vulkan));
+	SDL_DestroyWindow(app->window);
 	SDL_Quit();
 }
