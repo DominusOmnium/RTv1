@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/09/11 16:41:29 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/09/11 17:53:31 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,5 +136,5 @@ void			parse_sphere(char *str, t_object *sphere);
 void			parse_plane(char *str, t_object *plane);
 void			parse_cone(char *str, t_object *cone);
 void			parse_cylinder(char *str, t_object *cylinder);
-void			parse_light(char *str, t_object *light);
+void			parse_light(char *str, t_object *light, uint32_t type);
 #endif

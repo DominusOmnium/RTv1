@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   objects_parser.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/10 15:46:02 by marvin            #+#    #+#             */
-/*   Updated: 2020/09/10 15:46:02 by marvin           ###   ########.fr       */
+/*   Updated: 2020/09/11 17:53:18 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 void	parse_sphere(char *str, t_object *sphere)
 {
+	sphere->type = obj_sphere;
 	if (ft_strstr(str, "position") != NULL)
 		sphere->transform.position = string_to_vector(str);
 	else if (ft_strstr(str, "color") != NULL)
@@ -34,6 +35,7 @@ void	parse_sphere(char *str, t_object *sphere)
 
 void	parse_plane(char *str, t_object *plane)
 {
+	plane->type = obj_plane;
 	if (ft_strstr(str, "position") != NULL)
 		plane->transform.position = string_to_vector(str);
 	else if (ft_strstr(str, "rotation") != NULL)
@@ -58,6 +60,7 @@ void	parse_plane(char *str, t_object *plane)
 
 void	parse_cone(char *str, t_object *cone)
 {
+	cone->type = obj_cone;
 	if (ft_strstr(str, "position") != NULL)
 		cone->transform.position = string_to_vector(str);
 	else if (ft_strstr(str, "color") != NULL)
@@ -86,6 +89,7 @@ void	parse_cone(char *str, t_object *cone)
 
 void	parse_cylinder(char *str, t_object *cylinder)
 {
+	cylinder->type = obj_cylinder;
 	if (ft_strstr(str, "position") != NULL)
 		cylinder->transform.position = string_to_vector(str);
 	else if (ft_strstr(str, "color") != NULL)
@@ -106,8 +110,9 @@ void	parse_cylinder(char *str, t_object *cylinder)
 	}
 }
 
-void	parse_light(char *str, t_object *light)
+void	parse_light(char *str, t_object *light, uint32_t type)
 {
+	light->type = type;
 	if (ft_strstr(str, "intensity") != NULL)
 	{
 		while (!(*str >= '0' && *str <= '9'))

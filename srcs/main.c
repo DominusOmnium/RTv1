@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:25 by celva             #+#    #+#             */
-/*   Updated: 2020/09/10 20:08:52 by marvin           ###   ########.fr       */
+/*   Updated: 2020/09/11 17:34:05 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,10 @@ void	init_struct(t_rt *r, char *fname)
 {
 	uint32_t	i;
 
+	*r = (t_rt){
+		.n_lig = 0,
+		.n_fig = 0
+	};
 	read_scene(fname, r);
 	i = 0;
 	while (i < r->n_fig)

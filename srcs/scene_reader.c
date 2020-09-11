@@ -6,7 +6,7 @@
 /*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/15 10:50:02 by marvin            #+#    #+#             */
-/*   Updated: 2020/09/11 16:31:56 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/09/11 17:54:10 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void		parse_camera(char *str, t_camera *camera)
 }
 
 uint32_t	parse_type(char *str, t_object **cur_figure,
-										t_object **cur_light)
+									t_object **cur_light)
 {
 	uint32_t	type;
 
@@ -55,9 +55,9 @@ uint32_t	parse_type(char *str, t_object **cur_figure,
 		type = light_directional;
 	if (type == light_directional || type == light_point
 				|| type == light_ambient)
-		(++(*cur_light))->type = type;
+		(*cur_light)++;
 	else if (type != obj_null)
-		(++(*cur_figure))->type = type;
+		(*cur_figure)++;
 	return (type);
 }
 
@@ -95,7 +95,12 @@ void		process_line(t_rt *r, char *str, t_object **cur_figure,
 	if (ft_strstr(str, "camera") != NULL)
 		type = camera;
 	else if (ft_strstr(str, "type") != NULL)
+	{
 		type = parse_type(str, cur_figure, cur_light);
+		if (*cur_light - r->sbo_lights >= r->n_lig
+				|| *cur_figure - r->sbo_figures >= r->n_fig)
+			handle_error("ERROR: Scene file wrong!");
+	}
 	else if (type == obj_sphere)
 		parse_sphere(str, *cur_figure);
 	else if (type == obj_plane)
@@ -107,7 +112,7 @@ void		process_line(t_rt *r, char *str, t_object **cur_figure,
 	else if (type == camera)
 		parse_camera(str, &r->camera);
 	else if (type != obj_null)
-		parse_light(str, *cur_light);
+		parse_light(str, *cur_light, type);
 }
 
 void		read_scene(char *fname, t_rt *r)
