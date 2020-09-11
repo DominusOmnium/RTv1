@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/09/01 19:37:27 by celva            ###   ########.fr       */
+/*   Updated: 2020/09/10 16:29:44 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,4 +130,11 @@ void			rotate_y(t_vec4 *t, float angle);
 void			rotate_z(t_vec4 *t, float angle);
 void			handle_error(char *msg);
 uint32_t		clamp_u32(uint32_t d, uint32_t min, uint32_t max);
+t_vec4			string_to_vector(char *str);
+float			string_to_float(char **str);
+void	parse_sphere(char *str, t_object *sphere);
+void	parse_plane(char *str, t_object *plane);
+void	parse_cone(char *str, t_object *cone);
+void	parse_cylinder(char *str, t_object *cylinder);
+void	parse_light(char *str, t_object *light);
 #endif

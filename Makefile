@@ -14,6 +14,7 @@ SPIRVS = $(addsuffix .spv,$(GLSLS))
 SRCS =	app_core.c \
 		input.c \
 		main.c \
+		objects_parser.c \
 		rotation.c \
 		scene_reader.c \
 		shader_reader.c \
