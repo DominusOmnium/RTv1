@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rtv1.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/09/10 16:29:44 by marvin           ###   ########.fr       */
+/*   Updated: 2020/09/11 16:41:29 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ void			vku_destroy_buffers(t_vulkan *v);
 void			read_scene(char *fname, t_rt *r);
 size_t			load_shader_file(char *fname, char **shader);
 void			draw_frame(t_vulkan *v, t_rt *r);
-int				handling_keyboard_input(SDL_Event evt, t_app *app);
+int				handling_keyboard_input(SDL_Event evt, t_camera *camera);
 void			rotate_x(t_vec4 *t, float angle);
 void			rotate_y(t_vec4 *t, float angle);
 void			rotate_z(t_vec4 *t, float angle);
@@ -132,9 +132,9 @@ void			handle_error(char *msg);
 uint32_t		clamp_u32(uint32_t d, uint32_t min, uint32_t max);
 t_vec4			string_to_vector(char *str);
 float			string_to_float(char **str);
-void	parse_sphere(char *str, t_object *sphere);
-void	parse_plane(char *str, t_object *plane);
-void	parse_cone(char *str, t_object *cone);
-void	parse_cylinder(char *str, t_object *cylinder);
-void	parse_light(char *str, t_object *light);
+void			parse_sphere(char *str, t_object *sphere);
+void			parse_plane(char *str, t_object *plane);
+void			parse_cone(char *str, t_object *cone);
+void			parse_cylinder(char *str, t_object *cylinder);
+void			parse_light(char *str, t_object *light);
 #endif

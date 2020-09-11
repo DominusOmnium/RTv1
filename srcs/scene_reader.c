@@ -3,40 +3,37 @@
 /*                                                        :::      ::::::::   */
 /*   scene_reader.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/15 10:50:02 by marvin            #+#    #+#             */
-/*   Updated: 2020/09/11 12:49:23 by marvin           ###   ########.fr       */
+/*   Updated: 2020/09/11 16:31:56 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
 
-void	parse_camera(char *str, t_camera *camera)
+void		parse_camera(char *str, t_camera *camera)
 {
-	if (ft_strstr(str, "direction") != NULL)
+	if (ft_strstr(str, "rotation") != NULL)
 	{
-		camera->direction = string_to_vector(str);
-		camera->direction = vec4_mul_f(camera->direction, 1.0 / vec4_mod(camera->direction));
-		if (camera->direction.z != 0.0f)
-			camera->transform.rotation.x = -atanf(camera->direction.y / camera->direction.z);
-		else
-			camera->transform.rotation.x = 0.0f;
-		if (camera->direction.z != 0.0f)
-			camera->transform.rotation.y = -atanf(camera->direction.x / camera->direction.z);
-		else
-			camera->transform.rotation.y = 0.0f;
-		if (camera->direction.x != 0.0f)
-			camera->transform.rotation.z = -atanf(camera->direction.y / camera->direction.x);
-		else
-			camera->transform.rotation.z = 0.0f;
-		camera->transform.rotation.w = 0.0f;
+		camera->transform.rotation = string_to_vector(str);
+		camera->transform.rotation.x = RAD(camera->transform.rotation.x);
+		camera->transform.rotation.y = RAD(camera->transform.rotation.y);
+		camera->transform.rotation.z = RAD(camera->transform.rotation.z);
+		camera->direction = (t_vec4){0, 0, 1, 0};
+		rotate_x(&camera->direction, camera->transform.rotation.x);
+		rotate_y(&camera->direction, camera->transform.rotation.y);
+		rotate_z(&camera->direction, camera->transform.rotation.z);
+		camera->up = (t_vec4){0, 1, 0, 0};
+		rotate_x(&camera->up, camera->transform.rotation.x);
+		rotate_y(&camera->up, camera->transform.rotation.y);
+		rotate_z(&camera->up, camera->transform.rotation.z);
 	}
 	else if (ft_strstr(str, "position") != NULL)
 		camera->transform.position = string_to_vector(str);
 }
 
-uint32_t		parse_type(char *str, t_object **cur_figure,
+uint32_t	parse_type(char *str, t_object **cur_figure,
 										t_object **cur_light)
 {
 	uint32_t	type;
@@ -72,6 +69,8 @@ void		process_num(t_rt *r, char *str, t_object **cur_figure,
 		while (*str < '0' || *str > '9')
 			str++;
 		r->n_fig = ft_atoi(str);
+		if (r->n_fig <= 0)
+			handle_error("Error in scene file. Figures number must be > 0");
 		r->sbo_figures = ft_memalloc(sizeof(t_object) * r->n_fig);
 		*cur_figure = r->sbo_figures - 1;
 	}
@@ -80,7 +79,8 @@ void		process_num(t_rt *r, char *str, t_object **cur_figure,
 		while (*str < '0' || *str > '9')
 			str++;
 		r->n_lig = ft_atoi(str);
-		printf("r->n_lig: %d\n", r->n_lig);
+		if (r->n_lig <= 0)
+			handle_error("Error in scene file. Lights number must be > 0");
 		r->sbo_lights = ft_memalloc(sizeof(t_object) * r->n_lig);
 		*cur_light = r->sbo_lights - 1;
 	}

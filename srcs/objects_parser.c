@@ -45,7 +45,6 @@ void	parse_plane(char *str, t_object *plane)
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
 		plane->f_specular = ft_atoi(str);
-		printf("plane->f_specular: %d\n", plane->f_specular);
 	}
 	else if (ft_strstr(str, "vertices[0]") != NULL)
 		plane->f_vertices[0] = string_to_vector(str);
@@ -81,9 +80,6 @@ void	parse_cone(char *str, t_object *cone)
 			str++;
 		cone->f_height = string_to_float(&str);
 	}
-	//ПЕРЕДЕЛАТЬ
-	else if (ft_strstr(str, "vertex") != NULL)
-		cone->f_ver = vec4_add_vec4(cone->transform.position, vec4_mul_f(cone->direction, cone->f_height));
 	else if (ft_strstr(str, "direction") != NULL)
 		cone->direction = string_to_vector(str);
 }

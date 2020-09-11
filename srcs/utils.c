@@ -52,8 +52,9 @@ float		string_to_float(char **str)
 t_vec4		string_to_vector(char *str)
 {
 	t_vec4 res;
-	
-	while ((!((*str >= '0' && *str <= '9') && (*(str + 1) != ']'))) && (*str != '-'))
+
+	while ((!((*str >= '0' && *str <= '9') && (*(str + 1) != ']')))
+										&& (*str != '-'))
 		str++;
 	res.x = string_to_float(&str);
 	while (*str == ' ' || *str == ',' || *str == '\t')

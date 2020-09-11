@@ -25,7 +25,8 @@
 		"ostream": "c",
 		"tuple": "c",
 		"type_traits": "c",
-		"utility": "c"
+		"utility": "c",
+		"ios": "c"
 	},
 	"glsllint.glslangValidatorArgs": "-V",
 	"glsllint.glslangValidatorPath": "C:\\VulkanSDK\\1.2.131.2\\Bin\\glslangValidator.exe"

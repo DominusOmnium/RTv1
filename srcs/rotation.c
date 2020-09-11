@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   p3d_rotate.c                                       :+:      :+:    :+:   */
+/*   rotation.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/01 19:35:49 by celva             #+#    #+#             */
-/*   Updated: 2020/09/01 19:36:21 by celva            ###   ########.fr       */
+/*   Updated: 2020/09/11 16:14:32 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@ void				rotate_x(t_vec4 *t, float angle)
 
 	prev_y = t->y;
 	prev_z = t->z;
-	t->y = (prev_y * cos(RAD(angle)) - prev_z * sin(RAD(angle)));
-	t->z = (prev_y * sin(RAD(angle)) + prev_z * cos(RAD(angle)));
+	t->y = (prev_y * cos(angle) - prev_z * sin(angle));
+	t->z = (prev_y * sin(angle) + prev_z * cos(angle));
 }
 
 void				rotate_y(t_vec4 *t, float angle)
@@ -30,8 +30,8 @@ void				rotate_y(t_vec4 *t, float angle)
 
 	prev_x = t->x;
 	prev_z = t->z;
-	t->x = (prev_x * cos(RAD(angle)) + prev_z * sin(RAD(angle)));
-	t->z = (prev_z * cos(RAD(angle)) - prev_x * sin(RAD(angle)));
+	t->x = (prev_x * cos(angle) + prev_z * sin(angle));
+	t->z = (prev_z * cos(angle) - prev_x * sin(angle));
 }
 
 void				rotate_z(t_vec4 *t, float angle)
@@ -41,6 +41,6 @@ void				rotate_z(t_vec4 *t, float angle)
 
 	prev_x = t->x;
 	prev_y = t->y;
-	t->x = (prev_x * cos(RAD(angle)) - prev_y * sin(RAD(angle)));
-	t->y = (prev_x * sin(RAD(angle)) + prev_y * cos(RAD(angle)));
+	t->x = (prev_x * cos(angle) - prev_y * sin(angle));
+	t->y = (prev_x * sin(angle) + prev_y * cos(angle));
 }

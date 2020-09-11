@@ -14,8 +14,21 @@
 
 void	init_struct(t_rt *r, char *fname)
 {
-	*r = (t_rt){};
+	uint32_t	i;
+
 	read_scene(fname, r);
+	i = 0;
+	while (i < r->n_fig)
+	{
+		if (r->sbo_figures[i].f_specular == 0)
+			r->sbo_figures[i].f_specular = -1;
+		if (r->sbo_figures[i].type == obj_cone)
+			r->sbo_figures[i].f_ver = vec4_add_vec4(
+				r->sbo_figures[i].transform.position,
+				vec4_mul_f(r->sbo_figures[i].direction,
+							r->sbo_figures[i].f_height));
+		i++;
+	}
 	r->camera.d = 1.0;
 }
 
@@ -25,16 +38,10 @@ int		main(int ac, char **av)
 
 	if (ac == 1)
 		return (0);
-	//setenv("VK_ICD_FILENAMES", VK_ICD_FILENAMES, 1);
-	//setenv("VK_LAYER_PATH", VK_LAYER_PATH, 1);
+	setenv("VK_ICD_FILENAMES", VK_ICD_FILENAMES, 1);
+	setenv("VK_LAYER_PATH", VK_LAYER_PATH, 1);
 	app.appname = "RTv1";
 	init_struct(&app.r, av[1]);
-	printf("app.r.sbo_figures[0].f_radius: %f\n", app.r.sbo_figures[0].f_radius);
-	printf("app.r.sbo_figures[1].f_radius: %f\n", app.r.sbo_figures[1].f_radius);
-	printf("app.r.sbo_figures[2].f_radius: %f\n", app.r.sbo_figures[2].f_radius);
-	printf("app.r.sbo_figures[0].f_radius: %d\n", app.r.sbo_figures[0].type);
-	printf("app.r.sbo_figures[1].f_radius: %d\n", app.r.sbo_figures[1].type);
-	printf("app.r.sbo_figures[2].f_radius: %d\n", app.r.sbo_figures[2].type);
 	rtv_app_create(&app);
 	app.r.camera.vh = 1.0;
 	app.r.camera.vw = app.r.win_width

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   app_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: celva <celva@student.42.fr>                +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/09/01 19:36:17 by celva            ###   ########.fr       */
+/*   Updated: 2020/09/11 16:41:52 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void				rtv_app_run(t_app *app)
 			if (evt.type == SDL_QUIT)
 				run = 0;
 			else if (evt.type == SDL_KEYDOWN)
-				j = handling_keyboard_input(evt, app);
+				j = handling_keyboard_input(evt, &app->r.camera);
 		}
 		if (j == 0)
 		{
