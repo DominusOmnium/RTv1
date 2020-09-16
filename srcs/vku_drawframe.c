@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/14 17:56:35 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/08/20 15:30:00 by marvin           ###   ########.fr       */
+/*   Updated: 2020/09/16 15:44:32 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ static void	update_sbo(t_vulkan *v, t_rt *r, uint32_t buf_index)
 	ft_memcpy(data + sizeof(t_rt_input), r->sbo_figures,
 					sizeof(t_object) * r->n_fig);
 	ft_memcpy(data + sizeof(t_rt_input) + sizeof(t_object) * r->n_fig,
-						r->sbo_lights, sizeof(t_object) * r->n_fig);
+						r->sbo_lights, sizeof(t_object) * r->n_lig);
 	vkUnmapMemory(v->device, v->sbo_buffers[buf_index].dev_mem);
 }
 

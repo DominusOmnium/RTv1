@@ -57,8 +57,6 @@ FTLIB =  $(addprefix $(LIBSDIR), printf/libftprintf.a)
 FTINCDIR =  $(addprefix $(LIBSDIR), printf/includes)
 FTINC = -I $(FTINCDIR)
 
-TEST = -DVULKAN_SDK=libs/vulkan/macOS -DVK_ICD_FILENAMES=$$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json -DVK_LAYER_PATH=$$VULKAN_SDK/share/vulkan/explicit_layers.d -DDYLD_LIBRARY_PATH="$$VULKAN_SDK/lib" 
-
 all: $(NAME)
 
 obj:
@@ -70,12 +68,6 @@ $(OBJDIR)%.o:$(SRCDIR)%.c
 $(NAME): libs obj $(OBJS) shaders
 	$(CC) $(OBJS) $(VECLIB) $(FTLIB) -F libs/SDL2/lib -framework SDL2 -L libs/vulkan/macOS/lib -l vulkan.1.2.148 -l vulkan.1 -l vulkan -lm -o $(NAME)
 	install_name_tool -change @rpath/libvulkan.1.dylib libs/vulkan/macOS/lib/libvulkan.1.dylib rtv1
-
-run:
-	VULKAN_SDK=libs/vulkan/macOS VK_ICD_FILENAMES=$$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json VK_LAYER_PATH=$$VULKAN_SDK/share/vulkan/explicit_layers.d DYLD_LIBRARY_PATH="$$VULKAN_SDK/lib" ./rtv1 scenes/scene
-
-env:
-	bash q
 
 linux: libs obj $(OBJS) shaders
 	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)

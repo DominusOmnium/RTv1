@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 01:11:01 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/08/20 14:57:17 by marvin           ###   ########.fr       */
+/*   Updated: 2020/09/14 01:41:30 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,9 @@ VkPresentModeKHR	vku_get_present_mode(t_vulkan *v)
 
 	vkGetPhysicalDeviceSurfacePresentModesKHR(v->phys_device.device,
 											v->surface, &pres_mode_count, NULL);
-	pres_modes = ft_memalloc(sizeof(VkPresentModeKHR) * pres_mode_count);
+	if ((pres_modes = ft_memalloc(sizeof(VkPresentModeKHR) * pres_mode_count))
+																		== NULL)
+		handle_error(ERROR_MEM_ALLOC);
 	vkGetPhysicalDeviceSurfacePresentModesKHR(v->phys_device.device, v->surface,
 												&pres_mode_count, pres_modes);
 	present_mode = VK_PRESENT_MODE_FIFO_KHR;

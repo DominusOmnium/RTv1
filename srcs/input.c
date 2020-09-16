@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   input.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/01 18:56:35 by celva             #+#    #+#             */
-/*   Updated: 2020/09/11 16:41:09 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/09/16 13:39:19 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,5 +103,7 @@ int			handling_keyboard_input(SDL_Event evt, t_camera *camera)
 		rotate_z(&camera->up, camera->transform.rotation.z);
 		return (0);
 	}
+	else if (evt.key.keysym.sym == SDLK_ESCAPE)
+		exit(0);
 	return (1);
 }

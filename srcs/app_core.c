@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   app_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:20 by celva             #+#    #+#             */
-/*   Updated: 2020/09/11 16:41:52 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/09/16 13:34:45 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,11 +60,11 @@ void				rtv_app_destroy(t_vulkan *v)
 void				rtv_app_run(t_app *app)
 {
 	SDL_Event	evt;
-	int			run;
-	int			j;
+	uint32_t	run;
+	uint32_t	redraw;
 
 	run = 1;
-	j = 0;
+	redraw = 0;
 	while (run)
 	{
 		while (SDL_PollEvent(&evt))
@@ -72,12 +72,12 @@ void				rtv_app_run(t_app *app)
 			if (evt.type == SDL_QUIT)
 				run = 0;
 			else if (evt.type == SDL_KEYDOWN)
-				j = handling_keyboard_input(evt, &app->r.camera);
+				redraw = handling_keyboard_input(evt, &app->r.camera);
 		}
-		if (j == 0)
+		if (redraw == 0)
 		{
 			draw_frame(&(app->vulkan), &(app->r));
-			j = 1;
+			redraw = 1;
 		}
 	}
 	rtv_app_destroy(&(app->vulkan));

@@ -1,41 +1,5 @@
-figures: 6
-lights: 6
-
-type: plane
-position = {0.0, -1.0, 0.0}
-color = {0, 0.5, 0}
-specular = 100
-radius = 1.0
-rotation = {0, 1.0, 0.0}
-vertices[0] = {-2, -1, 4}
-vertices[1] = {2, -1, 4}
-vertices[2] = {2, -1, 2}
-vertices[3] = {-2, -1, 2}
-
-type: sphere
-position = {2.0, 0, 4.0}
-color = {0, 0, 1.0}
-specular = 500
-radius = 1.0
-
-type: sphere
-position = {0, 0, 3.0}
-color = {1.0, 0, 0}
-specular = 5000
-radius = 1.0
-
-type: sphere
-position = {-2.0, 0, 4.0}
-color = {0, 1.0, 0}
-specular = 10
-radius = 1.0
-
-type: cylinder
-position = {0.0, 0.0, 3.0}
-color = {1.0, 1.0, 0}
-specular = 100
-radius = 0.5
-rotation = {0, 1.0, 0.0}
+figures: 1
+lights: 2
 
 type: cone
 position = {0.0, -1.0, 3.0}
@@ -48,33 +12,11 @@ vertex = {0.0, 0.0, 3.0}
 
 type: ambient
 intensity = 0.05
-position = {0, 0, 0}
-rotation = {0, 0, 0}
-
-type: point
-intensity = 0.2
-position = {-2, 2, 1}
-rotation = {0, 0, 0}
-
-type: point
-intensity = 0.2
-position = {2, 2, 1}
-rotation = {0, 0, 0}
-
-type: point
-intensity = 0.2
-position = {0, 2, 4}
-rotation = {0, 0, 0}
-
-type: point
-intensity = 0.2
-position = {0, 2, 1}
-rotation = {0, 0, 0}
 
 type: directional
-intensity = 0.15
+intensity = 0.95
 position = {0, 0, 0}
-rotation = {1, 4, 4}
+direction = {1, 4, 4}
 
 camera
 

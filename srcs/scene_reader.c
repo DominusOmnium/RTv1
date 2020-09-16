@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   scene_reader.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/15 10:50:02 by marvin            #+#    #+#             */
-/*   Updated: 2020/09/11 17:54:10 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/09/14 00:23:44 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,8 @@ void		process_num(t_rt *r, char *str, t_object **cur_figure,
 		r->n_fig = ft_atoi(str);
 		if (r->n_fig <= 0)
 			handle_error("Error in scene file. Figures number must be > 0");
-		r->sbo_figures = ft_memalloc(sizeof(t_object) * r->n_fig);
+		if ((r->sbo_figures = ft_memalloc(sizeof(t_object) * r->n_fig)) == NULL)
+			handle_error(ERROR_MEM_ALLOC);
 		*cur_figure = r->sbo_figures - 1;
 	}
 	else if (ft_strstr(str, "lights") != NULL)
@@ -81,7 +82,8 @@ void		process_num(t_rt *r, char *str, t_object **cur_figure,
 		r->n_lig = ft_atoi(str);
 		if (r->n_lig <= 0)
 			handle_error("Error in scene file. Lights number must be > 0");
-		r->sbo_lights = ft_memalloc(sizeof(t_object) * r->n_lig);
+		if ((r->sbo_lights = ft_memalloc(sizeof(t_object) * r->n_lig)) == NULL)
+			handle_error(ERROR_MEM_ALLOC);
 		*cur_light = r->sbo_lights - 1;
 	}
 }

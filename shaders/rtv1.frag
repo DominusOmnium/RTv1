@@ -239,7 +239,7 @@ vec2	intersect_ray_cylinder(vec3 ray_start, vec3 ray_dir, s_input cyl)
 	return (res);
 }
 
-s_input	closest_intersection(vec3 ray_dir, vec3 ray_start)
+s_input	closest_intersection(vec3 ray_start, vec3 ray_dir)
 {
 	s_input		obj;
 	int			i;
@@ -258,7 +258,7 @@ s_input	closest_intersection(vec3 ray_dir, vec3 ray_start)
 			t = intersect_ray_cylinder(ray_start, ray_dir, sbo_input[i]);
 		else if (sbo_input[i].type == obj_cone)
 			t = intersect_ray_cone(ray_start, ray_dir, sbo_input[i]);
-		if ((r.t_c.t_min < t.x && r.t_c.t_max > t.x) && t.x < r.t_c.closest_t)
+		if ((r.t_c.t_min < t.x && t.x < r.t_c.t_max) && t.x < r.t_c.closest_t)
 		{
 			r.t_c.closest_t = t.x;
 			obj = sbo_input[i];
@@ -273,11 +273,11 @@ s_input	closest_intersection(vec3 ray_dir, vec3 ray_start)
 	return (obj);
 }
 
-float	compute_lighting(vec3 p, vec3 n, int s)
+float	compute_lighting(vec3 point, vec3 normal, int specular)
 {
 	float		res;
 	uint		i;
-	vec3		l;
+	vec3		dir_to_light;
 	float		n_scal_l;
 	float		shadow_t;
 	s_input		shadow_obj;
@@ -287,30 +287,25 @@ float	compute_lighting(vec3 p, vec3 n, int s)
 	i = n_fig;
 	while (i < n_fig + n_lig)
 	{
-		if (sbo_input[i].type != light_ambient && sbo_input[i].type != light_point && sbo_input[i].type != light_directional)
-		{
-			i++;
-			continue;
-		}
 		if (sbo_input[i].type == light_ambient)
 			res += sbo_input[i].l_intensity;
 		else 
 		{
 			if (sbo_input[i].type == light_point)
 			{
-				l = sbo_input[i].transform.position.xyz - p;
+				dir_to_light = sbo_input[i].transform.position.xyz - point;
 				t_max = 1.0;
 			}
 			else
 			{
-				l = sbo_input[i].direction.xyz;
+				dir_to_light = -sbo_input[i].direction.xyz;
 				t_max = FLT_MAX;
 			}
 			
 			//Проверка тени
 			r.t_c.t_min = 0.001;
 			r.t_c.t_max = t_max;
-			shadow_obj = closest_intersection(l, p);
+			shadow_obj = closest_intersection(point, dir_to_light);
 			if (shadow_obj.type != obj_null)
 			{
 				i++;
@@ -318,17 +313,17 @@ float	compute_lighting(vec3 p, vec3 n, int s)
 			}
 			
 			//Диффузность
-			n_scal_l = dot(n, l);
+			n_scal_l = dot(normal, dir_to_light);
 			if (n_scal_l > 0)
-				res += sbo_input[i].l_intensity * n_scal_l / (length(n) * length(l));
+				res += sbo_input[i].l_intensity * n_scal_l / (length(normal) * length(dir_to_light));
 
 			//Зеркальность
-			if (s != -1)
+			if (specular != -1)
 			{
-				vec3 r_v = n * dot(n, l) * 2 - l;
+				vec3 r_v = normal * n_scal_l * 2 - dir_to_light;
 				float rv_scal_v = dot(r_v, -r.ds);
 				if (rv_scal_v > 0)
-					res += sbo_input[i].l_intensity * pow(rv_scal_v / (length(r_v) * length(-r.ds)), s);
+					res += sbo_input[i].l_intensity * pow(rv_scal_v / (length(r_v) * length(-r.ds)), specular);
 			}
 		}
 		i++;
@@ -342,17 +337,17 @@ vec4	trace_ray()
 {
 	int			i;
 	vec3		norm;
-	vec3		p;
+	vec3		point;
 	s_input		obj;
 	float		cL;
 
-	obj = closest_intersection(r.ds, camera.position.xyz);
+	obj = closest_intersection(camera.position.xyz, r.ds);
 	if (obj.type == obj_null)
 		return (vec4(1.0, 1.0, 1.0, 1.0));
-	p = camera.position.xyz + r.ds * r.t_c.closest_t;
+	point = camera.position.xyz + r.ds * r.t_c.closest_t;
 	if (obj.type == obj_sphere)
 	{
-		norm = p - obj.transform.position.xyz;
+		norm = point - obj.transform.position.xyz;
 		norm = norm * (1.0 / length(norm));	
 	}
 	else if (obj.type == obj_plane)
@@ -364,24 +359,24 @@ vec4	trace_ray()
 	}
 	else if (obj.type == obj_cylinder)
 	{
-		vec3 tmp = obj.transform.position.xyz - p;
+		vec3 tmp = obj.transform.position.xyz - point;
 		norm = (obj.transform.rotation.xyz * dot(tmp, obj.transform.rotation.xyz) - tmp) / length(obj.transform.rotation.xyz);
 	}
 	else if (obj.type == obj_cone)
 	{
-		if (dot(-obj.direction.xyz, obj.transform.position.xyz - p) < 0.003f)
+		if (dot(-obj.direction.xyz, obj.transform.position.xyz - point) < 0.003f)
 			norm = -obj.direction.xyz;
 		else
 		{
-			vec3	pc = p - obj.transform.position.xyz;
-			vec3	pv = p - obj.f_ver.xyz;
+			vec3	pc = point - obj.transform.position.xyz;
+			vec3	pv = point - obj.f_ver.xyz;
 			float	cos = obj.f_height / sqrt(obj.f_height * obj.f_height + obj.f_radius * obj.f_radius);
 			norm = vec3(obj.transform.position.xyz + obj.direction.xyz * (obj.f_height - length(pv) / cos));
-			norm = p - norm;
+			norm = point - norm;
 		}
 		norm = norm / length(norm);
 	}
-	cL = compute_lighting(p, norm, obj.f_specular);
+	cL = compute_lighting(point, norm, obj.f_specular);
 	return (obj.color * cL);
 }
 

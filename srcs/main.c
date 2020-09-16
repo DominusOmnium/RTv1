@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:25:25 by celva             #+#    #+#             */
-/*   Updated: 2020/09/11 17:34:05 by dkathlee         ###   ########.fr       */
+/*   Updated: 2020/09/14 23:36:23 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,15 +42,15 @@ int		main(int ac, char **av)
 
 	if (ac == 1)
 		return (0);
-	setenv("VK_ICD_FILENAMES", VK_ICD_FILENAMES, 1);
-	setenv("VK_LAYER_PATH", VK_LAYER_PATH, 1);
+	//setenv("VK_ICD_FILENAMES", VK_ICD_FILENAMES, 1);
+	//setenv("VK_LAYER_PATH", VK_LAYER_PATH, 1);
 	app.appname = "RTv1";
 	init_struct(&app.r, av[1]);
 	rtv_app_create(&app);
 	app.r.camera.vh = 1.0;
 	app.r.camera.vw = app.r.win_width
 								/ app.r.win_height;
-	printf("App created\n");
+	ft_printf("App created\n");
 	rtv_app_run(&app);
 	return (0);
 }

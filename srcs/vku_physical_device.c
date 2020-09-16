@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:37:45 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/08/27 12:14:14 by marvin           ###   ########.fr       */
+/*   Updated: 2020/09/14 01:38:49 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,9 @@ static void		set_device_formats(t_vulkan *v, VkPhysicalDevice device,
 
 	vkGetPhysicalDeviceSurfaceFormatsKHR(device, v->surface,
 											&(num), NULL);
-	v->phys_device.surface_formats =
-			ft_memalloc(sizeof(VkSurfaceFormatKHR) * num);
+	if ((v->phys_device.surface_formats =
+					ft_memalloc(sizeof(VkSurfaceFormatKHR) * num)) == NULL)
+		handle_error(ERROR_MEM_ALLOC);
 	v->phys_device.num_formats = num;
 	v->phys_device.family_index = j;
 	vkGetPhysicalDeviceSurfaceFormatsKHR(device, v->surface, &num,
@@ -38,9 +39,11 @@ static void		get_device_family_properties(t_vulkan *v,
 
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &num, NULL);
 	v->phys_device.num_families = num;
-	*qf_prop = ft_memalloc(sizeof(VkQueueFamilyProperties) * num);
+	if ((*qf_prop = ft_memalloc(sizeof(VkQueueFamilyProperties) * num)) == NULL)
+		handle_error(ERROR_MEM_ALLOC);
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &num, *qf_prop);
-	*sup_pres = ft_memalloc(sizeof(VkBool32) * num);
+	if ((*sup_pres = ft_memalloc(sizeof(VkBool32) * num)) == NULL)
+		handle_error(ERROR_MEM_ALLOC);
 }
 
 static void		check_device(t_vulkan *v, VkPhysicalDevice device,
@@ -94,10 +97,12 @@ void			vku_get_physical_device(t_vulkan *v)
 
 	if (vkEnumeratePhysicalDevices(v->inst, &num_d, NULL) != VK_SUCCESS)
 		handle_error("Enumerate Physical Devices error!");
-	devices = ft_memalloc(sizeof(VkPhysicalDevice) * num_d);
+	if ((devices = ft_memalloc(sizeof(VkPhysicalDevice) * num_d)) == NULL)
+		handle_error(ERROR_MEM_ALLOC);
 	if (vkEnumeratePhysicalDevices(v->inst, &num_d, devices) != VK_SUCCESS)
 		handle_error("Enumerate Physical Devices error!");
-	d_prop = ft_memalloc(sizeof(VkPhysicalDeviceProperties) * num_d);
+	if ((d_prop = ft_memalloc(sizeof(VkPhysicalDeviceProperties) * num_d)) == NULL)
+		handle_error(ERROR_MEM_ALLOC);
 	select_physical_device(v, num_d, devices, d_prop);
 	ft_memdel((void**)&devices);
 	ft_memdel((void**)&d_prop);
