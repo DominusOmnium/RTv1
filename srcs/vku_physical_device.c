@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vku_physical_device.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/05 23:37:45 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/09/14 01:38:49 by marvin           ###   ########.fr       */
+/*   Updated: 2020/09/17 15:45:32 by dkathlee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,12 +95,19 @@ void			vku_get_physical_device(t_vulkan *v)
 	uint32_t					num_d;
 	VkPhysicalDeviceProperties	*d_prop;
 
-	if (vkEnumeratePhysicalDevices(v->inst, &num_d, NULL) != VK_SUCCESS)
+	VkResult res;
+	if ((res = vkEnumeratePhysicalDevices(v->inst, &num_d, NULL)) == VK_SUCCESS)
+	{
+		ft_printf("ERROR CODE: %d\n", res);
 		handle_error("Enumerate Physical Devices error!");
+	}
 	if ((devices = ft_memalloc(sizeof(VkPhysicalDevice) * num_d)) == NULL)
 		handle_error(ERROR_MEM_ALLOC);
-	if (vkEnumeratePhysicalDevices(v->inst, &num_d, devices) != VK_SUCCESS)
+	if ((res = vkEnumeratePhysicalDevices(v->inst, &num_d, devices)) != VK_SUCCESS)
+	{
+		ft_printf("ERROR CODE: %d\n", res);
 		handle_error("Enumerate Physical Devices error!");
+	}
 	if ((d_prop = ft_memalloc(sizeof(VkPhysicalDeviceProperties) * num_d)) == NULL)
 		handle_error(ERROR_MEM_ALLOC);
 	select_physical_device(v, num_d, devices, d_prop);

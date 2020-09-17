@@ -7,7 +7,7 @@ LIBSDIR					= libs/
 VULKAN_INCLUDE_PATH 	= libs/vulkan/includes/
 VULKAN_LIB_PATH			= libs/vulkan/lib/
 
-SHADER_COMPILER = libs/vulkan/glslangValidator
+SHADER_COMPILER = glslangValidator
 GLSLS = $(wildcard shaders/*.vert shaders/*.frag)
 SPIRVS = $(addsuffix .spv,$(GLSLS))
 
