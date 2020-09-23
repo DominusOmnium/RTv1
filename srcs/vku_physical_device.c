@@ -101,7 +101,8 @@ void			vku_get_physical_device(t_vulkan *v)
 		handle_error(ERROR_MEM_ALLOC);
 	if (vkEnumeratePhysicalDevices(v->inst, &num_d, devices) != VK_SUCCESS)
 		handle_error("Enumerate Physical Devices error!");
-	if ((d_prop = ft_memalloc(sizeof(VkPhysicalDeviceProperties) * num_d)) == NULL)
+	if ((d_prop = ft_memalloc(sizeof(VkPhysicalDeviceProperties) * num_d))
+																== NULL)
 		handle_error(ERROR_MEM_ALLOC);
 	select_physical_device(v, num_d, devices, d_prop);
 	ft_memdel((void**)&devices);

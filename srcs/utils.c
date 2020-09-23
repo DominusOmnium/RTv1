@@ -15,7 +15,7 @@
 void		handle_error(char *msg)
 {
 	ft_putendl(msg);
-	exit(0);
+	exit(1);
 }
 
 uint32_t	clamp_u32(uint32_t d, uint32_t min, uint32_t max)
