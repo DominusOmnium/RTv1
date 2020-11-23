@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/06 10:24:56 by celva             #+#    #+#             */
-/*   Updated: 2020/09/14 23:37:11 by marvin           ###   ########.fr       */
+/*   Updated: 2020/10/01 22:34:47 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,11 @@
 #  define O_BINARY 0x0000
 # endif
 # include "SDL.h"
+# include "SDL_image.h"
 # include "SDL_vulkan.h"
 # include "ft_printf.h"
 # include "vku.h"
+# include "cJSON.h"
 
 # include <unistd.h>
 # include <math.h>
@@ -35,16 +37,24 @@
 # define RAD(Value)		((Value) * 0.0174533)
 # define ERROR_MEM_ALLOC "Memory Allocation Error"
 
-typedef struct	s_transform
-{
-	t_vec4		position;
-	t_vec4		rotation;
-}				t_transform;
 typedef enum
 {
 	obj_null, obj_sphere, obj_plane, obj_cone, obj_cylinder,
 	light_ambient, light_point, light_directional, camera
 }	t_obj_type;
+
+typedef struct	s_transform
+{
+	t_vec4		position;
+	t_vec4		rotation;
+}				t_transform;
+
+typedef struct	s_texture
+{
+	uint32_t	offset_in_buffer;
+	uint32_t	width;
+	uint32_t	height;
+}				t_texture;
 
 typedef struct	s_camera
 {
@@ -80,8 +90,11 @@ typedef struct	s_object
 	t_vec4		f_vertices[4];
 	t_transform	transform;
 	t_vec4		color;
+	t_texture	texture;
+	t_texture	normal_map;
 	float		l_intensity;
-	float		fill_to_aligment[3];
+	float		mirror;
+	//float		fill_to_aligment[3];
 }				t_object;
 
 typedef struct	s_rt
@@ -91,6 +104,7 @@ typedef struct	s_rt
 	float		win_height;
 	uint32_t	n_fig;
 	t_object	*sbo_figures;
+	char		*texture_files;
 	uint32_t	n_lig;
 	t_object	*sbo_lights;
 }				t_rt;
@@ -109,7 +123,7 @@ void			vku_instance_create(t_app *app);
 void			vku_get_physical_device(t_vulkan *v);
 void			vku_create_logical_device(t_vulkan *v);
 void			vku_window_create(t_app *app);
-void			vku_init_render(t_vulkan *v);
+void			vku_init_render(t_vulkan *v, t_rt *r);
 void			vku_record_cmb(t_vulkan *v);
 void			vku_draw_frame(t_vulkan *v);
 void			vku_swapchain_create(t_vulkan *v, t_rt *r);
@@ -136,4 +150,5 @@ void			parse_plane(char *str, t_object *plane);
 void			parse_cone(char *str, t_object *cone);
 void			parse_cylinder(char *str, t_object *cylinder);
 void			parse_light(char *str, t_object *light, uint32_t type);
+void			parse_unique(char *str, t_object *obj);
 #endif

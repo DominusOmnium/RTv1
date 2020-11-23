@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/11 17:01:03 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/08/18 16:02:04 by marvin           ###   ########.fr       */
+/*   Updated: 2020/10/01 01:38:01 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,13 +46,13 @@ static uint32_t				find_memory_type(VkPhysicalDevice dev,
 
 static VkBufferCreateInfo	get_buffer_info(t_vulkan *v,
 											VkBufferUsageFlags usage,
-											uint32_t index)
+											t_buffer *buffer)
 {
 	VkBufferCreateInfo		buffer_info;
 
 	buffer_info = (VkBufferCreateInfo){
 		.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-		.size = (v->sbo_buffers)[index].buf_size,
+		.size = buffer->buf_size,
 		.usage = usage,
 		.sharingMode = VK_SHARING_MODE_EXCLUSIVE,
 		.queueFamilyIndexCount = 1,
@@ -61,7 +61,7 @@ static VkBufferCreateInfo	get_buffer_info(t_vulkan *v,
 	return (buffer_info);
 }
 
-void						vku_create_buffer(t_vulkan *v, uint32_t index,
+void						vku_create_buffer(t_vulkan *v, t_buffer *buffer,
 											VkBufferUsageFlags usage,
 											VkMemoryPropertyFlags properties)
 {
@@ -69,12 +69,11 @@ void						vku_create_buffer(t_vulkan *v, uint32_t index,
 	VkMemoryAllocateInfo	alloc_info;
 	VkMemoryRequirements	mem_requirements;
 
-	buffer_info = get_buffer_info(v, usage, index);
+	buffer_info = get_buffer_info(v, usage, buffer);
 	if (vkCreateBuffer(v->device, &buffer_info, NULL,
-						&((v->sbo_buffers)[index].buffer)) != VK_SUCCESS)
+						&(buffer->buffer)) != VK_SUCCESS)
 		handle_error("Buffer creation error!");
-	vkGetBufferMemoryRequirements(v->device, (v->sbo_buffers)[index].buffer,
-														&mem_requirements);
+	vkGetBufferMemoryRequirements(v->device, buffer->buffer, &mem_requirements);
 	alloc_info = (VkMemoryAllocateInfo) {
 		.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
 		.allocationSize = mem_requirements.size,
@@ -82,9 +81,9 @@ void						vku_create_buffer(t_vulkan *v, uint32_t index,
 								mem_requirements.memoryTypeBits, properties)
 	};
 	if (vkAllocateMemory(v->device, &alloc_info, NULL,
-							&(v->sbo_buffers[index].dev_mem)) != VK_SUCCESS)
+							&(buffer->dev_mem)) != VK_SUCCESS)
 		handle_error("Memory allocation error!");
-	if (vkBindBufferMemory(v->device, v->sbo_buffers[index].buffer,
-							v->sbo_buffers[index].dev_mem, 0) != VK_SUCCESS)
+	if (vkBindBufferMemory(v->device, buffer->buffer,
+							buffer->dev_mem, 0) != VK_SUCCESS)
 		handle_error("Bind Buffer Memory error!");
 }

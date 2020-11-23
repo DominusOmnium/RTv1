@@ -101,7 +101,7 @@ void	parse_cylinder(char *str, t_object *cylinder)
 		cylinder->f_specular = ft_atoi(str);
 	}
 	else if (ft_strstr(str, "rotation") != NULL)
-		cylinder->transform.rotation = string_to_vector(str);
+		cylinder->direction = string_to_vector(str);
 	else if (ft_strstr(str, "radius") != NULL)
 	{
 		while (!(*str >= '0' && *str <= '9'))

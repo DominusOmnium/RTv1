@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/04 09:16:26 by dkathlee          #+#    #+#             */
-/*   Updated: 2020/08/28 13:26:30 by marvin           ###   ########.fr       */
+/*   Updated: 2020/10/01 13:51:19 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,17 @@
 # include <vk_sdk_platform.h>
 # define VK_ICD_FILENAMES "libs/vulkan/macOS/icd.d/MoltenVK_icd.json"
 # define VK_LAYER_PATH "$VULKAN_SDK/explicit_layers.d"
-
+# if SDL_BYTEORDER == SDL_BIG_ENDIAN
+#  define RMASK	0xff000000
+#  define GMASK	0x00ff0000
+#  define BMASK	0x0000ff00
+#  define AMASK	0x000000ff
+# else
+#  define RMASK	0x000000ff
+#  define GMASK	0x0000ff00
+#  define BMASK	0x00ff0000
+#  define AMASK	0xff000000
+# endif
 enum {
 	VULKAN_MEM_DEVICE_READBACK,
 	VULKAN_MEM_DEVICE_UPLOAD,
@@ -27,10 +37,12 @@ enum {
 
 enum {
 	Kb = (1 << 10),
+	Mb = (Kb << 10),
 	MAX_SWAPCHAIN_IMAGES = 3,
 	PRESENT_MODE_MAILBOX_IMAGE_COUNT = 3,
 	PRESENT_MODE_DEFAULT_IMAGE_COUNT = 2,
-	STORAGE_BUFFER_SIZE = 64 * Kb
+	STORAGE_BUFFER_SIZE = 64 * Kb,
+	TEXTURES_BUFFER_SIZE = 256 * Mb
 };
 
 typedef struct							s_buffer
@@ -95,17 +107,17 @@ typedef struct							s_vulkan
 	uint32_t					compatible_mem_types[VULKAN_MEM_COUNT];
 	t_descriptor				descriptor;
 	t_buffer					sbo_buffers[MAX_SWAPCHAIN_IMAGES];
+	t_buffer					texture_buffers[MAX_SWAPCHAIN_IMAGES];
 }										t_vulkan;
 
 void									vku_create_buffer(t_vulkan *v,
-											t_uint32 index,
+											t_buffer *buffer,
 											VkBufferUsageFlags usage,
 											VkMemoryPropertyFlags properties);
 void									vku_create_descriptor_pool(t_vulkan *v);
 void									vku_create_descriptor_set_layout(
 																t_vulkan *v);
-void									vku_create_descriptor_sets(t_vulkan *v,
-															uint32_t size);
+void									vku_create_descriptor_sets(t_vulkan *v);
 void									vku_destroy_sync_objects(t_vulkan *v);
 VkPipelineVertexInputStateCreateInfo	vertex_input_state(void);
 VkPipelineRasterizationStateCreateInfo	rasterization_state(void);

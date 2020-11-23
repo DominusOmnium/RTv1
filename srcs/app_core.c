@@ -25,7 +25,7 @@ void				rtv_app_create(t_app *app)
 	ft_printf("Logical device creation done\n");
 	vku_swapchain_create(&(app->vulkan), &(app->r));
 	ft_printf("Swapchain creation done\n");
-	vku_init_render(&(app->vulkan));
+	vku_init_render(&(app->vulkan), &(app->r));
 	ft_printf("Render initialization done\n");
 }
 

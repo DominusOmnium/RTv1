@@ -6,8 +6,9 @@ OBJDIR					= obj/
 LIBSDIR					= libs/
 VULKAN_INCLUDE_PATH 	= libs/vulkan/includes/
 VULKAN_LIB_PATH			= libs/vulkan/lib/
+JSON_LIB_PATH			= libs/cJSON/
 
-SHADER_COMPILER = libs/vulkan/glslangValidator
+SHADER_COMPILER = libs/vulkan/glslangValidator.exe
 GLSLS = $(wildcard shaders/*.vert shaders/*.frag)
 SPIRVS = $(addsuffix .spv,$(GLSLS))
 
@@ -34,20 +35,22 @@ SRCS =	app_core.c \
 		vku_shadermodule.c \
 		vku_swapchain.c \
 		vku_window.c \
+		unique_parser.c \
 
 OBJS = $(addprefix $(OBJDIR), $(SRCS:.c=.o))
 
 CC = gcc
 CFLAGS = -g -Wall -Wextra -Werror
 
-OPENCLLNK = -framework OpenCL
-
 VULKANINC = -I $(VULKAN_INCLUDE_PATH)
 VULKANLINK = -L $(VULKAN_LIB_PATH) -l vulkan
 
+JSONINC = -I $(JSON_LIB_PATH)
+JSONLIB =  $(addprefix $(JSON_LIB_PATH), libjson.a)
+
 SDL2LINK = -l SDL2
 SDL2INC = -I $(addprefix $(LIBSDIR), SDL2/includes/)
-SDL2LINK_win = -L $(addprefix $(LIBSDIR), SDL2/lib/) -l SDL2
+SDL2LINK_win = -L $(addprefix $(LIBSDIR), SDL2/lib/) -l SDL2 -l SDL2_image
 
 VECLIB =  $(addprefix $(LIBSDIR), vec_lib/lib/vec_lib.a)
 VECINC =  $(addprefix $(LIBSDIR), vec_lib/includes)
@@ -63,18 +66,20 @@ obj:
 	mkdir -p $(OBJDIR)
 
 $(OBJDIR)%.o:$(SRCDIR)%.c
-	$(CC) $(CFLAGS) $(FTINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC) $(SDL2INC) -o $@ -c $<
+	$(CC) $(CFLAGS) $(FTINC) $(JSONINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC) $(SDL2INC) -o $@ -c $<
 
 $(NAME): libs obj $(OBJS) shaders
-	$(CC) $(OBJS) $(VECLIB) $(FTLIB) -F libs/SDL2/lib -framework SDL2 -L libs/vulkan/macOS/lib -l vulkan.1.2.148 -l vulkan.1 -l vulkan -lm -o $(NAME)
+	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(JSONLIB) -F libs/SDL2/lib -framework SDL2 -L libs/vulkan/macOS/lib -l vulkan.1.2.148 -l vulkan.1 -l vulkan -lm -o $(NAME)
 	install_name_tool -change @rpath/libvulkan.1.dylib libs/vulkan/macOS/lib/libvulkan.1.dylib rtv1
 
 linux: libs obj $(OBJS) shaders
-	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)
+	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(JSONLIB) $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)
 
 win: libs obj $(OBJS) shaders
-	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(SDL2LINK_win) $(VULKANLINK) -lm -o $(NAME)
+	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(JSONLIB) $(SDL2LINK_win) $(VULKANLINK) -lm -o $(NAME)
 	cp libs/SDL2/lib/SDL2.dll .
+	cp libs/SDL2/lib/SDL2_image.dll .
+	cp libs/SDL2/lib/libjpeg-9.dll .
 
 winre: fclean win
 
@@ -83,6 +88,7 @@ linuxre: fclean linux
 libs:
 	@make -C libs/printf
 	@make -C libs/vec_lib
+	@make -C libs/cJSON
 
 libsre:
 	@make -C libs/printf re
@@ -95,6 +101,8 @@ clean:
 fclean: clean
 	rm -rf $(NAME)
 	rm -rf SDL2.dll
+	rm -rf SDL2_image.dll
+	rm -rf libjpeg-9.dll
 
 re: fclean all
 

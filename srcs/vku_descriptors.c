@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/08/18 09:37:51 by marvin            #+#    #+#             */
-/*   Updated: 2020/08/18 09:37:51 by marvin           ###   ########.fr       */
+/*   Updated: 2020/10/01 15:22:41 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,18 @@ void		vku_create_descriptor_pool(t_vulkan *v)
 
 void		vku_create_descriptor_set_layout(t_vulkan *v)
 {
-	VkDescriptorSetLayoutBinding	sbo_layout_binding;
+	VkDescriptorSetLayoutBinding	layout_bindings[2];
 	VkDescriptorSetLayoutCreateInfo	layout_info;
 
-	sbo_layout_binding = (VkDescriptorSetLayoutBinding){
+	layout_bindings[0] = (VkDescriptorSetLayoutBinding){
 		.binding = 0,
+		.descriptorCount = 1,
+		.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+		.pImmutableSamplers = NULL,
+		.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT
+	};
+	layout_bindings[1] = (VkDescriptorSetLayoutBinding){
+		.binding = 1,
 		.descriptorCount = 1,
 		.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 		.pImmutableSamplers = NULL,
@@ -46,43 +53,58 @@ void		vku_create_descriptor_set_layout(t_vulkan *v)
 	};
 	layout_info = (VkDescriptorSetLayoutCreateInfo){
 		.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-		.bindingCount = 1,
-		.pBindings = &sbo_layout_binding
+		.bindingCount = 2,
+		.pBindings = layout_bindings
 	};
 	if (vkCreateDescriptorSetLayout(v->device, &layout_info, NULL,
 								&(v->descriptor.set_layout)) != VK_SUCCESS)
 		handle_error("Descriptor set layout creation error!");
 }
 
-static void	update_descriptor_sets(t_vulkan *v, uint32_t size)
+static void	update_descriptor_sets(t_vulkan *v)
 {
 	size_t						i;
-	VkDescriptorBufferInfo		buffer_info;
-	VkWriteDescriptorSet		descriptor_write;
+	VkDescriptorBufferInfo		sbo_info;
+	VkDescriptorBufferInfo		sbo_textures_info;
+	VkWriteDescriptorSet		descriptor_write[2];
 
 	i = 0;
 	while (i < v->framebuffer.sc_image_count)
 	{
-		buffer_info = (VkDescriptorBufferInfo){
+		sbo_info = (VkDescriptorBufferInfo){
 			.buffer = (v->sbo_buffers)[i].buffer,
 			.offset = 0,
-			.range = size
+			.range = STORAGE_BUFFER_SIZE
 		};
-		descriptor_write = (VkWriteDescriptorSet){
+		sbo_textures_info = (VkDescriptorBufferInfo){
+			.buffer = (v->texture_buffers)[i].buffer,
+			.offset = 0,
+			.range = TEXTURES_BUFFER_SIZE
+		};
+		descriptor_write[0] = (VkWriteDescriptorSet){
 			.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 			.dstSet = (v->descriptor.sets)[i],
 			.dstBinding = 0,
 			.dstArrayElement = 0,
 			.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 			.descriptorCount = 1,
-			.pBufferInfo = &buffer_info
+			.pBufferInfo = &sbo_info
 		};
-		vkUpdateDescriptorSets(v->device, 1, &descriptor_write, 0, NULL);
+		descriptor_write[1] = (VkWriteDescriptorSet){
+			.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			.dstSet = (v->descriptor.sets)[i],
+			.dstBinding = 1,
+			.dstArrayElement = 0,
+			.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+			.descriptorCount = 1,
+			.pBufferInfo = &sbo_textures_info
+		};
+		vkUpdateDescriptorSets(v->device, 2, descriptor_write, 0, NULL);
 		i++;
 	}
 }
 
-void		vku_create_descriptor_sets(t_vulkan *v, uint32_t size)
+void		vku_create_descriptor_sets(t_vulkan *v)
 {
 	VkDescriptorSetAllocateInfo	alloc_info;
 	VkDescriptorSetLayout		layouts[MAX_SWAPCHAIN_IMAGES];
@@ -99,5 +121,5 @@ void		vku_create_descriptor_sets(t_vulkan *v, uint32_t size)
 	if (vkAllocateDescriptorSets(v->device, &alloc_info,
 									v->descriptor.sets) != VK_SUCCESS)
 		handle_error("Descriptor sets allocation error!");
-	update_descriptor_sets(v, size);
+	update_descriptor_sets(v);
 }

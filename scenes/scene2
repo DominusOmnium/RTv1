@@ -13,7 +13,7 @@ vertices[2] = {2, -1, 2}
 vertices[3] = {-2, -1, 2}
 
 type: cone
-position = {0.0, -1.0, 3.5}
+position = {0.0, 1.0, 3.5}
 direction = {0.0, 1.0, 0.0}
 color = {0.15, 0.15, 0.9}
 specular = 100
@@ -36,6 +36,6 @@ intensity = 0.5
 position = {0, 0, 0}
 rotation = {1, 4, 4}
 
-camera
+type: camera
 rotation = {0, 0, 0}
 position = {0, 0, 0}

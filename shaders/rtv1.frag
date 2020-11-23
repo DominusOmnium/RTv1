@@ -5,6 +5,7 @@
 #define FLT_MIN 1.175494351e-38
 #define DBL_MAX 1.7976931348623158e+308
 #define DBL_MIN 2.2250738585072014e-308
+#define PI 3.1415926535897932384626433832795
 
 layout(location = 0) out vec4 outColor;
 
@@ -22,7 +23,14 @@ struct							s_transform
 {
 	vec4						position;
 	vec4						rotation;
-}								t_transform;
+};
+
+struct							s_texture
+{
+	uint						offset_in_buffer;
+	uint						width;
+	uint						height;
+};
 
 struct							s_closest
 {
@@ -50,8 +58,11 @@ struct							s_input
 	vec4						f_vertices[4];
 	s_transform					transform;
 	vec4						color;
+	s_texture					texture;
+	s_texture					normal_map;
 	float						l_intensity;
-	float						q[3];
+	float						mirror;	
+	//float						q[3];
 };
 
 layout(std430, binding = 0) readonly buffer Figures
@@ -67,7 +78,13 @@ layout(std430, binding = 0) readonly buffer Figures
 	s_input		sbo_input[];
 };
 
+layout(std430, binding = 1) readonly buffer Textures
+{
+	uint		textures[];
+};
+
 s_retr r;
+bool edge;
 
 vec3	canvas_to_viewport(int i, int j)
 {
@@ -138,10 +155,10 @@ vec2	intersect_ray_plane(vec3 ray_start, vec3 ray_dir, s_input plane)
 	col = ray_start + ray_dir * b;
 	if (b < 0.0003f)
 		return (vec2(FLT_MAX, FLT_MAX));
-	if (dot(plane.transform.rotation.xyz, cross(plane.f_vertices[1].xyz - plane.f_vertices[0].xyz, col - plane.f_vertices[0].xyz)) > 0 &&
+	/*if (dot(plane.transform.rotation.xyz, cross(plane.f_vertices[1].xyz - plane.f_vertices[0].xyz, col - plane.f_vertices[0].xyz)) > 0 &&
 		dot(plane.transform.rotation.xyz, cross(plane.f_vertices[2].xyz - plane.f_vertices[1].xyz, col - plane.f_vertices[1].xyz)) > 0 &&
 		dot(plane.transform.rotation.xyz, cross(plane.f_vertices[3].xyz - plane.f_vertices[2].xyz, col - plane.f_vertices[2].xyz)) > 0 &&
-		dot(plane.transform.rotation.xyz, cross(plane.f_vertices[0].xyz - plane.f_vertices[3].xyz, col - plane.f_vertices[3].xyz)) > 0)
+		dot(plane.transform.rotation.xyz, cross(plane.f_vertices[0].xyz - plane.f_vertices[3].xyz, col - plane.f_vertices[3].xyz)) > 0)*/
 		return (vec2(b, b));
 	return (vec2(FLT_MAX, FLT_MAX));
 }
@@ -220,7 +237,7 @@ vec2	intersect_ray_cylinder(vec3 ray_start, vec3 ray_dir, s_input cyl)
 
 	c = cyl.transform.position.xyz;
 	r = cyl.f_radius;
-	v = cyl.transform.rotation.xyz;
+	v = cyl.direction.xyz;
 	oc = ray_start - c;
 	k1 = dot(cross(ray_dir, v), cross(ray_dir, v));
 	k2 = 2 * dot(cross(ray_dir, v), cross(oc, v));
@@ -239,7 +256,7 @@ vec2	intersect_ray_cylinder(vec3 ray_start, vec3 ray_dir, s_input cyl)
 	return (res);
 }
 
-s_input	closest_intersection(vec3 ray_start, vec3 ray_dir)
+s_input	closest_intersection(vec3 ray_start, vec3 ray_dir, float t_min, float t_max)
 {
 	s_input		obj;
 	int			i;
@@ -258,12 +275,12 @@ s_input	closest_intersection(vec3 ray_start, vec3 ray_dir)
 			t = intersect_ray_cylinder(ray_start, ray_dir, sbo_input[i]);
 		else if (sbo_input[i].type == obj_cone)
 			t = intersect_ray_cone(ray_start, ray_dir, sbo_input[i]);
-		if ((r.t_c.t_min < t.x && t.x < r.t_c.t_max) && t.x < r.t_c.closest_t)
+		if ((t_min < t.x && t.x < t_max) && t.x < r.t_c.closest_t)
 		{
 			r.t_c.closest_t = t.x;
 			obj = sbo_input[i];
 		}
-		if ((r.t_c.t_min < t.y && t.y < r.t_c.t_max) && t.y < r.t_c.closest_t)
+		if ((t_min < t.y && t.y < t_max) && t.y < r.t_c.closest_t)
 		{
 			r.t_c.closest_t = t.y;
 			obj = sbo_input[i];
@@ -303,9 +320,7 @@ float	compute_lighting(vec3 point, vec3 normal, int specular)
 			}
 			
 			//Проверка тени
-			r.t_c.t_min = 0.001;
-			r.t_c.t_max = t_max;
-			shadow_obj = closest_intersection(point, dir_to_light);
+			shadow_obj = closest_intersection(point, dir_to_light, 0.001, t_max);
 			if (shadow_obj.type != obj_null)
 			{
 				i++;
@@ -333,18 +348,9 @@ float	compute_lighting(vec3 point, vec3 normal, int specular)
 	return (res);
 }
 
-vec4	trace_ray()
+vec3	get_normal(s_input obj, vec3 point, vec3 direction)
 {
-	int			i;
-	vec3		norm;
-	vec3		point;
-	s_input		obj;
-	float		cL;
-
-	obj = closest_intersection(camera.position.xyz, r.ds);
-	if (obj.type == obj_null)
-		return (vec4(1.0, 1.0, 1.0, 1.0));
-	point = camera.position.xyz + r.ds * r.t_c.closest_t;
+	vec3	norm;
 	if (obj.type == obj_sphere)
 	{
 		norm = point - obj.transform.position.xyz;
@@ -352,15 +358,33 @@ vec4	trace_ray()
 	}
 	else if (obj.type == obj_plane)
 	{
-		if (dot(r.ds, obj.transform.rotation.xyz) < 0)
+		if (dot(direction, obj.transform.rotation.xyz) < 0)
 			norm = obj.transform.rotation.xyz;
 		else
 			norm = -obj.transform.rotation.xyz;
+		/*vec3 basis0;
+		vec3 basis1;
+		float           u;
+		float           v;
+
+		basis0 = normalize(vec3(obj.transform.rotation.y, -obj.transform.rotation.x, 0));
+		basis1 = normalize(cross(obj.transform.rotation.xyz, basis0));
+
+		u = modf(0.5 + dot(basis0, point) / 2, u);
+		v = modf(0.5 + dot(basis1, point) / 2, v);
+		if (v < 0)
+			v += 1;
+		if (u < 0)
+			u += 1;
+		uint n_map_val = textures[obj.normal_map.offset_in_buffer + (int(v * obj.texture.height) * obj.texture.width) + (int(u * obj.texture.width))];
+		norm = vec3(float(n_map_val & uint(0x000000ff)) / 255 * 2.f - 1.f, float(n_map_val >> 8 & uint(0x000000ff)) / 255 * 2.f - 1.f, float(n_map_val >> 16 & 0x000000ff) / 255 * 2.f - 1.f);
+		norm.xz = norm.zx;
+		norm = norm.x * obj.transform.rotation.xyz + basis0 * norm.z + basis1 * norm.y;*/
 	}
 	else if (obj.type == obj_cylinder)
 	{
 		vec3 tmp = obj.transform.position.xyz - point;
-		norm = (obj.transform.rotation.xyz * dot(tmp, obj.transform.rotation.xyz) - tmp) / length(obj.transform.rotation.xyz);
+		norm = (obj.direction.xyz * dot(tmp, obj.direction.xyz) - tmp) / length(obj.direction.xyz);
 	}
 	else if (obj.type == obj_cone)
 	{
@@ -376,8 +400,180 @@ vec4	trace_ray()
 		}
 		norm = norm / length(norm);
 	}
-	cL = compute_lighting(point, norm, obj.f_specular);
-	return (obj.color * cL);
+	return (norm);
+}
+
+vec4	get_plane_color(s_input plane, vec3 hitpoint)
+{
+	vec3 basis0;
+	vec3 basis1;
+    float           u;
+    float           v;
+
+	basis0 = normalize(vec3(plane.transform.rotation.y, -plane.transform.rotation.x, 0));
+	basis1 = normalize(cross(plane.transform.rotation.xyz, basis0));
+
+	u = modf(0.5 + dot(basis0, hitpoint) / 2, u);
+	v = modf(0.5 + dot(basis1, hitpoint) / 2, v);
+	if (v < 0)
+		v += 1;
+	if (u < 0)
+		u += 1;
+	uint col = textures[(int(v * plane.texture.height) * plane.texture.width) + (int(u * plane.texture.width))];
+	return vec4(float(col & uint(0x000000ff)) / 256, float(col >> 8 & uint(0x000000ff)) / 256, float(col >> 16 & 0x000000ff) / 256, 1);
+}
+
+
+vec4	get_sphere_color(s_input sphere, vec3 hitpoint)
+{
+	vec3 basis0;
+	vec3 basis1;
+	vec3 basis2;
+    float           u;
+    float           v;
+
+	basis0 = vec3(1, 0, 0);
+	basis1 = vec3(0, 1, 0);
+	basis2 = vec3(0, 0, -1);
+
+	vec3				vect;
+
+	vect = normalize(hitpoint - sphere.transform.position.xyz);
+	vect = vec3(dot(basis0, vect), dot(basis1, vect), dot(basis2, vect));
+	u = 0.5 + atan(vect.z, vect.x) / PI;
+	v = 0.5 - asin(vect.y) / PI;
+
+	//return vec4(u, v, 0, 1);
+	uint col = textures[(int(v * sphere.texture.height) * sphere.texture.width) + (int(u * sphere.texture.width))];
+	return vec4(float(col & uint(0x000000ff)) / 256, float(col >> 8 & uint(0x000000ff)) / 256, float(col >> 16 & 0x000000ff) / 256, 1);
+}
+
+vec4	get_cone_color(s_input cone, vec3 hitpoint)
+{
+	vec3				vect;
+	vec3				a;
+    float               v;
+	float				u;
+	vec3 basis0;
+	vec3 basis1;
+	vec3 basis2;
+	
+	basis0 = normalize(vec3(cone.direction.y, -cone.direction.x, 0));
+	basis1 = cross(cone.direction.xyz, basis0);
+	basis2 = cross(basis0, basis1);
+
+	vect = hitpoint - (cone.transform.position.xyz + cone.direction.xyz * cone.f_height);
+	a.y = length(vect) * length(vect) / (dot(cone.direction.xyz, vect) * 2);
+	a.x = -dot(vect, basis0);
+	a.z = dot(vect, basis1);
+	u = 0.5 + atan(a.z, a.x) / PI;
+	v = modf(0.5 + a.y * 1 / 2, v);
+	if (v < 0)
+		v += 1;
+	//return vec4(u, v, 0, 1);
+	uint col = textures[(int(v * cone.texture.height) * cone.texture.width) + (int(u * cone.texture.width))];
+	return vec4(float(col & uint(0x000000ff)) / 256, float(col >> 8 & uint(0x000000ff)) / 256, float(col >> 16 & 0x000000ff) / 256, 1);
+}
+
+vec4	get_cylinder_color(s_input cylinder, vec3 hitpoint)
+{
+	vec3				vect;
+	vec3				a;
+    float               v;
+	float				u;
+	vec3 basis0;
+	vec3 basis1;
+	vec3 basis2;
+	
+	if (cylinder.direction.x != 0.0f || cylinder.direction.y != 0.0f)
+		basis0 = normalize(vec3(cylinder.direction.y, -cylinder.direction.x, 0));
+	else
+		basis0 = vec3(0.0f, 1.0f, 0.0f);
+	basis1 = cross(basis0, cylinder.direction.xyz);
+	basis2 = vec3(0.0, 0.0, 1.0);
+
+	vect = hitpoint - cylinder.transform.position.xyz;
+	a.y = dot(cylinder.direction.xyz, vect);
+	a.x = -dot(vect, basis0);
+	a.z = dot(vect, basis1) + 0;
+	u = 0.5 + atan(a.z, a.x) / PI;
+	v = modf(0.5 + a.y * 1 / 2, v);
+	if (v < 0)
+		v += 1;
+
+	//return vec4(u, v, 0, 1);
+	uint col = textures[(int(v * cylinder.texture.height) * cylinder.texture.width) + (int(u * cylinder.texture.width))];
+	return vec4(float(col & uint(0x000000ff)) / 256, float(col >> 8 & uint(0x000000ff)) / 256, float(col >> 16 & 0x000000ff) / 256, 1);
+}
+
+vec4	trace_ray(int depth)
+{
+	int			i;
+	vec3		norm;
+	vec3		start_point;
+	vec3		direction;
+	vec3		point;
+	vec4		final_color;
+	vec4		local_color;
+	s_input		obj;
+	float		frac;
+
+	start_point = camera.position.xyz;
+	direction = r.ds;
+	i = 0;
+	final_color = vec4(0.0);
+	frac = 1.0;
+	while (i <= depth)
+	{
+		if (i == 0)
+			obj = closest_intersection(start_point, direction, 1.0, FLT_MAX);
+		else
+			obj = closest_intersection(start_point, direction, 0.001, FLT_MAX);
+		if (obj.type == obj_null)
+		{
+			if (i == 0)
+			{
+				edge = true;
+				return vec4(0.0471, 0.4353, 0.8, 1.0);
+			}
+			else
+			{
+				final_color += vec4(0.0471, 0.4353, 0.8, 1.0) * (1.0 - 0.5) * frac;
+				break;
+			}
+		}
+		point = start_point + direction * r.t_c.closest_t;
+		norm = get_normal(obj, point, direction);
+		if (obj.type == obj_plane)
+		{
+			//uint col = textures[(int(abs(point.y - int(point.y)) * obj.texture.height) * obj.texture.width) + (int(abs(point.x - int(point.x)) * obj.texture.width))];
+			//uint col = get_color_from_texture(obj, point);
+			//local_color = vec4(float(col & uint(0x000000ff)) / 256, float(col >> 8 & uint(0x000000ff)) / 256, float(col >> 16 & 0x000000ff) / 256, 1);
+			local_color = get_plane_color(obj, point);
+		}
+		else if (obj.type == obj_sphere)
+		{
+			local_color = get_sphere_color(obj, point);
+		}
+		else if (obj.type == obj_cone)
+		{
+			local_color = get_cone_color(obj, point);
+		}
+		else if (obj.type == obj_cylinder)
+		{
+			local_color = get_cylinder_color(obj, point);
+		}
+		else
+			local_color = obj.color * compute_lighting(point, norm, obj.f_specular);
+		final_color += local_color * (1.0 - obj.mirror) * frac;
+		frac *= obj.mirror;
+		if (obj.mirror == 0.0 || frac < 0.05)
+			break;
+		start_point = point;
+		direction = 2 * norm * dot(norm, -direction) - -direction;
+		i++;
+	}
+	return (final_color);
 }
 
 vec3	rotate_x(vec3 t, float angle)
@@ -422,7 +618,32 @@ void main()
 	r.ds = rotate_x(r.ds, camera.rotation.x);
 	r.ds = rotate_y(r.ds, camera.rotation.y);
 	r.ds = rotate_z(r.ds, camera.rotation.z);
-	r.t_c.t_min = 1.0;
-	r.t_c.t_max = FLT_MAX;
-	outColor = trace_ray();
+	edge = false;
+	outColor = trace_ray(8);
+	/*if (edge == false)
+		return;*/
+	/*r.ds = canvas_to_viewport(int(win_height/2 - gl_FragCoord.y), int(gl_FragCoord.x - 1 - win_width/2));
+	r.ds = rotate_x(r.ds, camera.rotation.x);
+	r.ds = rotate_y(r.ds, camera.rotation.y);
+	r.ds = rotate_z(r.ds, camera.rotation.z);
+	vec4 tmp = trace_ray(8);
+	outColor = mix(outColor, tmp, 0.5);
+	r.ds = canvas_to_viewport(int(win_height/2 - gl_FragCoord.y), int(gl_FragCoord.x + 1 - win_width/2));
+	r.ds = rotate_x(r.ds, camera.rotation.x);
+	r.ds = rotate_y(r.ds, camera.rotation.y);
+	r.ds = rotate_z(r.ds, camera.rotation.z);
+	tmp = trace_ray(8);
+	outColor = mix(outColor, tmp, 0.5);
+	r.ds = canvas_to_viewport(int(win_height/2 - gl_FragCoord.y - 1), int(gl_FragCoord.x - win_width/2));
+	r.ds = rotate_x(r.ds, camera.rotation.x);
+	r.ds = rotate_y(r.ds, camera.rotation.y);
+	r.ds = rotate_z(r.ds, camera.rotation.z);
+	tmp = trace_ray(8);
+	outColor = mix(outColor, tmp, 0.5);
+	r.ds = canvas_to_viewport(int(win_height/2 - gl_FragCoord.y + 1), int(gl_FragCoord.x - win_width/2));
+	r.ds = rotate_x(r.ds, camera.rotation.x);
+	r.ds = rotate_y(r.ds, camera.rotation.y);
+	r.ds = rotate_z(r.ds, camera.rotation.z);
+	tmp = trace_ray(8);
+	outColor = mix(outColor, tmp, 0.5);*/
 }
