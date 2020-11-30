@@ -30,10 +30,14 @@ static void	update_sbo(t_vulkan *v, t_rt *r, uint32_t buf_index)
 		.n_fig = r->n_fig,
 		.n_lig = r->n_lig
 	};
+	ft_printf("r->n_fig: %d\n", r->n_fig);
+	ft_printf("r->n_lig: %d\n", r->n_lig);
+	ft_printf("r->sbo_lights[0].type: %d\n", r->sbo_lights[0].type);
+	ft_printf("r->sbo_lights[1].type: %d\n", r->sbo_lights[1].type);
 	ft_memcpy(data, &input, sizeof(input));
 	ft_memcpy(data + sizeof(t_rt_input), r->sbo_figures,
-					sizeof(t_object) * r->n_fig);
-	ft_memcpy(data + sizeof(t_rt_input) + sizeof(t_object) * r->n_fig,
+					sizeof(t_object) * (r->n_fig - 1));
+	ft_memcpy(data + sizeof(t_rt_input) + sizeof(t_object) * (r->n_fig - 1),
 						r->sbo_lights, sizeof(t_object) * r->n_lig);
 	vkUnmapMemory(v->device, v->sbo_buffers[buf_index].dev_mem);
 }

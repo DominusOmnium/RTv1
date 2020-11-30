@@ -24,11 +24,9 @@ void	init_struct(t_rt *r, char *fname)
 	i = 0;
 	while (i < r->n_fig)
 	{
-		if (r->sbo_figures[i].f_specular == 0)
-			r->sbo_figures[i].f_specular = -1;
 		if (r->sbo_figures[i].type == obj_cone)
 			r->sbo_figures[i].f_ver = vec4_add_vec4(
-				r->sbo_figures[i].transform.position,
+				r->sbo_figures[i].position,
 				vec4_mul_f(r->sbo_figures[i].direction,
 							r->sbo_figures[i].f_height));
 		i++;

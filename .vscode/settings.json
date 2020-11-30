@@ -29,5 +29,5 @@
 		"ios": "c"
 	},
 	"glsllint.glslangValidatorArgs": "-V",
-	"glsllint.glslangValidatorPath": "C:\\VulkanSDK\\1.2.131.2\\Bin\\glslangValidator.exe"
+	"glsllint.glslangValidatorPath": "libs\\vulkan\\glslangValidator.exe"
 }

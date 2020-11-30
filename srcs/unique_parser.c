@@ -18,6 +18,6 @@ void	parse_unique(char *str, t_object *obj)
 	{
 		while (!(*str >= '0' && *str <= '9'))
 			str++;
-		obj->mirror = string_to_float(&str);
+		obj->f_reflection = string_to_float(&str);
 	}
 }

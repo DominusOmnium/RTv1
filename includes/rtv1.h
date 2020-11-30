@@ -54,6 +54,7 @@ typedef struct	s_texture
 	uint32_t	offset_in_buffer;
 	uint32_t	width;
 	uint32_t	height;
+	uint32_t	index;
 }				t_texture;
 
 typedef struct	s_camera
@@ -81,20 +82,23 @@ typedef struct	s_rt_input
 
 typedef struct	s_object
 {
-	uint32_t	type;
-	int32_t		f_specular;
-	float		f_radius;
-	float		f_height;
+	t_vec4		position;
 	t_vec4		direction;
 	t_vec4		f_ver;
-	t_vec4		f_vertices[4];
-	t_transform	transform;
+	t_vec4		basis[3];
 	t_vec4		color;
 	t_texture	texture;
 	t_texture	normal_map;
+	uint32_t	type;
 	float		l_intensity;
-	float		mirror;
-	//float		fill_to_aligment[3];
+	float		f_radius;
+	float		f_height;
+	float		f_metalness;
+	float		f_transparency;
+	float		f_reflection;
+	float		f_refraction;
+	float		f_emission;
+	float		fill_to_aligment[3];
 }				t_object;
 
 typedef struct	s_rt
