@@ -54,30 +54,29 @@ typedef struct	s_texture
 	uint32_t	offset_in_buffer;
 	uint32_t	width;
 	uint32_t	height;
-	uint32_t	index;
+	int32_t		index;
 }				t_texture;
 
 typedef struct	s_camera
 {
-	t_transform	transform;
-	t_vec4		direction;
+	t_vec4		position;
+	t_vec4		forward;
 	t_vec4		up;
+	t_vec4		right;
 	float		d;
 	float		vh;
 	float		vw;
+	float		fill_to_aligment[1];
 }				t_camera;
 
 typedef struct	s_rt_input
 {
-	t_transform	camera;
+	t_camera	camera;
 	float		win_width;
 	float		win_height;
-	float		d;
-	float		vh;
-	float		vw;
 	uint32_t	n_fig;
 	uint32_t	n_lig;
-	float		fill_to_aligment[1];
+	t_texture	ui_texture;
 }				t_rt_input;
 
 typedef struct	s_object
@@ -88,6 +87,8 @@ typedef struct	s_object
 	t_vec4		basis[3];
 	t_vec4		color;
 	t_texture	texture;
+	t_vec2		f_tiling;
+	t_vec2		f_offset;
 	t_texture	normal_map;
 	uint32_t	type;
 	float		l_intensity;
@@ -108,8 +109,10 @@ typedef struct	s_rt
 	float		win_height;
 	uint32_t	n_fig;
 	t_object	*sbo_figures;
-	char		*texture_files;
+	char		**texture_files;
+	uint32_t	n_textures;
 	uint32_t	n_lig;
+	t_texture	ui_texture;
 	t_object	*sbo_lights;
 }				t_rt;
 
@@ -138,6 +141,8 @@ void			vku_create_render_pass(t_vulkan *v);
 void			vku_create_framebuffers(t_vulkan *v);
 void			vku_create_command_buffers(t_vulkan *v);
 void			vku_destroy_buffers(t_vulkan *v);
+SDL_Surface		*load_texture(char *fname);
+void			vku_load_textures(t_rt *r, t_vulkan *v);
 void			read_scene(char *fname, t_rt *r);
 size_t			load_shader_file(char *fname, char **shader);
 void			draw_frame(t_vulkan *v, t_rt *r);
@@ -145,6 +150,7 @@ int				handling_keyboard_input(SDL_Event evt, t_camera *camera);
 void			rotate_x(t_vec4 *t, float angle);
 void			rotate_y(t_vec4 *t, float angle);
 void			rotate_z(t_vec4 *t, float angle);
+void			rotation_axis(t_vec4 *t, t_vec4 axis, double angle);
 void			handle_error(char *msg);
 uint32_t		clamp_u32(uint32_t d, uint32_t min, uint32_t max);
 t_vec4			string_to_vector(char *str);
@@ -155,4 +161,5 @@ void			parse_cone(char *str, t_object *cone);
 void			parse_cylinder(char *str, t_object *cylinder);
 void			parse_light(char *str, t_object *light, uint32_t type);
 void			parse_unique(char *str, t_object *obj);
+void			draw_ui(t_app *app);
 #endif

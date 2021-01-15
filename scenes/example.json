@@ -1,39 +1,62 @@
 {
-    "objects":[
+    "figures":[
         {
             "type": "cylinder",
-            "position": [-0.4,0.0,-0.1],
+            "position": [0.0, 0.0, 3.0],
             "direction": [0.0,1.0,0.0],
-			"radius" : 0.16,
-			
-            "color": [1.0,1.0,1.0],
-            "specular" : 500,
-            "reflection" : 1.0,
-            "refraction" : 0.0,
-            "texture": "texture.jpg",
-            "normal": "normal_map.jpg"
+			"radius" : 0.5,
+			"transparency" : 1.0,
+			"color" : [1.0, 1.0, 0.0]
         },
         {
             "type": "sphere",
-            "position": [0.0,0.0,0.1],
-            "radius" : 0.1
+            "position": [0.0,0.0,3.0],
+            "radius" : 1.0,
+			"color" : [1.0, 0.0, 0.0],
+			"reflection" : 1.0,
+			"texture" : "2_0.jpg"
+        },
+        {
+            "type": "sphere",
+            "position": [-2.0,0.0,4.0],
+            "radius" : 1.0,
+			"color" : [0.0, 1.0, 0.0],
+			"transparency" : 0.9,
+			"refraction" : 1.5,
+			"texture" : "Subway_Tiles_002_basecolor.jpg"
+        },
+        {
+            "type": "sphere",
+            "position": [2.0,0.0,4.0],
+            "radius" : 1.0,
+			"color" : [0.0, 0.0, 1.0],
+			"texture" : "perlin",
+			"tiling" : [10, 10]
         },
         {
             "type": "plane",
-            "position": [-1.0,0.0,0.0],
-            "direction": [1.0,0.0,0.0]
+            "position": [0.0,-1.0,0.0],
+            "direction": [0.0,1.0,0.0],
+			"color" : [0.0, 0.5, 0.0],
+			"texture" : "perlin",
+			"tiling" : [100, 100]
+        }
+    ],
+    "lights":[
+        {
+            "type": "directional",
+            "direction": [1,-4,4],
+            "intensity" : 0.5
         },
         {
-            "type": "cone",
-            "position": [0.0,0.0,-0.3],
-			"direction": [0.0,0.0,1.0],
-			"height": 2.0,
-            "radius" : 0.1
+            "type": "point",
+            "position": [0,2,1],
+            "intensity" : 0.5
         }
     ],
     "camera": {
-            "position": [0.0,0.1,2.0],
-            "forward": [0.0,0.0,-1.0],
+            "position": [0.0,0.0,0.0],
+            "forward": [0.0,0.0,1.0],
             "up":[0.0,1.0,0.0]
     }
 }

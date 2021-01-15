@@ -12,57 +12,75 @@
 
 #include "rtv1.h"
 
-static void	load_texture(char *fname, t_texture *texture, void *buffer,
-														uint32_t offset)
+SDL_Surface	*load_texture(char *fname)
 {
 	SDL_Surface			*an_surf;
 	SDL_Surface			*surf;
-	SDL_PixelFormat		*fmt;
+	SDL_PixelFormat		fmt;
 
 	if ((an_surf = IMG_Load(fname)) == NULL)
 		handle_error("Loading image error!");
-	if ((fmt = ft_memalloc(sizeof(SDL_PixelFormat))) == NULL)
-		handle_error(ERROR_MEM_ALLOC);
-	ft_memcpy(fmt, an_surf->format, sizeof(SDL_PixelFormat));
-	fmt->BytesPerPixel = 4;
-	fmt->BitsPerPixel = 32;
-	fmt->Rmask = RMASK;
-	fmt->Gmask = GMASK;
-	fmt->Bmask = BMASK;
-	fmt->Amask = AMASK;
-	if ((surf = SDL_ConvertSurface(an_surf, fmt, an_surf->flags)) == NULL)
+	ft_memcpy(&fmt, an_surf->format, sizeof(SDL_PixelFormat));
+	fmt.BytesPerPixel = 4;
+	fmt.BitsPerPixel = 32;
+	fmt.Rmask = RMASK;
+	fmt.Gmask = GMASK;
+	fmt.Bmask = BMASK;
+	fmt.Amask = AMASK;
+	if ((surf = SDL_ConvertSurface(an_surf, &fmt, an_surf->flags)) == NULL)
 		handle_error("Surface convertation error");
 	SDL_FreeSurface(an_surf);
-	ft_memdel((void **)&fmt);
-	texture->height = surf->h;
-	texture->width = surf->w;
-	texture->offset_in_buffer = offset;
-	ft_memcpy(buffer + offset, surf->pixels, surf->h * surf->pitch);
-	SDL_FreeSurface(surf);
+	return (surf);
 }
 
-void		vku_load_textures(t_rt *r, t_vulkan *v, void *buffer)
+void		send_texture_to_buffer(t_vulkan *v, SDL_Surface *surf, uint32_t offset)
 {
 	uint32_t	i;
-	uint32_t	buf_index;
-	uint32_t	offset;
 	void		*data;
 
-	buf_index = 0;
-	while (buf_index < v->framebuffer.sc_image_count)
-	{	
-		if (vkMapMemory(v->device, v->sbo_buffers[buf_index].dev_mem, 0,
-						TEXTURES_BUFFER_SIZE, 0, &data) != VK_SUCCESS)
+	i = 0;
+	while (i < v->framebuffer.sc_image_count)
+	{
+		if (vkMapMemory(v->device, v->texture_buffers[i].dev_mem, 0,
+							TEXTURES_BUFFER_SIZE, 0, &data) != VK_SUCCESS)
 			handle_error("Map Memory error!");
-		offset = 0;
-		i = 0;
-		while (i < r->n_fig)
-		{
-			load_texture(r->texture_files[i], &((r->sbo_figures)[i].texture), data, offset);
-			offset += r->sbo_figures[i].texture.width * r->sbo_figures[i].texture.height;
-			i++;
-		}
-		buf_index++;
-		vkUnmapMemory(v->device, v->sbo_buffers[buf_index].dev_mem);
+		ft_memcpy((int*)data + offset, surf->pixels, surf->h * surf->pitch);
+		vkUnmapMemory(v->device, v->texture_buffers[i].dev_mem);
+		i++;
+	}
+}
+
+void		vku_load_textures(t_rt *r, t_vulkan *v)
+{
+	SDL_Surface	*surf;
+	uint32_t	i;
+	uint32_t	j;
+	uint32_t	current_offset;
+
+	current_offset = 0;
+	surf = load_texture("images/UI.png");
+	send_texture_to_buffer(v, surf, 0);
+	r->ui_texture.offset_in_buffer = 0;
+	r->ui_texture.height = surf->h;
+	r->ui_texture.width = surf->w;
+	printf("surf->h: %d\n", surf->h);
+	printf("surf->w: %d\n", surf->w);
+	current_offset += surf->h * surf->w;
+	SDL_FreeSurface(surf);
+	i = -1;
+	while (++i < r->n_textures)
+	{
+		surf = load_texture((r->texture_files)[i]);
+		send_texture_to_buffer(v, surf, current_offset);
+		j = -1;
+		while (++j < r->n_fig)
+			if ((r->sbo_figures)[j].texture.index == (int32_t)i)
+			{
+				r->sbo_figures[j].texture.offset_in_buffer = current_offset;
+				r->sbo_figures[j].texture.height = surf->h;
+				r->sbo_figures[j].texture.width = surf->w;
+			}
+		current_offset += surf->h * surf->w;
+		SDL_FreeSurface(surf);
 	}
 }

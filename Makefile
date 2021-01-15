@@ -15,10 +15,10 @@ SPIRVS = $(addsuffix .spv,$(GLSLS))
 SRCS =	app_core.c \
 		input.c \
 		main.c \
-		objects_parser.c \
 		rotation.c \
-		scene_reader.c \
+		scene_reader_json.c \
 		shader_reader.c \
+		textures.c \
 		utils.c \
 		vku_buffers.c \
 		vku_commandbuffers.c \
@@ -80,6 +80,7 @@ win: libs obj $(OBJS) shaders
 	cp libs/SDL2/lib/SDL2.dll .
 	cp libs/SDL2/lib/SDL2_image.dll .
 	cp libs/SDL2/lib/libjpeg-9.dll .
+	cp libs/SDL2/lib/libpng16-16.dll .
 
 winre: fclean win
 

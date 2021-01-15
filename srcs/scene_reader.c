@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "rtv1.h"
-
+/*
 void		parse_camera(char *str, t_camera *camera)
 {
 	if (ft_strstr(str, "rotation") != NULL)
@@ -123,21 +123,12 @@ void		read_scene(char *fname, t_rt *r)
 {
 	int32_t		fd;
 	char		*str;
-	/*char		buffer[64 * Kb];
-	cJSON		*json;
-	cJSON		*objects;*/
 	int32_t		gnl;
 	t_object	*cur_figure;
 	t_object	*cur_light;
 
-	if (/*ft_strcmp(fname + ft_strlen(fname) - 5, ".json") != 0
-						|| */(fd = open(fname, O_RDONLY)) == -1)
+	if ((fd = open(fname, O_RDONLY)) == -1)
 		handle_error("Wrong file!");
-	/*read(fd, buffer, 64 * Kb);
-	json = cJSON_Parse(buffer);
-	if (json == NULL || buffer[0] != '{')
-		handle_error("Wrong .json file!");
-	objects = cJSON_GetObjectItemCaseSensitive(json, "objects");*/
 	while ((gnl = get_next_line(fd, &str)) != 0)
 	{
 		if (gnl == -1)
@@ -146,3 +137,4 @@ void		read_scene(char *fname, t_rt *r)
 		ft_memdel((void**)&str);
 	}
 }
+*/

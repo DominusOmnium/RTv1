@@ -40,12 +40,12 @@ int		main(int ac, char **av)
 
 	if (ac == 1)
 		return (0);
-# ifdef __APPLE
+# ifdef __APPLE__
 	setenv("VK_ICD_FILENAMES", VK_ICD_FILENAMES, 1);
 	setenv("VK_LAYER_PATH", VK_LAYER_PATH, 1);
 # endif
 	app.appname = "RTv1";
-	init_struct(&app.r, av[1]);
+	init_struct(&(app.r), av[1]);
 	rtv_app_create(&app);
 	app.r.camera.vh = 1.0;
 	app.r.camera.vw = app.r.win_width

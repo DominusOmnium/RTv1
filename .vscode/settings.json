@@ -1,5 +1,5 @@
 {
-	"C_Cpp.default.includePath": ["libs/SDL2/includes", "libs/vulkan/includes", "libs/cJSON", "./includes", "libs/vec_lib/includes", "libs/printf/includes"],
+	"C_Cpp.default.includePath": ["./libs/SDL2/includes", "libs/vulkan/includes", "libs/cJSON", "./includes", "libs/vec_lib/includes", "libs/printf/includes"],
 	"files.associations": {
 		"vulkan.h": "c",
 		"vulkan_macos.h": "c",
