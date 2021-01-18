@@ -5,15 +5,17 @@
             "position": [0.0, 0.0, 3.0],
             "direction": [0.0,1.0,0.0],
 			"radius" : 0.5,
-			"transparency" : 1.0,
-			"color" : [1.0, 1.0, 0.0]
+			"color" : [1.0, 1.0, 0.0],
+			"texture" : "perlin",
+			"tiling" : [50, 50]
         },
         {
             "type": "sphere",
             "position": [0.0,0.0,3.0],
             "radius" : 1.0,
 			"color" : [1.0, 0.0, 0.0],
-			"reflection" : 1.0,
+			"transparency" : 0.5,
+			"reflection" : 0.5,
 			"texture" : "2_0.jpg"
         },
         {
@@ -37,9 +39,7 @@
             "type": "plane",
             "position": [0.0,-1.0,0.0],
             "direction": [0.0,1.0,0.0],
-			"color" : [0.0, 0.5, 0.0],
-			"texture" : "perlin",
-			"tiling" : [100, 100]
+			"color" : [0.3, 1.0, 0.7]
         }
     ],
     "lights":[

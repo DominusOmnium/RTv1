@@ -6,7 +6,7 @@
 #define DBL_MAX 1.7976931348623158e+308
 #define DBL_MIN 2.2250738585072014e-308
 #define PI 3.1415926535897932384626433832795
-#define EPSILON 0.0003f
+#define EPSILON 0.0001f
 #define RAY_DEPTH 5
 
 layout(location = 0) out vec4 outColor;
@@ -72,21 +72,16 @@ struct							s_intersection_info
 	vec3						hitpoint;
 };
 
-struct							s_tree_node
+struct							s_node
 {
 	s_intersection_info			int_info;
 	float						refr;
 	float						fraq;
 	int							depth;
-	int							parent_index;
-	int							refr_index;
-	int							refl_index;
 };
 
-int			tree_length = int(pow(2, RAY_DEPTH)) - 1;
-s_tree_node	rt_tree[int(pow(2, RAY_DEPTH)) - 1];
-float		refr_stack[128];
-int			refr_stack_pos = -1;
+int			tree_length = int(pow(2, RAY_DEPTH + 1)) - 1;
+s_node		rt_node_buffer[int(pow(2, RAY_DEPTH + 1)) - 1];
 
 layout(std430, binding = 0) readonly buffer Figures
 {
@@ -311,70 +306,9 @@ s_intersection_info	closest_intersection(vec3 ray_start, vec3 ray_dir)
 		}
 		i++;
 	}
+	int_info.ray_dir = ray_dir;
+	int_info.hitpoint = ray_start + ray_dir * int_info.d;
 	return (int_info);
-}
-
-float	compute_lighting(vec3 hitpoint, vec3 normal, int specular, vec3 ray_dir)
-{
-	float				res;
-	uint				i;
-	vec3				dir_to_light;
-	float				n_scal_l;
-	float				shadow_t;
-	s_intersection_info	int_info;
-	float				t_max;
-
-	res = 0.0;
-	i = 0;
-	while (i < n_fig + n_lig + 2)
-	{
-		if (sbo_input[i].type < 5)
-		{
-			i++;
-			continue;
-		}
-		if (sbo_input[i].type == light_ambient)
-			res += sbo_input[i].l_intensity;
-		else 
-		{
-			if (sbo_input[i].type == light_point)
-			{
-				dir_to_light = sbo_input[i].position - hitpoint;
-				t_max = 1.0;
-			}
-			else
-			{
-				dir_to_light = -sbo_input[i].direction;
-				t_max = FLT_MAX;
-			}
-			
-			//Проверка тени
-			int_info = closest_intersection(hitpoint, dir_to_light);
-			if (int_info.object.type != obj_null)
-			{
-				i++;
-				continue;
-			}
-			
-			//Диффузность
-			n_scal_l = dot(normal, dir_to_light);
-			if (n_scal_l > 0)
-				res += sbo_input[i].l_intensity * n_scal_l / (length(normal) * length(dir_to_light));
-
-			//Блик
-			if (specular > 0)
-			{
-				vec3 r_v = normal * n_scal_l * 2 - dir_to_light;
-				float rv_scal_v = dot(r_v, -ray_dir);
-				if (rv_scal_v > 0)
-					res += sbo_input[i].l_intensity * pow(rv_scal_v / (length(r_v) * length(-ray_dir)), specular);
-			}
-		}
-		i++;
-	}
-	if (res >= 1.0)
-		res = 1.0;
-	return (res);
 }
 
 /*
@@ -556,127 +490,133 @@ vec3	get_normal(s_input obj, vec3 point)
 	return (norm);
 }
 
-vec4	get_plane_color(s_input plane, vec3 hitpoint)
+/*
+	Compute lightning
+*/
+struct		s_light_info
 {
-	vec3 basis0;
-	vec3 basis1;
-    float           u;
-    float           v;
+	vec4	color;
+	float	intensity;
+};
 
-	basis0 = normalize(vec3(plane.direction.y, -plane.direction.x, 0));
-	basis1 = normalize(cross(plane.direction.xyz, basis0));
-
-	u = modf(0.5 + dot(basis0, hitpoint) / 2, u);
-	v = modf(0.5 + dot(basis1, hitpoint) / 2, v);
-	if (v < 0)
-		v += 1;
-	if (u < 0)
-		u += 1;
-	uint col = textures[(int(v * plane.texture.height) * plane.texture.width) + (int(u * plane.texture.width))];
-	return vec4(float(col & uint(0x000000ff)) / 256, float(col >> 8 & uint(0x000000ff)) / 256, float(col >> 16 & 0x000000ff) / 256, 1);
-}
-
-vec4	get_sphere_color(s_input sphere, vec3 hitpoint)
+s_light_info	light_strength_and_color(vec3 ray_start, vec3 ray_dir, float light_strength)
 {
-	vec3 basis0;
-	vec3 basis1;
-	vec3 basis2;
-    float           u;
-    float           v;
-
-	basis0 = vec3(1, 0, 0);
-	basis1 = vec3(0, 1, 0);
-	basis2 = vec3(0, 0, -1);
-
-	vec3				vect;
-
-	vect = normalize(hitpoint - sphere.position.xyz);
-	vect = vec3(dot(basis0, vect), dot(basis1, vect), dot(basis2, vect));
-	u = 0.5 + atan(vect.z, vect.x) / PI;
-	v = 0.5 - asin(vect.y) / PI;
-
-	//return vec4(u, v, 0, 1);
-	uint col = textures[(int(v * sphere.texture.height) * sphere.texture.width) + (int(u * sphere.texture.width))];
-	return vec4(float(col & uint(0x000000ff)) / 256, float(col >> 8 & uint(0x000000ff)) / 256, float(col >> 16 & 0x000000ff) / 256, 1);
-}
-
-vec4	get_cone_color(s_input cone, vec3 hitpoint)
-{
-	vec3				vect;
-	vec3				a;
-    float               v;
-	float				u;
-	vec3 basis0;
-	vec3 basis1;
-	vec3 basis2;
+	int					i;
+	vec2				t;
+	s_light_info		res;
 	
-	basis0 = normalize(vec3(cone.direction.y, -cone.direction.x, 0));
-	basis1 = cross(cone.direction.xyz, basis0);
-	basis2 = cross(basis0, basis1);
-
-	vect = hitpoint - (cone.position.xyz + cone.direction.xyz * cone.f_height);
-	a.y = length(vect) * length(vect) / (dot(cone.direction.xyz, vect) * 2);
-	a.x = -dot(vect, basis0);
-	a.z = dot(vect, basis1);
-	u = 0.5 + atan(a.z, a.x) / PI;
-	v = modf(0.5 + a.y * 1 / 2, v);
-	if (v < 0)
-		v += 1;
-	//return vec4(u, v, 0, 1);
-	uint col = textures[(int(v * cone.texture.height) * cone.texture.width) + (int(u * cone.texture.width))];
-	return vec4(float(col & uint(0x000000ff)) / 256, float(col >> 8 & uint(0x000000ff)) / 256, float(col >> 16 & 0x000000ff) / 256, 1);
-}
-
-vec4	get_cylinder_color(s_input cylinder, vec3 hitpoint)
-{
-	vec3				vect;
-	vec3				a;
-    float               v;
-	float				u;
-	vec3 basis0;
-	vec3 basis1;
-	vec3 basis2;
-	
-	if (cylinder.direction.x != 0.0f || cylinder.direction.y != 0.0f)
-		basis0 = normalize(vec3(cylinder.direction.y, -cylinder.direction.x, 0));
-	else
-		basis0 = vec3(0.0f, 1.0f, 0.0f);
-	basis1 = cross(basis0, cylinder.direction.xyz);
-	basis2 = vec3(0.0, 0.0, 1.0);
-
-	vect = hitpoint - cylinder.position.xyz;
-	a.y = dot(cylinder.direction.xyz, vect);
-	a.x = -dot(vect, basis0);
-	a.z = dot(vect, basis1) + 0;
-	u = 0.5 + atan(a.z, a.x) / PI;
-	v = modf(0.5 + a.y * 1 / 2, v);
-	if (v < 0)
-		v += 1;
-
-	//return vec4(u, v, 0, 1);
-	uint col = textures[(int(v * cylinder.texture.height) * cylinder.texture.width) + (int(u * cylinder.texture.width))];
-	return vec4(float(col & uint(0x000000ff)) / 256, float(col >> 8 & uint(0x000000ff)) / 256, float(col >> 16 & 0x000000ff) / 256, 1);
-}
-
-vec3	refract_ray_old(vec3 I, vec3 N, float ior) 
-{ 
-    float cosi = clamp(-1, 1, dot(I, N)); 
-    float etai = 1, etat = ior; 
-    vec3 n = N; 
-    if (cosi < 0)
+	res.intensity = light_strength;
+	res.color = vec4(1.0, 1.0, 1.0, 1.0);
+	i = 0;
+	while (i < n_fig)
 	{
-		cosi = -cosi;
+		if (sbo_input[i].type == obj_sphere)
+			t = intersect_ray_sphere(ray_start, ray_dir, sbo_input[i]);
+		else if (sbo_input[i].type == obj_plane)
+			t = intersect_ray_plane(ray_start, ray_dir, sbo_input[i]);
+		else if (sbo_input[i].type == obj_cylinder)
+			t = intersect_ray_cylinder(ray_start, ray_dir, sbo_input[i]);
+		else if (sbo_input[i].type == obj_cone)
+			t = intersect_ray_cone(ray_start, ray_dir, sbo_input[i]);
+		if (t.x == FLT_MAX && t.y == FLT_MAX || t.x <= EPSILON && t.y <= EPSILON || t.x >= 1 && t.y >= 1)
+		{
+			i++;
+			continue;
+		}
+
+		vec3 p1 = t.x == FLT_MAX ? ray_start : ray_start + ray_dir * t.x;
+		vec3 p2 = t.y == FLT_MAX ? ray_start : ray_start + ray_dir * t.y;
+		float d = distance(p1, p2);
+		if (d > 1.1)
+		{
+			if (sbo_input[i].f_transparency == 0.0f)
+			{
+				res.intensity = 0.0f;
+				res.color = vec4(1, 1, 1, 1);
+				return res;
+			}
+			else
+			{
+				res.intensity *= sbo_input[i].f_transparency;
+			}
+		}
+		else if (sbo_input[i].f_transparency == 0.0)
+			res.intensity *= ((1.1 - d) / 1.1);
+		else
+			res.intensity *= ((1.1 - d) / 1.1 + sbo_input[i].f_transparency);
+		if (sbo_input[i].f_transparency != 0)
+		{
+			vec2 uv = get_uv(sbo_input[i], ray_start + ray_dir * t.x);
+			res.color = mix(res.color, get_color(sbo_input[i], uv), sbo_input[i].f_transparency);
+		}
+		i++;
 	}
-	else
+	return (res);
+}
+
+s_light_info	compute_lighting(vec3 hitpoint, vec3 normal, int specular, vec3 ray_dir)
+{
+	s_light_info		res;
+	uint				i;
+	vec3				dir_to_light;
+	float				n_scal_l;
+	float				shadow_t;
+	s_intersection_info	int_info;
+	float				t_max;
+
+	res.intensity = 0.0;
+	res.color = vec4(1.0, 1.0, 1.0, 1.0);
+	i = 0;
+	while (i < n_fig + n_lig + 2)
 	{
-		float tmp = etai;
-		etai = etat;
-		etat = tmp;
-		n= -N;
-	} 
-    float eta = etai / etat; 
-    float k = 1 - eta * eta * (1 - cosi * cosi); 
-    return k < 0 ? vec3(0) : eta * I + (eta * cosi - sqrt(k)) * n;
+		if (sbo_input[i].type < 5)
+		{
+			i++;
+			continue;
+		}
+		if (sbo_input[i].type == light_ambient)
+			res.intensity += sbo_input[i].l_intensity;
+		else 
+		{
+			if (sbo_input[i].type == light_point)
+			{
+				dir_to_light = sbo_input[i].position - hitpoint;
+				t_max = 1.0;
+			}
+			else
+			{
+				dir_to_light = -sbo_input[i].direction;
+				t_max = FLT_MAX;
+			}
+			
+			//Проверка тени
+			s_light_info l_info = light_strength_and_color(hitpoint, dir_to_light, sbo_input[i].l_intensity);
+			if (l_info.intensity < EPSILON)
+			{
+				i++;
+				continue;
+			}
+			res.color = mix(res.color, l_info.color, 0.5);
+			
+			//Диффузность
+			n_scal_l = dot(normal, dir_to_light);
+			if (n_scal_l > 0)
+				res.intensity += l_info.intensity * n_scal_l / (length(normal) * length(dir_to_light));
+
+			//Блик
+			if (specular > 0)
+			{
+				vec3 r_v = normal * n_scal_l * 2 - dir_to_light;
+				float rv_scal_v = dot(r_v, -ray_dir);
+				if (rv_scal_v > 0)
+					res.intensity += l_info.intensity * pow(rv_scal_v / (length(r_v) * length(-ray_dir)), specular);
+			}
+		}
+		i++;
+	}
+	if (res.intensity >= 1.0)
+		res.intensity = 1.0;
+	return (res);
 }
 
 vec3 reflect_ray(vec3 vector, vec3 n)
@@ -709,113 +649,121 @@ int		find_free_element_index()
 	i = 0;
 	while (i < tree_length)
 	{
-		if (rt_tree[i].depth == -1)
+		if (rt_node_buffer[i].depth == -1)
 			return i;
 		i++;
 	}
 	return -1;
 }
 
-vec4	trace_ray(int depth, vec3 ray_start, vec3 ray_dir)
+vec4	trace_ray(vec3 ray_start, vec3 ray_dir)
 {
 	int					i;
+	int					j;
 	vec3				norm;
 	vec4				final_color;
 	vec4				local_color;
 	s_intersection_info	int_info;
 	float				frac;
 
-	i = 0;
 	final_color = vec4(0.0);
 	frac = 1.0;
-	while (i < depth)
+	
+	/*
+		Find closest intersection & save it to node
+	*/
+	int_info = closest_intersection(ray_start, ray_dir);
+	if (int_info.object.type == obj_null)
+		return vec4(1.0, 1, 1, 1.0);
+	rt_node_buffer[0].depth = 0;
+	rt_node_buffer[0].int_info = int_info;
+	rt_node_buffer[0].fraq = 1.0;
+
+	/*
+		Calculate first color
+	*/
+	vec2 uv = get_uv(int_info.object, int_info.hitpoint);
+	vec4 col = get_color(int_info.object, uv);
+	norm = get_normal(int_info.object, int_info.hitpoint);
+	s_light_info l_info = compute_lighting(int_info.hitpoint, norm, int(int_info.object.f_metalness), ray_dir);
+	final_color = col * (1 - int_info.object.f_transparency) * (1 - int_info.object.f_reflection) * l_info.color * l_info.intensity;
+
+	/*
+		Calculate start refraction
+	*/
+	if (int_info.object.f_transparency == 0 || dot(ray_dir, get_normal(int_info.object, int_info.hitpoint)) < 0)
+		rt_node_buffer[0].refr = 1.0;
+	else
+		rt_node_buffer[0].refr = int_info.object.f_refraction;
+	
+	i = 0;
+	j = 0;
+	int q = 1;
+	int noe = 1;
+	while (i < RAY_DEPTH)
 	{
-		if (i == 0)
+		for (; j < q; j++)
 		{
-			int_info = closest_intersection(ray_start, ray_dir);
-			if (int_info.object.type == obj_null)
-			{
-				return vec4(1.0, 1, 1, 1.0);
-				break;
-			}
-			int_info.ray_dir = ray_dir;
-			int_info.hitpoint = ray_start + ray_dir * int_info.d;
-			rt_tree[0].parent_index = -1;
-			rt_tree[0].depth = 1;
-			rt_tree[0].int_info = int_info;
-			rt_tree[0].fraq = 1.0;
-			vec2 uv = get_uv(int_info.object, int_info.hitpoint);
-			vec4 col = get_color(int_info.object, uv);
-			norm = get_normal(int_info.object, int_info.hitpoint);
-			float l = compute_lighting(int_info.hitpoint, norm, int(int_info.object.f_metalness), ray_dir);
-			final_color = col * (1 - int_info.object.f_transparency) * (1 - int_info.object.f_reflection) * l;
-			if (int_info.object.f_transparency == 0 || dot(ray_dir, get_normal(int_info.object, int_info.hitpoint)) > 0)
-				rt_tree[0].refr = 1.0;
-			else
-				rt_tree[0].refr = int_info.object.f_refraction;
-			i++;
-			continue;
-		}
-		for (int j = 0; j < tree_length; j++)
-		{
-			if (rt_tree[j].depth != i || rt_tree[j].int_info.object.type == obj_null)
+			if (rt_node_buffer[j].depth != i || rt_node_buffer[j].int_info.object.type == obj_null)
 				continue;
-			norm = get_normal(rt_tree[j].int_info.object, rt_tree[j].int_info.hitpoint);
-			ray_start = rt_tree[j].int_info.hitpoint;
-			float cur_fraq = rt_tree[j].fraq * (1 - rt_tree[j].int_info.object.f_transparency)
-												* rt_tree[j].int_info.object.f_reflection;
-			if (rt_tree[j].int_info.object.f_reflection != 0 && cur_fraq > 0.05f)
+			norm = get_normal(rt_node_buffer[j].int_info.object, rt_node_buffer[j].int_info.hitpoint);
+			ray_start = rt_node_buffer[j].int_info.hitpoint;
+			float cur_fraq = rt_node_buffer[j].fraq * (1 - rt_node_buffer[j].int_info.object.f_transparency)
+												* rt_node_buffer[j].int_info.object.f_reflection;
+			int index = int(pow(2, i + 1)) - 1 + j * 2;
+			if (rt_node_buffer[j].int_info.object.f_reflection != 0 && cur_fraq > 0.05f)
 			{
-				ray_dir = /*reflect_ray(rt_tree[j].int_info.ray_dir, norm);*/2 * norm * dot(norm, -rt_tree[j].int_info.ray_dir) - -rt_tree[j].int_info.ray_dir;
-				int_info = closest_intersection(ray_start/* + ray_dir * 0.01*/, ray_dir);
-				rt_tree[j].refl_index = find_free_element_index();
-				if (rt_tree[j].refl_index == -1)
-					continue;
-				rt_tree[rt_tree[j].refl_index].int_info = int_info;
-				rt_tree[rt_tree[j].refl_index].depth = i + 1;
-				rt_tree[rt_tree[j].refl_index].parent_index = j;
-				rt_tree[rt_tree[j].refl_index].refr = rt_tree[j].refr;
-				rt_tree[rt_tree[j].refl_index].fraq = cur_fraq;
+				ray_dir = reflect_ray(rt_node_buffer[j].int_info.ray_dir, norm);
+				int_info = closest_intersection(ray_start, ray_dir);
+
 				vec4 col;
 				if (int_info.object.type == obj_null)
-					col = vec4(1,1,1,1);
-				else
 				{
-					vec2 uv = get_uv(int_info.object, int_info.hitpoint);
-					col = get_color(int_info.object, uv);
-				}
-				float l = compute_lighting(int_info.hitpoint, norm, int(int_info.object.f_metalness), ray_dir);
-				final_color += col * (1 - int_info.object.f_transparency) * (1 - int_info.object.f_reflection) * cur_fraq * l;
-			}
-			cur_fraq = rt_tree[j].fraq * rt_tree[j].int_info.object.f_transparency;
-			if (rt_tree[j].int_info.object.f_transparency != 0 && cur_fraq > 0.05f)
-			{
-				//ray_dir = refract_ray(rt_tree[j].int_info.ray_dir, norm, rt_tree[j].refr, rt_tree[j].int_info.object.f_refraction);
-				ray_dir = rt_tree[j].int_info.ray_dir;
-				int_info = closest_intersection(ray_start + ray_dir * 0.01, ray_dir);
-				if (int_info.object.type == obj_null)
-				{
+					rt_node_buffer[index].depth = -1;
 					final_color += vec4(1,1,1,1) * cur_fraq;
 				}
 				else
 				{
-					rt_tree[j].refr_index = find_free_element_index();
-					if (rt_tree[j].refr_index == -1)
-						continue;
-					rt_tree[rt_tree[j].refr_index].int_info = int_info;
-					rt_tree[rt_tree[j].refr_index].depth = i + 1;
-					rt_tree[rt_tree[j].refl_index].parent_index = j;
-					rt_tree[rt_tree[j].refr_index].refr = rt_tree[j].int_info.object.f_refraction;
-					rt_tree[rt_tree[j].refl_index].fraq = cur_fraq;
+					rt_node_buffer[index].depth = i + 1;
+					rt_node_buffer[index].int_info = int_info;
+					rt_node_buffer[index].fraq = cur_fraq;
+					rt_node_buffer[index].refr = rt_node_buffer[j].refr;
+					vec2 uv = get_uv(int_info.object, int_info.hitpoint);
+					col = get_color(int_info.object, uv);
+					s_light_info l_info = compute_lighting(int_info.hitpoint, norm, int(int_info.object.f_metalness), ray_dir);
+					final_color += col * cur_fraq * /*(1 - int_info.object.f_transparency) * (1 - int_info.object.f_reflection) **/ l_info.color * l_info.intensity;
+				}
+			}
+			cur_fraq = rt_node_buffer[j].fraq * rt_node_buffer[j].int_info.object.f_transparency;
+			if (rt_node_buffer[j].int_info.object.f_transparency != 0 && cur_fraq > 0.05f)
+			{
+				ray_dir = refract_ray(rt_node_buffer[j].int_info.ray_dir, norm, rt_node_buffer[j].refr, rt_node_buffer[j].int_info.object.f_refraction);
+				int_info = closest_intersection(ray_start, ray_dir);
+				if (int_info.object.type == obj_null)
+				{
+					rt_node_buffer[index + 1].depth = -1;
+					final_color += vec4(1,1,1,1) * cur_fraq;
+				}
+				else
+				{
+					rt_node_buffer[index + 1].depth = i + 1;
+					rt_node_buffer[index + 1].int_info = int_info;
+					rt_node_buffer[index + 1].fraq = cur_fraq;
+					if (dot(ray_dir, get_normal(int_info.object, int_info.hitpoint)) < 0)
+						rt_node_buffer[index + 1].refr = 1.0;
+					else
+						rt_node_buffer[index + 1].refr = int_info.object.f_refraction;
 					vec4 col;
 					vec2 uv = get_uv(int_info.object, int_info.hitpoint);
 					col = get_color(int_info.object, uv);
-					float l = compute_lighting(int_info.hitpoint, norm, int(int_info.object.f_metalness), ray_dir);
-					final_color += col * (1 - int_info.object.f_transparency) * cur_fraq * l;
+					s_light_info l_info = compute_lighting(int_info.hitpoint, norm, int(int_info.object.f_metalness), ray_dir);
+					final_color += col * cur_fraq/* * (1 - int_info.object.f_transparency) * (1 - int_info.object.f_reflection) */* l_info.color * l_info.intensity;
 				}
 			}
 		}
 		i++;
+		noe *= 2;
+		q += noe;
 	}
 	return (final_color);
 }
@@ -870,17 +818,15 @@ void main()
 		else if (((col >> 24) & 0x000000ff) > 0)
 		{
 			d = canvas_to_viewport(int(win_height/2 - gl_FragCoord.y), int(gl_FragCoord.x - win_width/2));
-			vec4 color = trace_ray(8, camera.position.xyz, d);
-			outColor = mix(get_color_from_uint(col), trace_ray(8, camera.position.xyz, d), 1.0 - (col >> 24) / 255.0);
+			vec4 color = trace_ray(camera.position.xyz, d);
+			outColor = mix(get_color_from_uint(col), trace_ray(camera.position.xyz, d), 1.0 - (col >> 24) / 255.0);
 			return;
 		}
 	}
 	for (int i = 0; i < tree_length; i++)
 	{
-		rt_tree[i].depth = -1;
-		rt_tree[i].refl_index = -1;
-		rt_tree[i].refr_index = -1;
+		rt_node_buffer[i].depth = -1;
 	}
 	d = canvas_to_viewport(int(win_height/2 - gl_FragCoord.y), int(gl_FragCoord.x - win_width/2));
-	outColor = trace_ray(8, camera.position.xyz, d);
+	outColor = trace_ray(camera.position.xyz, d);
 }
