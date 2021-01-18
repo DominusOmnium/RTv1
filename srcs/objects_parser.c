@@ -3,116 +3,112 @@
 /*                                                        :::      ::::::::   */
 /*   objects_parser.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkathlee <dkathlee@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/09/10 15:46:02 by marvin            #+#    #+#             */
-/*   Updated: 2020/09/11 17:53:18 by dkathlee         ###   ########.fr       */
+/*   Created: 2021/01/17 13:49:28 by celva             #+#    #+#             */
+/*   Updated: 2021/01/17 13:49:28 by celva            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "rtv1.h"
 
-void	parse_sphere(char *str, t_object *sphere)
+void		parse_sphere_values(cJSON *json_object, t_object *object)
 {
-	sphere->type = obj_sphere;
-	if (ft_strstr(str, "position") != NULL)
-		sphere->position = string_to_vector(str);
-	else if (ft_strstr(str, "color") != NULL)
-		sphere->color = string_to_vector(str);
-	else if (ft_strstr(str, "specular") != NULL)
-	{
-		while (!(*str >= '0' && *str <= '9'))
-			str++;
-		sphere->f_metalness = string_to_float(&str);
-	}
-	else if (ft_strstr(str, "radius") != NULL)
-	{
-		while (!(*str >= '0' && *str <= '9'))
-			str++;
-		sphere->f_radius = string_to_float(&str);
-	}
+	cJSON *value;
+
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(json_object, "position")) != NULL)
+		object->position = json_parse_vec3(value);
+	else
+		handle_error("Error! Sphere has no position!");
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(json_object, "radius")) != NULL)
+		object->f_radius = value->valuedouble;
+	else
+		handle_error("Error! Sphere has no radius!");
 }
 
-void	parse_plane(char *str, t_object *plane)
+void		parse_cone_values(cJSON *json_cone, t_object *cone)
 {
-	plane->type = obj_plane;
-	if (ft_strstr(str, "position") != NULL)
-		plane->position = string_to_vector(str);
-	else if (ft_strstr(str, "rotation") != NULL)
-		plane->direction = string_to_vector(str);
-	else if (ft_strstr(str, "color") != NULL)
-		plane->color = string_to_vector(str);
-	else if (ft_strstr(str, "specular") != NULL)
-	{
-		while (!(*str >= '0' && *str <= '9'))
-			str++;
-		plane->f_metalness = string_to_float(&str);
-	}
+	cJSON *value;
+
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(json_cone, "position")) != NULL)
+		cone->position = json_parse_vec3(value);
+	else
+		handle_error("Error! Cone has no position!");
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(json_cone, "direction")) != NULL)
+		cone->direction = json_parse_vec3(value);
+	else
+		handle_error("Error! Cone has no direction!");
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(json_cone, "radius")) != NULL)
+		cone->f_radius = value->valuedouble;
+	else
+		handle_error("Error! Cone has no radius!");
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(json_cone, "height")) != NULL)
+		cone->f_height = value->valuedouble;
+	else
+		handle_error("Error! Cone has no height!");
 }
 
-void	parse_cone(char *str, t_object *cone)
+void		parse_plane_values(cJSON *json_object, t_object *object)
 {
-	cone->type = obj_cone;
-	if (ft_strstr(str, "position") != NULL)
-		cone->position = string_to_vector(str);
-	else if (ft_strstr(str, "color") != NULL)
-		cone->color = string_to_vector(str);
-	else if (ft_strstr(str, "specular") != NULL)
-	{
-		while (!(*str >= '0' && *str <= '9'))
-			str++;
-		cone->f_metalness = string_to_float(&str);
-	}
-	else if (ft_strstr(str, "radius") != NULL)
-	{
-		while (!(*str >= '0' && *str <= '9'))
-			str++;
-		cone->f_radius = string_to_float(&str);
-	}
-	else if (ft_strstr(str, "height") != 0)
-	{
-		while (!(*str >= '0' && *str <= '9'))
-			str++;
-		cone->f_height = string_to_float(&str);
-	}
-	else if (ft_strstr(str, "direction") != NULL)
-		cone->direction = string_to_vector(str);
+	cJSON *value;
+
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(json_object, "position")) != NULL)
+		object->position = json_parse_vec3(value);
+	else
+		handle_error("Error! Plane has no position!");
+
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(json_object, "direction")) != NULL)
+		object->direction = json_parse_vec3(value);
+	else
+		handle_error("Error! Plane has no direction!");
 }
 
-void	parse_cylinder(char *str, t_object *cylinder)
+void		parse_cylinder_values(cJSON *json_object, t_object *object)
 {
-	cylinder->type = obj_cylinder;
-	if (ft_strstr(str, "position") != NULL)
-		cylinder->position = string_to_vector(str);
-	else if (ft_strstr(str, "color") != NULL)
-		cylinder->color = string_to_vector(str);
-	else if (ft_strstr(str, "specular") != NULL)
-	{
-		while (!(*str >= '0' && *str <= '9'))
-			str++;
-		cylinder->f_metalness = string_to_float(&str);
-	}
-	else if (ft_strstr(str, "rotation") != NULL)
-		cylinder->direction = string_to_vector(str);
-	else if (ft_strstr(str, "radius") != NULL)
-	{
-		while (!(*str >= '0' && *str <= '9'))
-			str++;
-		cylinder->f_radius = string_to_float(&str);
-	}
+	cJSON *value;
+
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(json_object, "position")) != NULL)
+		object->position = json_parse_vec3(value);
+	else
+		handle_error("Error! Cylinder has no position!");
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(json_object, "direction")) != NULL)
+		object->direction = json_parse_vec3(value);
+	else
+		handle_error("Error! Cylinder has no direction!");
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(json_object, "radius")) != NULL)
+		object->f_radius = value->valuedouble;
+	else
+		handle_error("Error! Cylinder has no radius!");
 }
 
-void	parse_light(char *str, t_object *light, uint32_t type)
+void		parse_camera_values(cJSON *camera, t_rt *r)
 {
-	light->type = type;
-	if (ft_strstr(str, "intensity") != NULL)
-	{
-		while (!(*str >= '0' && *str <= '9'))
-			str++;
-		light->l_intensity = string_to_float(&str);
-	}
-	else if (ft_strstr(str, "position") != NULL)
-		light->position = string_to_vector(str);
-	else if (ft_strstr(str, "direction") != NULL)
-		light->direction = string_to_vector(str);
+	cJSON *value;
+
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(camera, "position")) != NULL)
+		r->camera.position = json_parse_vec3(value);
+	else
+		handle_error("Error! Camera has no position!");
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(camera, "forward")) != NULL)
+		r->camera.forward = json_parse_vec3(value);
+	else
+		handle_error("Error! Camera has no forward!");
+	if ((value = 
+		cJSON_GetObjectItemCaseSensitive(camera, "up")) != NULL)
+		r->camera.up = json_parse_vec3(value);
+	else
+		handle_error("Error! Camera has no up!");
 }

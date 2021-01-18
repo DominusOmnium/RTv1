@@ -63,8 +63,6 @@ void		vku_load_textures(t_rt *r, t_vulkan *v)
 	r->ui_texture.offset_in_buffer = 0;
 	r->ui_texture.height = surf->h;
 	r->ui_texture.width = surf->w;
-	printf("surf->h: %d\n", surf->h);
-	printf("surf->w: %d\n", surf->w);
 	current_offset += surf->h * surf->w;
 	SDL_FreeSurface(surf);
 	i = -1;

@@ -14,11 +14,15 @@ SPIRVS = $(addsuffix .spv,$(GLSLS))
 
 SRCS =	app_core.c \
 		input.c \
+		lights_parser.c \
 		main.c \
+		objects_parser_2.c \
+		objects_parser.c \
 		rotation.c \
 		scene_reader_json.c \
 		shader_reader.c \
 		textures.c \
+		utils_2.c \
 		utils.c \
 		vku_buffers.c \
 		vku_commandbuffers.c \
