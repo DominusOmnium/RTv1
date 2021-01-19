@@ -1,4 +1,4 @@
-NAME = rtv1
+NAME = RT
 
 SRCDIR					= srcs/
 INCDIR					= includes/
@@ -8,7 +8,7 @@ VULKAN_INCLUDE_PATH 	= libs/vulkan/includes/
 VULKAN_LIB_PATH			= libs/vulkan/lib/
 JSON_LIB_PATH			= libs/cJSON/
 
-SHADER_COMPILER = libs/vulkan/glslangValidator.exe
+SHADER_COMPILER = libs/vulkan/glslangValidator
 GLSLS = $(wildcard shaders/*.vert shaders/*.frag)
 SPIRVS = $(addsuffix .spv,$(GLSLS))
 
@@ -71,8 +71,10 @@ $(OBJDIR)%.o:$(SRCDIR)%.c
 	$(CC) $(CFLAGS) $(FTINC) $(JSONINC) $(VECLIBINC) -I $(INCDIR) $(VULKANINC) $(SDL2INC) -o $@ -c $<
 
 $(NAME): libs obj $(OBJS) shaders
-	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(JSONLIB) -F libs/SDL2/lib -framework SDL2 -L libs/vulkan/macOS/lib -l vulkan.1.2.148 -l vulkan.1 -l vulkan -lm -o $(NAME)
-	install_name_tool -change @rpath/libvulkan.1.dylib libs/vulkan/macOS/lib/libvulkan.1.dylib rtv1
+	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(JSONLIB) -F libs/SDL2/lib -framework SDL2 -framework SDL2_image -L libs/vulkan/macOS/lib -l vulkan.1.2.148 -l vulkan.1 -l vulkan -lm -o $(NAME)
+	install_name_tool -change @rpath/libvulkan.1.dylib libs/vulkan/macOS/lib/libvulkan.1.dylib $(NAME)
+	install_name_tool -change @rpath/SDL2_image.framework/Versions/A/SDL2_image libs/SDL2/lib/SDL2_image.framework/Versions/A/SDL2_image $(NAME)
+	install_name_tool -change @rpath/SDL2.framework/Versions/A/SDL2 libs/SDL2/lib/SDL2.framework/Versions/A/SDL2 $(NAME)
 
 linux: libs obj $(OBJS) shaders
 	$(CC) $(OBJS) $(VECLIB) $(FTLIB) $(JSONLIB) $(SDL2LINK) $(VULKANLINK) -lm -o $(NAME)
@@ -106,6 +108,7 @@ fclean: clean
 	rm -rf SDL2.dll
 	rm -rf SDL2_image.dll
 	rm -rf libjpeg-9.dll
+	rm -rf libpng16-16.dll
 
 re: fclean all
 

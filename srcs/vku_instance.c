@@ -49,9 +49,7 @@ void				vku_instance_create(t_app *app)
 			.apiVersion = VK_API_VERSION_1_0,
 		},
 		.enabledExtensionCount = count_ext,
-		.ppEnabledExtensionNames = inst_ext,/*
-		.enabledLayerCount = 1,
-		.ppEnabledLayerNames = &(const char*){"VK_LAYER_KHRONOS_validation"}*/
+		.ppEnabledExtensionNames = inst_ext
 	};
 	if (vkCreateInstance(&inst_info, NULL, &(app->vulkan.inst)) != VK_SUCCESS)
 		handle_error("Instance creation error!");

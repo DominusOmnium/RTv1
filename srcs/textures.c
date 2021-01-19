@@ -33,7 +33,9 @@ static SDL_Surface	*load_texture(char *fname)
 	return (surf);
 }
 
-static void			send_texture_to_buffer(t_vulkan *v, SDL_Surface *surf, uint32_t offset)
+static void			send_texture_to_buffer(t_vulkan *v,
+											SDL_Surface *surf,
+											uint32_t offset)
 {
 	uint32_t	i;
 	void		*data;

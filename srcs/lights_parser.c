@@ -16,13 +16,12 @@ void		parse_point_values(cJSON *json_object, t_object *light)
 {
 	cJSON *value;
 
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "intensity")) != NULL)
 		light->l_intensity = value->valuedouble;
 	else
 		handle_error("Error! Light point has no intensity!");
-
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "position")) != NULL)
 		light->position = json_parse_vec3(value);
 	else
@@ -33,13 +32,12 @@ void		parse_directional_values(cJSON *json_object, t_object *light)
 {
 	cJSON *value;
 
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "intensity")) != NULL)
 		light->l_intensity = value->valuedouble;
 	else
 		handle_error("Error! Light point has no intensity!");
-
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "direction")) != NULL)
 		light->direction = json_parse_vec3(value);
 	else

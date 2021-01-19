@@ -156,7 +156,9 @@ void			parse_camera_values(cJSON *camera, t_rt *r);
 void			parse_cone_values(cJSON *json_cone, t_object *cone);
 void			parse_cylinder_values(cJSON *json_object, t_object *object);
 void			parse_directional_values(cJSON *json_object, t_object *light);
-void			parse_optional_parameters(cJSON *json_object, t_object *object, t_rt *r);
+void			parse_optional_parameters(cJSON *json_object,
+											t_object *object,
+											t_rt *r);
 void			parse_plane_values(cJSON *json_object, t_object *object);
 void			parse_point_values(cJSON *json_object, t_object *light);
 void			parse_sphere_values(cJSON *json_object, t_object *object);

@@ -28,6 +28,7 @@
 #  define BMASK	0x00ff0000
 #  define AMASK	0xff000000
 # endif
+
 enum {
 	VULKAN_MEM_DEVICE_READBACK,
 	VULKAN_MEM_DEVICE_UPLOAD,

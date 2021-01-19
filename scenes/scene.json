@@ -1,10 +1,11 @@
-figures: 2
+{
+	figures: 2
 lights: 6
 
 type: plane
 position = {0.0, -1.0, 0.0}
 color = {0, 0, 0}
-specular = 100
+ = 100
 rotation = {0, 1.0, 0.0}
 vertices[0] = {-2, -1, 4}
 vertices[1] = {2, -1, 4}
@@ -44,3 +45,4 @@ rotation = {1, 4, 4}
 type: camera
 rotation = {0, 90, 0}
 position = {0, 0, 0}
+}

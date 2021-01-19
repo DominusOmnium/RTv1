@@ -16,12 +16,12 @@ void		parse_sphere_values(cJSON *json_object, t_object *object)
 {
 	cJSON *value;
 
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "position")) != NULL)
 		object->position = json_parse_vec3(value);
 	else
 		handle_error("Error! Sphere has no position!");
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "radius")) != NULL)
 		object->f_radius = value->valuedouble;
 	else
@@ -32,22 +32,22 @@ void		parse_cone_values(cJSON *json_cone, t_object *cone)
 {
 	cJSON *value;
 
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_cone, "position")) != NULL)
 		cone->position = json_parse_vec3(value);
 	else
 		handle_error("Error! Cone has no position!");
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_cone, "direction")) != NULL)
 		cone->direction = json_parse_vec3(value);
 	else
 		handle_error("Error! Cone has no direction!");
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_cone, "radius")) != NULL)
 		cone->f_radius = value->valuedouble;
 	else
 		handle_error("Error! Cone has no radius!");
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_cone, "height")) != NULL)
 		cone->f_height = value->valuedouble;
 	else
@@ -58,13 +58,12 @@ void		parse_plane_values(cJSON *json_object, t_object *object)
 {
 	cJSON *value;
 
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "position")) != NULL)
 		object->position = json_parse_vec3(value);
 	else
 		handle_error("Error! Plane has no position!");
-
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "direction")) != NULL)
 		object->direction = json_parse_vec3(value);
 	else
@@ -75,17 +74,17 @@ void		parse_cylinder_values(cJSON *json_object, t_object *object)
 {
 	cJSON *value;
 
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "position")) != NULL)
 		object->position = json_parse_vec3(value);
 	else
 		handle_error("Error! Cylinder has no position!");
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "direction")) != NULL)
 		object->direction = json_parse_vec3(value);
 	else
 		handle_error("Error! Cylinder has no direction!");
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "radius")) != NULL)
 		object->f_radius = value->valuedouble;
 	else
@@ -96,17 +95,17 @@ void		parse_camera_values(cJSON *camera, t_rt *r)
 {
 	cJSON *value;
 
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(camera, "position")) != NULL)
 		r->camera.position = json_parse_vec3(value);
 	else
 		handle_error("Error! Camera has no position!");
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(camera, "forward")) != NULL)
 		r->camera.forward = json_parse_vec3(value);
 	else
 		handle_error("Error! Camera has no forward!");
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(camera, "up")) != NULL)
 		r->camera.up = json_parse_vec3(value);
 	else

@@ -63,11 +63,13 @@ static void	create_buffers(t_vulkan *v)
 	while (i < v->framebuffer.sc_image_count)
 	{
 		(v->sbo_buffers)[i].buf_size = STORAGE_BUFFER_SIZE;
-		vku_create_buffer(v, (v->sbo_buffers) + i, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+		vku_create_buffer(v, (v->sbo_buffers) + i,
+								VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
 								VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 								VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 		(v->texture_buffers)[i].buf_size = TEXTURES_BUFFER_SIZE;
-		vku_create_buffer(v, (v->texture_buffers) + i, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+		vku_create_buffer(v, (v->texture_buffers) + i,
+								VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
 								VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 								VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 		i++;

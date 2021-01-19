@@ -33,6 +33,7 @@ t_vec4		json_parse_vec3(cJSON *value)
 	cJSON	*vec_z;
 	t_vec4	vec;
 
+	vec = (t_vec4) { 0, 0, 0, 0 };
 	vec_x = cJSON_GetArrayItem(value, 0);
 	vec_y = cJSON_GetArrayItem(value, 1);
 	vec_z = cJSON_GetArrayItem(value, 2);
@@ -52,6 +53,7 @@ t_vec2		json_parse_vec2(cJSON *value)
 	cJSON	*vec_y;
 	t_vec2	vec;
 
+	vec = (t_vec2) { 0, 0 };
 	vec_x = cJSON_GetArrayItem(value, 0);
 	vec_y = cJSON_GetArrayItem(value, 1);
 	if (vec_x != NULL && vec_y != NULL)

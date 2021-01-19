@@ -441,7 +441,7 @@ vec4	get_color(s_input obj, vec2 uv)
 	}
 	else if (obj.texture.index == -2)
 	{
-		return obj.color * perlin_noise(vec2(uv.x * obj.f_tiling.x, uv.y * obj.f_tiling.y));
+		return obj.color * (1 - perlin_noise(vec2(uv.x * obj.f_tiling.x, uv.y * obj.f_tiling.y)));
 	}
 	else if (obj.texture.index == -3)
 	{
@@ -554,7 +554,7 @@ s_light_info	light_strength_and_color(vec3 ray_start, vec3 ray_dir, float light_
 	return (res);
 }
 
-s_light_info	compute_lighting(vec3 hitpoint, vec3 normal, int specular, vec3 ray_dir)
+s_light_info	compute_lighting(vec3 hitpoint, vec3 normal, int metalness, vec3 ray_dir)
 {
 	s_light_info		res;
 	uint				i;
@@ -604,12 +604,12 @@ s_light_info	compute_lighting(vec3 hitpoint, vec3 normal, int specular, vec3 ray
 				res.intensity += l_info.intensity * n_scal_l / (length(normal) * length(dir_to_light));
 
 			//Блик
-			if (specular > 0)
+			if (metalness > 0)
 			{
 				vec3 r_v = normal * n_scal_l * 2 - dir_to_light;
 				float rv_scal_v = dot(r_v, -ray_dir);
 				if (rv_scal_v > 0)
-					res.intensity += l_info.intensity * pow(rv_scal_v / (length(r_v) * length(-ray_dir)), specular);
+					res.intensity += l_info.intensity * pow(rv_scal_v / (length(r_v) * length(-ray_dir)), metalness);
 			}
 		}
 		i++;

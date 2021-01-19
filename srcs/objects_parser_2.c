@@ -53,46 +53,47 @@ void				parse_texture(cJSON *json_object, t_object *object, t_rt *r)
 {
 	cJSON	*value;
 
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "texture")) == NULL)
 	{
 		object->texture.index = -4;
-		return;
+		return ;
 	}
 	object->texture.index = texture_index(value->valuestring, r);
 	if (object->texture.index == (int32_t)r->n_textures)
 	{
-		r->texture_files[r->n_textures] = 
+		r->texture_files[r->n_textures] =
 						ft_strjoin("images/", value->valuestring);
 		r->n_textures++;
 	}
 }
 
-void				parse_optional_parameters(cJSON *json_object, 
-												t_object *object, t_rt *r)
+void				parse_optional_parameters(cJSON *json_object,
+												t_object *object,
+												t_rt *r)
 {
 	cJSON *value;
 
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "color")) != NULL)
 		object->color = json_parse_vec3(value);
-	if ((value = 
-		cJSON_GetObjectItemCaseSensitive(json_object, "specular")) != NULL)
+	if ((value =
+		cJSON_GetObjectItemCaseSensitive(json_object, "metalness")) != NULL)
 		object->f_metalness = value->valueint;
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "reflection")) != NULL)
 		object->f_reflection = value->valuedouble;
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "refraction")) != NULL)
 		object->f_refraction = value->valuedouble;
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "transparency")) != NULL)
 		object->f_transparency = value->valuedouble;
 	parse_texture(json_object, object, r);
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "tiling")) != NULL)
 		object->f_tiling = json_parse_vec2(value);
-	if ((value = 
+	if ((value =
 		cJSON_GetObjectItemCaseSensitive(json_object, "offset")) != NULL)
 		object->f_offset = json_parse_vec2(value);
 }

@@ -33,7 +33,8 @@
             "radius" : 1.0,
 			"color" : [0.0, 0.0, 1.0],
 			"texture" : "perlin",
-			"tiling" : [10, 10]
+			"tiling" : [10, 10],
+			"metalness" : 10
         },
         {
             "type": "plane",
