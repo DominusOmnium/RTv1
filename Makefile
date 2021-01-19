@@ -22,7 +22,6 @@ SRCS =	app_core.c \
 		scene_reader_json.c \
 		shader_reader.c \
 		textures.c \
-		utils_2.c \
 		utils.c \
 		vku_buffers.c \
 		vku_commandbuffers.c \
@@ -38,8 +37,7 @@ SRCS =	app_core.c \
 		vku_renderpass.c \
 		vku_shadermodule.c \
 		vku_swapchain.c \
-		vku_window.c \
-		unique_parser.c \
+		vku_window.c
 
 OBJS = $(addprefix $(OBJDIR), $(SRCS:.c=.o))
 

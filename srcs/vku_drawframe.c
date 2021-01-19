@@ -12,7 +12,7 @@
 
 #include "rtv1.h"
 
-static void	update_sbo(t_vulkan *v, t_rt *r, uint32_t buf_index)
+static void		update_sbo(t_vulkan *v, t_rt *r, uint32_t buf_index)
 {
 	void		*data;
 	t_rt_input	input;
@@ -36,7 +36,7 @@ static void	update_sbo(t_vulkan *v, t_rt *r, uint32_t buf_index)
 	vkUnmapMemory(v->device, v->sbo_buffers[buf_index].dev_mem);
 }
 
-static void	submit_queue(t_vulkan *v, uint32_t index)
+static void		submit_queue(t_vulkan *v, uint32_t index)
 {
 	VkSubmitInfo	submit_info;
 
@@ -57,7 +57,24 @@ static void	submit_queue(t_vulkan *v, uint32_t index)
 		handle_error("Queue Submit error!");
 }
 
-void		draw_frame(t_vulkan *v, t_rt *r)
+static uint32_t	acquire_next_image(t_vulkan *v, uint32_t index)
+{
+	uint32_t			image_index;
+
+	if (vkWaitForFences(v->device, 1, &(v->sync.frame_fences[index]),
+									VK_TRUE, UINT64_MAX) != VK_SUCCESS)
+		handle_error("Waiting for fence error!");
+	if (vkResetFences(v->device, 1,
+						&(v->sync.frame_fences[index])) != VK_SUCCESS)
+		handle_error("Reset fences error!");
+	if (vkAcquireNextImageKHR(v->device, v->swapchain, UINT64_MAX,
+						v->sync.image_available_sem[index], VK_NULL_HANDLE,
+						&image_index) != VK_SUCCESS)
+		handle_error("Acquire next image error!");
+	return (image_index);
+}
+
+void			draw_frame(t_vulkan *v, t_rt *r)
 {
 	uint32_t			index;
 	uint32_t			image_index;
@@ -65,12 +82,7 @@ void		draw_frame(t_vulkan *v, t_rt *r)
 	static uint32_t		frame_index;
 
 	index = frame_index % v->framebuffer.sc_image_count;
-	vkWaitForFences(v->device, 1, &(v->sync.frame_fences[index]),
-									VK_TRUE, UINT64_MAX);
-	vkResetFences(v->device, 1, &(v->sync.frame_fences[index]));
-	vkAcquireNextImageKHR(v->device, v->swapchain, UINT64_MAX,
-						v->sync.image_available_sem[index], VK_NULL_HANDLE,
-						&image_index);
+	image_index = acquire_next_image(v, index);
 	update_sbo(v, r, image_index);
 	submit_queue(v, index);
 	present_info = (VkPresentInfoKHR){

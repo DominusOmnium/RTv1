@@ -72,17 +72,8 @@ static void			swapchain_creation(t_vulkan *v,
 		handle_error("Swapchain creation error!");
 }
 
-void				vku_swapchain_create(t_vulkan *v, t_rt *r)
+static void			set_win_size(t_vulkan *v, t_rt *r)
 {
-	VkSurfaceFormatKHR			*surf_form;
-	VkPresentModeKHR			present_mode;
-
-	surf_form = v->phys_device.surface_formats;
-	if (surf_form->format == VK_FORMAT_UNDEFINED)
-		surf_form->format = VK_FORMAT_B8G8R8A8_UNORM;
-	present_mode = vku_get_present_mode(v);
-	v->framebuffer.sc_image_count = present_mode == VK_PRESENT_MODE_MAILBOX_KHR
-		? PRESENT_MODE_MAILBOX_IMAGE_COUNT : PRESENT_MODE_DEFAULT_IMAGE_COUNT;
 	r->win_height = v->phys_device.surface_cap.currentExtent.height;
 	r->win_width = v->phys_device.surface_cap.currentExtent.width;
 	if (r->win_width == UINT32_MAX)
@@ -94,9 +85,25 @@ void				vku_swapchain_create(t_vulkan *v, t_rt *r)
 		v->phys_device.surface_cap.minImageExtent.height,
 		v->phys_device.surface_cap.maxImageExtent.height);
 	}
+}
+
+void				vku_swapchain_create(t_vulkan *v, t_rt *r)
+{
+	VkSurfaceFormatKHR			*surf_form;
+	VkPresentModeKHR			present_mode;
+
+	surf_form = v->phys_device.surface_formats;
+	if (surf_form->format == VK_FORMAT_UNDEFINED)
+		surf_form->format = VK_FORMAT_B8G8R8A8_UNORM;
+	present_mode = vku_get_present_mode(v);
+	v->framebuffer.sc_image_count = present_mode == VK_PRESENT_MODE_MAILBOX_KHR
+		? PRESENT_MODE_MAILBOX_IMAGE_COUNT : PRESENT_MODE_DEFAULT_IMAGE_COUNT;
+	set_win_size(v, r);
 	swapchain_creation(v, r, surf_form, present_mode);
-	vkGetSwapchainImagesKHR(v->device, v->swapchain,
-				&v->framebuffer.sc_image_count, NULL);
-	vkGetSwapchainImagesKHR(v->device, v->swapchain,
-				&(v->framebuffer.sc_image_count), v->framebuffer.sc_images);
+	if (vkGetSwapchainImagesKHR(v->device, v->swapchain,
+				&v->framebuffer.sc_image_count, NULL) != VK_SUCCESS)
+		handle_error("Get swapchain images error");
+	if (vkGetSwapchainImagesKHR(v->device, v->swapchain,
+	&(v->framebuffer.sc_image_count), v->framebuffer.sc_images) != VK_SUCCESS)
+		handle_error("Get swapchain images error");
 }

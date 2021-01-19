@@ -17,17 +17,20 @@ static void		set_device_formats(t_vulkan *v, VkPhysicalDevice device,
 {
 	uint32_t					num;
 
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, v->surface,
-											&(num), NULL);
+	if (vkGetPhysicalDeviceSurfaceFormatsKHR(device, v->surface,
+											&(num), NULL) != VK_SUCCESS)
+		handle_error("Get physical device surface format error");
 	if ((v->phys_device.surface_formats =
 					ft_memalloc(sizeof(VkSurfaceFormatKHR) * num)) == NULL)
 		handle_error(ERROR_MEM_ALLOC);
 	v->phys_device.num_formats = num;
 	v->phys_device.family_index = j;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, v->surface, &num,
-								v->phys_device.surface_formats);
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, v->surface,
-								&(v->phys_device.surface_cap));
+	if (vkGetPhysicalDeviceSurfaceFormatsKHR(device, v->surface, &num,
+								v->phys_device.surface_formats) != VK_SUCCESS)
+		handle_error("Get physical device surface format error");
+	if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, v->surface,
+								&(v->phys_device.surface_cap)) != VK_SUCCESS)
+		handle_error("Get physical device surface capabilities error");
 }
 
 static void		get_device_family_properties(t_vulkan *v,
@@ -57,8 +60,9 @@ static void		check_device(t_vulkan *v, VkPhysicalDevice device,
 	j = -1;
 	while (++j < v->phys_device.num_families)
 	{
-		vkGetPhysicalDeviceSurfaceSupportKHR(device, j, v->surface,
-														&(sup_pres[j]));
+		if (vkGetPhysicalDeviceSurfaceSupportKHR(device, j, v->surface,
+												&(sup_pres[j])) != VK_SUCCESS)
+			handle_error("Get physical device surface support error");
 		if (qf_prop[j].queueFlags & VK_QUEUE_GRAPHICS_BIT &&
 			device_prop.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
 			if (sup_pres[j])

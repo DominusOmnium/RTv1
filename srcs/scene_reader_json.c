@@ -39,7 +39,7 @@ static void	parse_figures(cJSON	*json, t_rt *r)
 	t_object	*cur_object;
 
 	object = cJSON_GetObjectItemCaseSensitive(json, "figures");
-	r->n_fig = cJSON_GetArraySize(tmp);
+	r->n_fig = cJSON_GetArraySize(object);
 	r->sbo_figures = ft_memalloc(sizeof(t_object) * r->n_fig);
 	r->texture_files = ft_memalloc(sizeof(char*) * r->n_fig);
 	object = object->child;

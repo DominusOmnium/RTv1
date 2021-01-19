@@ -12,7 +12,7 @@
 
 #include "rtv1.h"
 
-void		vku_create_descriptor_pool(t_vulkan *v)
+void						vku_create_descriptor_pool(t_vulkan *v)
 {
 	VkDescriptorPoolSize		pool_sizes;
 	VkDescriptorPoolCreateInfo	pool_info;
@@ -32,7 +32,7 @@ void		vku_create_descriptor_pool(t_vulkan *v)
 		handle_error("Descriptor pool creation error!");
 }
 
-void		vku_create_descriptor_set_layout(t_vulkan *v)
+void						vku_create_descriptor_set_layout(t_vulkan *v)
 {
 	VkDescriptorSetLayoutBinding	layout_bindings[2];
 	VkDescriptorSetLayoutCreateInfo	layout_info;
@@ -61,7 +61,25 @@ void		vku_create_descriptor_set_layout(t_vulkan *v)
 		handle_error("Descriptor set layout creation error!");
 }
 
-static void	update_descriptor_sets(t_vulkan *v)
+static VkWriteDescriptorSet	create_db_info(VkDescriptorSet ds,
+										uint32_t binding,
+										VkDescriptorBufferInfo *dbi)
+{
+	VkWriteDescriptorSet	res;
+
+	res = (VkWriteDescriptorSet){
+		.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+		.dstSet = ds,
+		.dstBinding = binding,
+		.dstArrayElement = 0,
+		.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+		.descriptorCount = 1,
+		.pBufferInfo = dbi
+	};
+	return (res);
+}
+
+static void					update_descriptor_sets(t_vulkan *v)
 {
 	size_t						i;
 	VkDescriptorBufferInfo		sbo_info;
@@ -81,30 +99,16 @@ static void	update_descriptor_sets(t_vulkan *v)
 			.offset = 0,
 			.range = TEXTURES_BUFFER_SIZE
 		};
-		descriptor_write[0] = (VkWriteDescriptorSet){
-			.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-			.dstSet = (v->descriptor.sets)[i],
-			.dstBinding = 0,
-			.dstArrayElement = 0,
-			.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-			.descriptorCount = 1,
-			.pBufferInfo = &sbo_info
-		};
-		descriptor_write[1] = (VkWriteDescriptorSet){
-			.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-			.dstSet = (v->descriptor.sets)[i],
-			.dstBinding = 1,
-			.dstArrayElement = 0,
-			.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-			.descriptorCount = 1,
-			.pBufferInfo = &sbo_textures_info
-		};
+		descriptor_write[0] = create_db_info((v->descriptor.sets)[i],
+													0, &sbo_info);
+		descriptor_write[1] = create_db_info((v->descriptor.sets)[i],
+													1, &sbo_textures_info);
 		vkUpdateDescriptorSets(v->device, 2, descriptor_write, 0, NULL);
 		i++;
 	}
 }
 
-void		vku_create_descriptor_sets(t_vulkan *v)
+void						vku_create_descriptor_sets(t_vulkan *v)
 {
 	VkDescriptorSetAllocateInfo	alloc_info;
 	VkDescriptorSetLayout		layouts[MAX_SWAPCHAIN_IMAGES];

@@ -107,12 +107,12 @@ void									vku_create_pipeline(t_vulkan *v)
 	VkPipelineDynamicStateCreateInfo		dynamic_state;
 	VkPipelineColorBlendAttachmentState		color_blend_attachment;
 
-	input_assembly_state = (VkPipelineInputAssemblyStateCreateInfo){
+	input_assembly_state = (VkPipelineInputAssemblyStateCreateInfo) {
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
 		.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
 		.primitiveRestartEnable = VK_FALSE,
 	};
-	color_blend_attachment = (VkPipelineColorBlendAttachmentState){
+	color_blend_attachment = (VkPipelineColorBlendAttachmentState) {
 		.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
 							VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
 	};

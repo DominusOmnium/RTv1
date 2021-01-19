@@ -26,42 +26,40 @@ uint32_t	clamp_u32(uint32_t d, uint32_t min, uint32_t max)
 	return (t > max ? max : t);
 }
 
-float		string_to_float(char **str)
+t_vec4		json_parse_vec3(cJSON *value)
 {
-	int32_t	n;
-	float	res;
-	float	t;
+	cJSON	*vec_x;
+	cJSON	*vec_y;
+	cJSON	*vec_z;
+	t_vec4	vec;
 
-	t = 0.1;
-	res = 0;
-	n = ft_atoi(*str);
-	while ((**str <= '9' && **str >= '0') || **str == '-')
-		(*str)++;
-	while (**str == ' ' || **str == '.' || **str == '\t')
-		(*str)++;
-	while (**str <= '9' && **str >= '0')
+	vec_x = cJSON_GetArrayItem(value, 0);
+	vec_y = cJSON_GetArrayItem(value, 1);
+	vec_z = cJSON_GetArrayItem(value, 2);
+	if (vec_x != NULL && vec_y != NULL && vec_z != NULL)
 	{
-		res += t * (**str - '0');
-		t /= 10;
-		(*str)++;
+		vec = (t_vec4){.x = vec_x->valuedouble,
+					.y = vec_y->valuedouble, .z = vec_z->valuedouble, 0};
 	}
-	res += (float)n;
-	return (res);
+	else
+		handle_error("Wrong vector in .json!");
+	return (vec);
 }
 
-t_vec4		string_to_vector(char *str)
+t_vec2		json_parse_vec2(cJSON *value)
 {
-	t_vec4 res;
+	cJSON	*vec_x;
+	cJSON	*vec_y;
+	t_vec2	vec;
 
-	while ((!((*str >= '0' && *str <= '9') && (*(str + 1) != ']')))
-										&& (*str != '-'))
-		str++;
-	res.x = string_to_float(&str);
-	while (*str == ' ' || *str == ',' || *str == '\t')
-		str++;
-	res.y = string_to_float(&str);
-	while (*str == ' ' || *str == ',' || *str == '\t')
-		str++;
-	res.z = string_to_float(&str);
-	return (res);
+	vec_x = cJSON_GetArrayItem(value, 0);
+	vec_y = cJSON_GetArrayItem(value, 1);
+	if (vec_x != NULL && vec_y != NULL)
+	{
+		vec = (t_vec2){.x = vec_x->valuedouble,
+					.y = vec_y->valuedouble};
+	}
+	else
+		handle_error("Wrong vector in .json!");
+	return (vec);
 }

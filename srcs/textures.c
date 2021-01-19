@@ -12,7 +12,7 @@
 
 #include "rtv1.h"
 
-SDL_Surface	*load_texture(char *fname)
+static SDL_Surface	*load_texture(char *fname)
 {
 	SDL_Surface			*an_surf;
 	SDL_Surface			*surf;
@@ -33,7 +33,7 @@ SDL_Surface	*load_texture(char *fname)
 	return (surf);
 }
 
-void		send_texture_to_buffer(t_vulkan *v, SDL_Surface *surf, uint32_t offset)
+static void			send_texture_to_buffer(t_vulkan *v, SDL_Surface *surf, uint32_t offset)
 {
 	uint32_t	i;
 	void		*data;
@@ -50,21 +50,27 @@ void		send_texture_to_buffer(t_vulkan *v, SDL_Surface *surf, uint32_t offset)
 	}
 }
 
-void		vku_load_textures(t_rt *r, t_vulkan *v)
+static uint32_t		load_ui_texture(t_rt *r, t_vulkan *v)
+{
+	SDL_Surface	*surf;
+
+	surf = load_texture("images/UI.png");
+	send_texture_to_buffer(v, surf, 0);
+	r->ui_texture.offset_in_buffer = 0;
+	r->ui_texture.height = surf->h;
+	r->ui_texture.width = surf->w;
+	SDL_FreeSurface(surf);
+	return (surf->h * surf->w);
+}
+
+void				vku_load_textures(t_rt *r, t_vulkan *v)
 {
 	SDL_Surface	*surf;
 	uint32_t	i;
 	uint32_t	j;
 	uint32_t	current_offset;
 
-	current_offset = 0;
-	surf = load_texture("images/UI.png");
-	send_texture_to_buffer(v, surf, 0);
-	r->ui_texture.offset_in_buffer = 0;
-	r->ui_texture.height = surf->h;
-	r->ui_texture.width = surf->w;
-	current_offset += surf->h * surf->w;
-	SDL_FreeSurface(surf);
+	current_offset = load_ui_texture(r, v);
 	i = -1;
 	while (++i < r->n_textures)
 	{
