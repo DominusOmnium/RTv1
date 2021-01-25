@@ -110,4 +110,10 @@ void		parse_camera_values(cJSON *camera, t_rt *r)
 		r->camera.up = json_parse_vec3(value);
 	else
 		handle_error("Error! Camera has no up!");
+	if ((value =
+		cJSON_GetObjectItemCaseSensitive(camera,
+										"background_color")) != NULL)
+		r->camera.background_color = json_parse_vec3(value);
+	else
+		r->camera.background_color = (t_vec4) { 1.0, 1.0, 1.0, 1.0};
 }

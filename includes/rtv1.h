@@ -63,6 +63,7 @@ typedef struct	s_camera
 	t_vec4		forward;
 	t_vec4		up;
 	t_vec4		right;
+	t_vec4		background_color;
 	float		d;
 	float		vh;
 	float		vw;
@@ -89,7 +90,6 @@ typedef struct	s_object
 	t_texture	texture;
 	t_vec2		f_tiling;
 	t_vec2		f_offset;
-	t_texture	normal_map;
 	uint32_t	type;
 	float		l_intensity;
 	float		f_radius;
@@ -98,8 +98,6 @@ typedef struct	s_object
 	float		f_transparency;
 	float		f_reflection;
 	float		f_refraction;
-	float		f_emission;
-	float		fill_to_aligment[3];
 }				t_object;
 
 typedef struct	s_rt

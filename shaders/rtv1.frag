@@ -27,6 +27,7 @@ struct							s_camera
 	vec4						forward;
 	vec4						up;
 	vec4						right;
+	vec4						background_color;
 	float						d;
 	float						vh;
 	float						vw;
@@ -41,6 +42,12 @@ struct							s_texture
 	int							index;
 };
 
+struct							s_light_info
+{
+	vec4						color;
+	float						intensity;
+};
+
 struct							s_input
 {
 	vec3						position;
@@ -51,7 +58,6 @@ struct							s_input
 	s_texture					texture;
 	vec2						f_tiling;
 	vec2						f_offset;
-	s_texture					normal_map;
 	uint						type;
 	float						l_intensity;
 	float 						f_radius;
@@ -60,8 +66,6 @@ struct							s_input
 	float						f_transparency;
 	float						f_reflection;
 	float						f_refraction;
-	float						f_emission;
-	float						fill_to_aligment[3];
 };
 
 struct							s_intersection_info
@@ -99,39 +103,6 @@ layout(std430, binding = 1) readonly buffer Textures
 	uint		textures[];
 };
 
-/*
-	RANDOM
-*/
-uint hash(uint x)
-{
-	x += (x << 10u);
-	x ^= (x >>  6u);
-	x += (x <<  3u);
-	x ^= (x >> 11u);
-	x += (x << 15u);
-	return x;
-}
-
-uint hash( uvec2 v ) { return hash(v.x ^ hash(v.y)); }
-uint hash( uvec3 v ) { return hash(v.x ^ hash(v.y) ^ hash(v.z)); }
-uint hash( uvec4 v ) { return hash(v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w)); }
-
-float float_construct(uint m)
-{
-    const uint ieeeMantissa = 0x007FFFFFu;
-    const uint ieeeOne      = 0x3F800000u;
-
-    m &= ieeeMantissa;
-    m |= ieeeOne;
-    return uintBitsToFloat(m) - 1.0;
-}
-
-float random( float x ) { return float_construct(hash(floatBitsToUint(x))); }
-float random( vec2  v ) { return float_construct(hash(floatBitsToUint(v))); }
-float random( vec3  v ) { return float_construct(hash(floatBitsToUint(v))); }
-float random( vec4  v ) { return float_construct(hash(floatBitsToUint(v))); }
-
-
 vec3	canvas_to_viewport(int i, int j)
 {
 	return normalize(camera.forward.xyz + camera.up.xyz * (i * camera.vh / win_height)
@@ -157,10 +128,10 @@ vec4	get_color_from_uint(uint col)
 	return vec4(float(col & uint(0x000000ff)) / 256, float(col >> 8 & uint(0x000000ff)) / 256, float(col >> 16 & 0x000000ff) / 256, 1);
 }
 
-vec4 permute(vec4 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
-vec2 fade(vec2 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
+vec4	permute(vec4 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
+vec2	fade(vec2 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
 
-float perlin_noise(vec2 P)
+float	perlin_noise(vec2 P)
 {
 	vec4 Pi = floor(P.xyxy) + vec4(0.0, 0.0, 1.0, 1.0);
 	vec4 Pf = fract(P.xyxy) - vec4(0.0, 0.0, 1.0, 1.0);
@@ -493,11 +464,6 @@ vec3	get_normal(s_input obj, vec3 point)
 /*
 	Compute lightning
 */
-struct		s_light_info
-{
-	vec4	color;
-	float	intensity;
-};
 
 s_light_info	light_strength_and_color(vec3 ray_start, vec3 ray_dir, float light_strength)
 {
@@ -566,8 +532,8 @@ s_light_info	compute_lighting(vec3 hitpoint, vec3 normal, int metalness, vec3 ra
 
 	res.intensity = 0.0;
 	res.color = vec4(1.0, 1.0, 1.0, 1.0);
-	i = 0;
-	while (i < n_fig + n_lig + 2)
+	i = n_fig;
+	while (i < n_fig + n_lig)
 	{
 		if (sbo_input[i].type < 5)
 		{
@@ -642,20 +608,6 @@ vec3 refract_ray(vec3 I, vec3 N, float etai, float etat)
     return k < 0 ? reflect_ray(I, dot(I, N) > 0.0f ? -N : N) : normalize(eta * I + (eta * cosi - sqrt(k)) * n);
 }
 
-int		find_free_element_index()
-{
-	int	i;
-
-	i = 0;
-	while (i < tree_length)
-	{
-		if (rt_node_buffer[i].depth == -1)
-			return i;
-		i++;
-	}
-	return -1;
-}
-
 vec4	trace_ray(vec3 ray_start, vec3 ray_dir)
 {
 	int					i;
@@ -674,7 +626,7 @@ vec4	trace_ray(vec3 ray_start, vec3 ray_dir)
 	*/
 	int_info = closest_intersection(ray_start, ray_dir);
 	if (int_info.object.type == obj_null)
-		return vec4(1.0, 1, 1, 1.0);
+		return camera.background_color;
 	rt_node_buffer[0].depth = 0;
 	rt_node_buffer[0].int_info = int_info;
 	rt_node_buffer[0].fraq = 1.0;
@@ -707,6 +659,8 @@ vec4	trace_ray(vec3 ray_start, vec3 ray_dir)
 			if (rt_node_buffer[j].depth != i || rt_node_buffer[j].int_info.object.type == obj_null)
 				continue;
 			norm = get_normal(rt_node_buffer[j].int_info.object, rt_node_buffer[j].int_info.hitpoint);
+			if (dot(ray_dir, norm) > 0)
+				norm = -norm;
 			ray_start = rt_node_buffer[j].int_info.hitpoint;
 			float cur_fraq = rt_node_buffer[j].fraq * (1 - rt_node_buffer[j].int_info.object.f_transparency)
 												* rt_node_buffer[j].int_info.object.f_reflection;
@@ -720,7 +674,7 @@ vec4	trace_ray(vec3 ray_start, vec3 ray_dir)
 				if (int_info.object.type == obj_null)
 				{
 					rt_node_buffer[index].depth = -1;
-					final_color += vec4(1,1,1,1) * cur_fraq;
+					final_color += camera.background_color * cur_fraq;
 				}
 				else
 				{
@@ -731,7 +685,7 @@ vec4	trace_ray(vec3 ray_start, vec3 ray_dir)
 					vec2 uv = get_uv(int_info.object, int_info.hitpoint);
 					col = get_color(int_info.object, uv);
 					s_light_info l_info = compute_lighting(int_info.hitpoint, norm, int(int_info.object.f_metalness), ray_dir);
-					final_color += col * cur_fraq * /*(1 - int_info.object.f_transparency) * (1 - int_info.object.f_reflection) **/ l_info.color * l_info.intensity;
+					final_color += col * cur_fraq * l_info.color * l_info.intensity;
 				}
 			}
 			cur_fraq = rt_node_buffer[j].fraq * rt_node_buffer[j].int_info.object.f_transparency;
@@ -742,7 +696,7 @@ vec4	trace_ray(vec3 ray_start, vec3 ray_dir)
 				if (int_info.object.type == obj_null)
 				{
 					rt_node_buffer[index + 1].depth = -1;
-					final_color += vec4(1,1,1,1) * cur_fraq;
+					final_color += camera.background_color * cur_fraq;
 				}
 				else
 				{
@@ -757,7 +711,7 @@ vec4	trace_ray(vec3 ray_start, vec3 ray_dir)
 					vec2 uv = get_uv(int_info.object, int_info.hitpoint);
 					col = get_color(int_info.object, uv);
 					s_light_info l_info = compute_lighting(int_info.hitpoint, norm, int(int_info.object.f_metalness), ray_dir);
-					final_color += col * cur_fraq/* * (1 - int_info.object.f_transparency) * (1 - int_info.object.f_reflection) */* l_info.color * l_info.intensity;
+					final_color += col * cur_fraq * l_info.color * l_info.intensity;
 				}
 			}
 		}
